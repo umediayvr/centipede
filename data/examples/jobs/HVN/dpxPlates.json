@@ -1,0 +1,48 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/tmp/test"
+  },
+  "taskHolders": [
+    {
+      "task": "convertImage",
+      "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {seq} {shot} {plateName}).(pad {frame} 4).exr",
+      "matchTypes": [
+        "dpxClientPlate"
+      ],
+      "matchVars": {
+        "imageType": [
+          "sequence"
+        ]
+      },
+      "taskHolders": [
+        {
+          "task": "movGen",
+          "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/review/{name}.mov",
+          "matchTypes": [
+            "exrPlate"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          }
+        },
+        {
+          "task": "sequenceThumbnail",
+          "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/review/.{name}_thumbnail.jpg",
+          "matchTypes": [
+            "exrPlate"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

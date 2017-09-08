@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# running all tests
+coverage run -m unittest discover -v
+coverage report -m
+coverage html
