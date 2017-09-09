@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# running all tests
+upython -m unittest discover -v
