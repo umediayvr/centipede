@@ -23,6 +23,9 @@ class DpxClientPlate(ingestor.Crawler.Fs.Image.Dpx):
                 nameParts[2]
             ),
         )
+
+        # the plate name is hard-coded as plate which is used for the
+        # detection by the test
         self.setVar('plateName', 'plate')
 
         # plate has the image sequence format:

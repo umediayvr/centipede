@@ -8,25 +8,34 @@ from PySide2 import QtCore, QtGui, QtWidgets
 
 class Application(QtWidgets.QApplication):
 
-    def __init__(self, *args, **kwargs):
-        super(Application, self).__init__(*args, **kwargs)
+    def __init__(self, argv, **kwargs):
+        super(Application, self).__init__(argv, **kwargs)
 
         self.__buildWidgets()
 
         # showing a dialog to pick where the task holder
         # configuration is localized
-        configurationDirectory = "/"
-        taskHolders = []
-        while configurationDirectory == "/" and not taskHolders:
-            configurationDirectory = QtWidgets.QFileDialog.getExistingDirectory(
-                self.__main,
-                "Select a directory with the configuration that should be used by the ingestor",
-                configurationDirectory,
-                QtWidgets.QFileDialog.ShowDirsOnly
-            )
+        configurationDirectory = ""
 
-            if configurationDirectory == '':
-                configurationDirectory = "/"
+        # getting configuration directory from the args
+        if len(argv) > 1:
+            configurationDirectory = argv[1]
+
+        taskHolders = []
+        while not taskHolders:
+
+            if configurationDirectory == "":
+                configurationDirectory = QtWidgets.QFileDialog.getExistingDirectory(
+                    self.__main,
+                    "Select a directory with the configuration that should be used by the ingestor",
+                    configurationDirectory,
+                    QtWidgets.QFileDialog.ShowDirsOnly
+                )
+
+                # cancelled
+                if configurationDirectory == "":
+                    raise Exception("Ingestor Cancelled")
+                    break
 
             # collecting path holders from the directory
             taskHolderLoader = ingestor.TaskHolderLoader.JsonLoader()
@@ -41,16 +50,22 @@ class Application(QtWidgets.QApplication):
                     QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
                 )
 
+                # cancelled
                 if result != QtWidgets.QMessageBox.Ok:
                     raise Exception("Ingestor Cancelled")
                     break
+                else:
+                    configurationDirectory = ""
 
             else:
                 taskHolders = taskHolderLoader.taskHolders()
 
         self.__main.setWindowTitle('Ingestor ({0})'.format(configurationDirectory))
-
         self.__taskHolders = taskHolders
+
+        # getting source files directory from the args
+        if len(argv) > 2:
+            self.__sourcePath.setText(argv[2])
 
     def __buildWidgets(self):
         self.__main = QtWidgets.QMainWindow()

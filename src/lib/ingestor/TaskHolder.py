@@ -27,7 +27,7 @@ class TaskHolder(object):
 
     def addCustomVar(self, name, value):
         """
-        Add a var that is passed that later is passed to the query.
+        Add a variable that is going to be passed later to the query.
         """
         self.__vars[name] = value
 
