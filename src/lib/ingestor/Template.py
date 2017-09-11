@@ -91,7 +91,7 @@ class Template(object):
                     resolvedPath = os.sep.join(finalPath)
                     if not os.path.exists(resolvedPath):
                         raise RequiredPathNotFoundError(
-                            'Directory marked as required ({0}) does not exist: "{1}"'.format(
+                            'Path marked as required ({0}) does not exist: "{1}"'.format(
                                 pathLevel,
                                 resolvedPath
                             )
