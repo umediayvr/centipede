@@ -35,16 +35,8 @@ class PathCrawlerQuery(object):
         """
         validPathCrawlers = {}
         for pathCrawler in pathCrawlers:
-
             if self.pathCrawlerMatcher().match(pathCrawler):
-                contextVariableValues = {}
-                for varName in self.template().varNames():
-                    if varName in vars:
-                        contextVariableValues[varName] = str(vars[varName])
-                    else:
-                        contextVariableValues[varName] = str(pathCrawler.var(varName))
-
-                templateValue = self.template().value(contextVariableValues)
+                templateValue = self.template().valueFromCrawler(pathCrawler, vars)
                 validPathCrawlers[pathCrawler] = templateValue
 
         # sorting result

@@ -37,7 +37,7 @@ class TaskHolder(object):
         """
         return self.__vars.keys()
 
-    def varValue(name):
+    def customVar(self, name):
         """
         Return the value for the variable name.
         """

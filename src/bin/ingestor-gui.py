@@ -228,10 +228,25 @@ class Application(QtWidgets.QApplication):
             if taskHolder.subTaskHolders():
                 newCrawlers = []
                 for templateGeneratedFile in set(matchedCrawlers.values()):
+                    childCrawler = ingestor.Crawler.Fs.Path.create(
+                        ingestor.PathHolder(templateGeneratedFile)
+                    )
+
+                    # setting the task holder custom variables to this crawler
+                    # in case they were not set yet. This basically transfer
+                    # the global variables declared in the json configuration
+                    # to the crawler, so subtasks can use them to resolve
+                    # templates (when necessary).
+                    for customVarName in taskHolder.customVarNames():
+                        if customVarName not in childCrawler.varNames():
+                            childCrawler.setVar(
+                                customVarName,
+                                taskHolder.customVar(customVarName)
+                            )
+
+                    # appending the new crawler
                     newCrawlers.append(
-                        ingestor.Crawler.Fs.Path.create(
-                            ingestor.PathHolder(templateGeneratedFile)
-                        )
+                        childCrawler
                     )
 
                 for subTaskHolder in taskHolder.subTaskHolders():

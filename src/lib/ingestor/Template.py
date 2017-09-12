@@ -36,6 +36,19 @@ class Template(object):
         """
         return self.__varNames
 
+    def valueFromCrawler(self, crawler, vars={}):
+        """
+        Return the value of the template based on a crawler.
+        """
+        contextVariableValues = {}
+        for varName in self.varNames():
+            if varName in vars:
+                contextVariableValues[varName] = str(vars[varName])
+            else:
+                contextVariableValues[varName] = str(crawler.var(varName))
+
+        return self.value(contextVariableValues)
+
     def value(self, vars={}):
         """
         Return the value of the template based on the input variables.
