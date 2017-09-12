@@ -128,7 +128,9 @@ class JsonLoader(TaskHolderLoader):
            # vars checking
             if not isinstance(contents['vars'], dict):
                 raise UnexpectedtContentError('Expecting a list of vars!')
-            vars = contents['vars']
+            vars = dict(contents['vars'])
+
+        vars['configPath'] = configPath
 
         self.__loadTaskHolder(contents, vars)
 
