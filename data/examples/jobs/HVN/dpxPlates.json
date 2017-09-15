@@ -20,6 +20,23 @@
       },
       "taskHolders": [
         {
+          "task": "nukeScript",
+          "taskOptions": {
+            "script": "{configPath}/tasks/aux/nukeApplyLut.py",
+            "lut": "{prefix}/{job}/config/LUTs/HEAVEN.cube",
+            "colorSpace": "linear"
+          },
+          "targetTemplate": "(dirname {filePath})/{name}.%0{padding}d.{ext}",
+          "matchTypes": [
+            "exrPlate"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          }
+        },
+        {
           "task": "movGen",
           "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
           "matchTypes": [
