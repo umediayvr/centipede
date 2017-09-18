@@ -20,13 +20,13 @@
       },
       "taskHolders": [
         {
-          "task": "nukeScript",
+          "task": "applyLut",
           "taskOptions": {
-            "script": "{configPath}/tasks/aux/nukeApplyLut.py",
             "lut": "{prefix}/{job}/config/LUTs/HEAVEN.cube",
-            "colorSpace": "linear"
+            "sourceColorSpace": "lnf",
+            "targetColorSpace": "lnf"
           },
-          "targetTemplate": "(dirname {filePath})/{name}.%0{padding}d.{ext}",
+          "targetTemplate": "{filePath}",
           "matchTypes": [
             "exrPlate"
           ],
