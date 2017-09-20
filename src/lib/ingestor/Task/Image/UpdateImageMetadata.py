@@ -38,11 +38,11 @@ class UpdateImageMetadata(Task):
             outImage.close()
 
     @classmethod
-    def updateUmediaMetadata(cls, spec, crawler):
+    def updateUmediaMetadata(cls, spec, crawler, customMetadata={}):
         """
         Update the spec with the image metadata information.
         """
-        headerInfo = {
+        defaultMetadata = {
             'sourceFile': crawler.var('filePath'),
             'fileUpdatedTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'uverVersion': os.environ.get('UVER_VERSION', ''),
@@ -50,12 +50,19 @@ class UpdateImageMetadata(Task):
             'ingestorVersion': os.environ.get('UVER_INGESTOR_VERSION', ''),
         }
 
-        for headerName, headerValue in  headerInfo.items():
+        # default metadata
+        for name, value in defaultMetadata.items():
             spec.attribute(
-                'umedia:{0}'.format(headerName),
-                headerValue
+                'umedia:{0}'.format(name),
+                value
             )
 
+        # custom metadata
+        for name, value in customMetadata.items():
+            spec.attribute(
+                'umedia:{0}'.format(name),
+                value
+            )
 
 # registering task
 Task.register(

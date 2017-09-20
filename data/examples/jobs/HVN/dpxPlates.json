@@ -8,7 +8,11 @@
   },
   "taskHolders": [
     {
-      "task": "convertImage",
+      "task": "colorTransformation",
+      "taskOptions": {
+        "sourceColorSpace": "AlexaV3LogC",
+        "targetColorSpace": "linear"
+      },
       "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {job} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {job} {seq} {shot} {plateName}).(pad {frame} 4).exr",
       "matchTypes": [
         "dpxClientPlate"
@@ -20,13 +24,11 @@
       },
       "taskHolders": [
         {
-          "task": "applyLut",
+          "task": "fileColorTransformation",
           "taskOptions": {
-            "lut": "{prefix}/{job}/config/LUTs/HEAVEN.cube",
-            "sourceColorSpace": "lnf",
-            "targetColorSpace": "lnf"
+            "lut": "{prefix}/{job}/config/LUTs/HEAVEN.cube"
           },
-          "targetTemplate": "{filePath}",
+          "targetTemplate": "(tmpdir)/{name}/{baseName}",
           "matchTypes": [
             "exrPlate"
           ],
@@ -34,19 +36,33 @@
             "imageType": [
               "sequence"
             ]
-          }
-        },
-        {
-          "task": "movGen",
-          "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
-          "matchTypes": [
-            "exrPlate"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
-            ]
-          }
+          },
+          "taskHolders": [
+            {
+              "task": "movGen",
+              "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
+              "matchTypes": [
+                "exrPlate"
+              ],
+              "matchVars": {
+                "imageType": [
+                  "sequence"
+                ]
+              }
+            },
+            {
+              "task": "remove",
+              "targetTemplate": "{filePath}",
+              "matchTypes": [
+                "exrPlate"
+              ],
+              "matchVars": {
+                "imageType": [
+                  "sequence"
+                ]
+              }
+            }
+          ]
         },
         {
           "task": "sequenceThumbnail",
