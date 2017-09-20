@@ -25,6 +25,7 @@ class Path(Crawler):
         self.__setPathHolder(pathHolder)
         self.setVar('filePath', pathHolder.path())
         self.setVar('ext', pathHolder.ext())
+        self.setVar('baseName', pathHolder.baseName())
         self.setVar('name', os.path.splitext(pathHolder.baseName())[0])
 
     def pathHolder(self):
