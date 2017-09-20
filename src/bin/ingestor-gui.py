@@ -212,6 +212,16 @@ class Application(QtWidgets.QApplication):
             clonedTask = taskHolder.task().clone()
 
             for matchedCrawler, targetFilePath in matchedCrawlers.items():
+
+                # todo:
+                # need to have a way to clone a crawler, so we can
+                # modify it safely
+                for customVarName in taskHolder.customVarNames():
+                    matchedCrawler.setVar(
+                        customVarName,
+                        taskHolder.customVar(customVarName)
+                    )
+
                 clonedTask.add(matchedCrawler, targetFilePath)
 
             # performing task
@@ -232,17 +242,15 @@ class Application(QtWidgets.QApplication):
                         ingestor.PathHolder(templateGeneratedFile)
                     )
 
-                    # setting the task holder custom variables to this crawler
-                    # in case they were not set yet. This basically transfer
-                    # the global variables declared in the json configuration
-                    # to the crawler, so subtasks can use them to resolve
-                    # templates (when necessary).
+                    # setting the task holder custom variables to this crawler.
+                    # This basically transfer the global variables declared in
+                    # the json configuration to the crawler, so subtasks can use
+                    # them to resolve templates (when necessary).
                     for customVarName in taskHolder.customVarNames():
-                        if customVarName not in childCrawler.varNames():
-                            childCrawler.setVar(
-                                customVarName,
-                                taskHolder.customVar(customVarName)
-                            )
+                        childCrawler.setVar(
+                            customVarName,
+                            taskHolder.customVar(customVarName)
+                        )
 
                     # appending the new crawler
                     newCrawlers.append(
