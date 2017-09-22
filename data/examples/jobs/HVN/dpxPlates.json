@@ -41,6 +41,9 @@
             {
               "task": "movGen",
               "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
+              "taskOptions": {
+                "frameRate": 23.976
+              },
               "matchTypes": [
                 "exrPlate"
               ],

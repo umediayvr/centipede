@@ -101,8 +101,6 @@ class PublishToShotgun(ingestor.Task):
             # removing the temporary file
             os.unlink(shotgunTempFile.name)
 
-            print(output)
-
             # in case of any erros
             if error:
                 print(error)
