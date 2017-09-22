@@ -39,7 +39,7 @@ class MovGen(FFmpeg):
 
             # executing ffmpeg
             self.executeFFmpeg(
-                map(lambda x: x.var('filePath'), sequenceCrawlers),
+                sequenceCrawlers,
                 movFile
             )
 

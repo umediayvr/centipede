@@ -1,5 +1,4 @@
 import os
-import tempfile
 import subprocess
 from ..Task import Task
 
@@ -9,6 +8,9 @@ class FFmpeg(Task):
     """
     __defaultFrameRate = 24.0
     __defaultScale = 1.0
+    __defaultVideoCodec = "libx264"
+    __defaultBitRate = 115
+    __defaultFilterGraph = "colormatrix=bt601:bt709"
 
     def __init__(self, *args, **kwargs):
         """
@@ -18,22 +20,26 @@ class FFmpeg(Task):
 
         self.setOption('frameRate', self.__defaultFrameRate)
         self.setOption('scale', self.__defaultScale)
+        self.setOption('videoCodec', self.__defaultVideoCodec)
+        self.setOption('bitRate', self.__defaultBitRate)
+        self.setOption('filterGraph', self.__defaultFilterGraph)
 
-    def executeFFmpeg(self, imageFilePaths, outputFilePath):
+    def executeFFmpeg(self, sequenceCrawlers, outputFilePath):
         """
         Executes ffmpeg.
         """
-        # generating a temporary file that is going to contain the frames
-        # that should be processed by ffmpeg
-        tempSequenceFile = tempfile.NamedTemporaryFile(
-            delete=False,
-            suffix=".txt",
-            mode='w'
-        )
+        crawler = sequenceCrawlers[0]
+        startFrame = crawler.var('frame')
+        padding = crawler.var('padding')
 
-        # writting a temporary file that contains the image file paths
-        fileEntries = '\n'.join(map(lambda x: "file '{0}'".format(x), imageFilePaths))
-        tempSequenceFile.write(fileEntries)
+        inputSequence = os.path.join(
+            os.path.dirname(crawler.var('filePath')),
+            '{name}.%0{padding}d.{ext}'.format(
+                name=crawler.var('name'),
+                padding=crawler.var('padding'),
+                ext=crawler.var('ext')
+            )
+        )
 
         # trying to create the directory automatically in case it does not exist
         try:
@@ -41,23 +47,27 @@ class FFmpeg(Task):
         except OSError:
             pass
 
-        frameRate = '-r {0}'.format(self.option('frameRate'))
-        scale = ""
-
         # adding options
+        scale = ""
         if self.option('scale') != -1.0:
             scale = '-vf scale=iw*{0}:ih*{0}'.format(
                 self.option('scale')
             )
 
+        ffmpegCommand = 'ffmpeg -loglevel error -framerate {frameRate} -start_number {startFrame} -i "{inputSequence}" -framerate {frameRate} -vcodec {videoCodec} -b {bitRate}M -minrate {bitRate}M -maxrate {bitRate}M -vf {filterGraph} {scale} -y "{output}"'.format(
+            frameRate=self.option('frameRate'),
+            startFrame=startFrame,
+            videoCodec=self.option('videoCodec'),
+            bitRate=self.option('bitRate'),
+            filterGraph=self.option('filterGraph'),
+            inputSequence=inputSequence,
+            scale=scale,
+            output=outputFilePath
+        )
+
         # calling ffmpeg
         process = subprocess.Popen(
-            'ffmpeg {frameRate} -y -loglevel quiet -f concat -safe 0 -i "{input}" {scale} "{output}"'.format(
-                frameRate=frameRate,
-                input=tempSequenceFile.name,
-                scale=scale,
-                output=outputFilePath
-            ),
+            ffmpegCommand,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             env=os.environ,
@@ -66,9 +76,6 @@ class FFmpeg(Task):
 
         # capturing the output
         output, error = process.communicate()
-
-        # removing the temporary file
-        os.unlink(tempSequenceFile.name)
 
         # in case of any erros
         if error:
