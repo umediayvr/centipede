@@ -10,13 +10,21 @@ class FileColorTransformation(Task):
     """
     Applies a color transformation to an image using open color io and open image io.
 
-    Required Options: "lut"
+    Required Options: "sourceColorSpace", "targetColorSpace" and "lut"
     """
 
     def _perform(self):
         """
         Perform the task.
         """
+        sourceColorSpace = self.option('sourceColorSpace')
+        targetColorSpace = self.option('targetColorSpace')
+        metadata = {
+            'sourceColorSpace': sourceColorSpace,
+            'targetColorSpace': targetColorSpace
+        }
+        config = ocio.GetCurrentConfig()
+
         for pathCrawler in self.pathCrawlers():
             yield pathCrawler
 
@@ -25,30 +33,35 @@ class FileColorTransformation(Task):
                 pathCrawler
             )
 
-            # open color configuration
-            config = ocio.GetCurrentConfig().createEditableCopy()
+            # adding color space transform
+            groupTransform = ocio.GroupTransform()
+            groupTransform.push_back(
+                ocio.ColorSpaceTransform(
+                    src=sourceColorSpace,
+                    dst=targetColorSpace
+                )
+            )
+
+            # adding lut transform
+            groupTransform.push_back(
+                 ocio.FileTransform(
+                    lut,
+                    interpolation=ocio.Constants.INTERP_LINEAR
+                )
+            )
 
             # source image
             sourceImage = oiio.ImageInput.open(pathCrawler.var('filePath'))
             spec = sourceImage.spec()
             spec.set_format(oiio.FLOAT)
 
-            metadata = {}
-
-            # adding lut transform
-            fileTransform = ocio.FileTransform(
-                lut,
-                interpolation=ocio.Constants.INTERP_LINEAR
-            )
-
-            # metadata
             metadata['lutFile'] = lut
 
             pixels = sourceImage.read_image()
             sourceImage.close()
 
             transformedPixels = config.getProcessor(
-                fileTransform
+                groupTransform
             ).applyRGB(pixels)
 
             targetFilePath = self.filePath(pathCrawler)
