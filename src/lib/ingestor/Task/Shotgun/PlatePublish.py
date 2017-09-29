@@ -5,18 +5,34 @@ import shutil
 import tempfile
 import subprocess
 from collections import OrderedDict
-from ingestor import Template
-from ingestor.Task import Task
+from ..Task import Task
+from ...Template import Template
 
-class PublishToShotgun(ingestor.Task):
+class PlatePublish(Task):
     """
-    Publish sequence files to shotgun.
+    Publish a plate to shotgun.
+
+    Required Options: movieFile and thumbnailFile.
+    Optional Options: publishedFileType, comment and taskName.
     """
+    __defaultPublishedFileType = "Scan"
+    __defaultComment = "plate publish"
+
+    def __init__(self, *args, **kwargs):
+        """
+        Create a PlatePublish object.
+        """
+        super(PlatePublish, self).__init__(*args, **kwargs)
+
+        self.setOption('publishedFileType', self.__defaultPublishedFileType)
+        self.setOption('comment', self.__defaultComment)
 
     def _perform(self):
         """
         Perform the task.
         """
+        currentFolder = os.path.dirname(os.path.realpath(__file__))
+
         sourceSequenceCrawlers = OrderedDict()
         for pathCrawler in self.pathCrawlers():
             targetFilePath = self.filePath(pathCrawler)
@@ -31,7 +47,6 @@ class PublishToShotgun(ingestor.Task):
             thumbnailFilePath = Template(self.option('thumbnailFile')).valueFromCrawler(sourceCrawler)
             publishedFileType = self.option('publishedFileType')
             comment = self.option('comment')
-            configPath = Template("{configPath}").valueFromCrawler(sourceCrawler)
 
             version = sourceCrawler.var('version')
             firstFrame = sequenceCrawlers[0].var('frame')
@@ -46,7 +61,6 @@ class PublishToShotgun(ingestor.Task):
                 )
             )
 
-
             yield sourceCrawler
             output = {
                 'job': sourceCrawler.var('job'),
@@ -59,8 +73,7 @@ class PublishToShotgun(ingestor.Task):
                 'thumbnailFilePath': thumbnailFilePath,
                 'publishedFileType': publishedFileType,
                 'version': version,
-                'comment': comment,
-                'configPath': configPath
+                'comment': comment
             }
 
             # generating a temporary file that is going to contain the frames
@@ -75,20 +88,21 @@ class PublishToShotgun(ingestor.Task):
             shotgunTempFile.close()
 
             shotgunPythonFile = os.path.join(
-                configPath,
-                "tasks",
+                currentFolder,
                 "aux",
-                "runShotgunPublish.py"
+                "runPlatePublish.py"
             )
 
             env = dict(os.environ)
             del env['PYTHONPATH']
 
+            command = 'shotgunpython {pythonFile} {jsonFile}'.format(
+                pythonFile=shotgunPythonFile,
+                jsonFile=shotgunTempFile.name
+            )
+
             process = subprocess.Popen(
-                'shotgunpython {pythonFile} {jsonFile}'.format(
-                    pythonFile=shotgunPythonFile,
-                    jsonFile=shotgunTempFile.name
-                ),
+                command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 env=env,
@@ -108,6 +122,6 @@ class PublishToShotgun(ingestor.Task):
 
 # registering task
 Task.register(
-    'publishToShotgun',
-    PublishToShotgun
+    'platePublish',
+    PlatePublish
 )

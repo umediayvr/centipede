@@ -20,7 +20,6 @@ def dailyVersion(tk, ctx, sgPublishes, content):
     # Create the version in Shotgun
     data = {
         "code": name,
-        #"sg_status_list": tk.get_setting("new_version_status"),
         "sg_status_list": "rev",
         "entity": ctx.entity,
         "sg_first_frame": content['firstFrame'],
