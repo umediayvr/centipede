@@ -42,7 +42,9 @@
               "task": "movGen",
               "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
               "taskOptions": {
-                "frameRate": 23.976
+                "frameRate": 23.976,
+                "sourceColorSpace": "bt709",
+                "targetColorSpace": "smpte170m"
               },
               "matchTypes": [
                 "exrPlate"
