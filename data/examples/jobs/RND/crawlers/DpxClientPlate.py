@@ -24,12 +24,11 @@ class DpxClientPlate(ingestor.Crawler.Fs.Image.Dpx):
             ),
         )
 
-        # the plate name is hard-coded as plate which is used for the
-        # detection by the test
+        # the plate name is hard-coded as plate
         self.setVar('plateName', 'plate')
 
         # plate has the image sequence format:
-        # 'XHE102_013_010_plate.1084.dpx'
+        # 'XHE102_013_010_plate.1084.dpx' or 'XHE102_013_010.1084.dpx'
         if self.var('imageType') == 'sequence':
 
             # setting version 0, since it is not part of the file name
@@ -47,18 +46,6 @@ class DpxClientPlate(ingestor.Crawler.Fs.Image.Dpx):
             self.setVar('frame', int(frame))
             self.setVar('padding', len(frame))
             self.setVar('imageType', 'sequence')
-
-    @classmethod
-    def test(cls, pathHolder, parentCrawler):
-        """
-        Test if the path holder contains an dpx plate file.
-        """
-        if not super(DpxClientPlate, cls).test(pathHolder, parentCrawler):
-            return False
-
-        baseName = pathHolder.baseName()
-        return ('_plate.' in baseName or '_plate_' in baseName)
-
 
 # registering crawler
 DpxClientPlate.register(
