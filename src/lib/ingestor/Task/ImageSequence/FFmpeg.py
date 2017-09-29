@@ -5,12 +5,13 @@ from ..Task import Task
 class FFmpeg(Task):
     """
     Abstracted ffmpeg task.
+
+    Required Options: sourceColorSpace, targetColorSpace and frameRate
     """
-    __defaultFrameRate = 24.0
     __defaultScale = 1.0
     __defaultVideoCodec = "libx264"
+    __defaultPixelFormat = "yuvj420p"
     __defaultBitRate = 115
-    __defaultFilterGraph = "colormatrix=bt601:bt709"
 
     def __init__(self, *args, **kwargs):
         """
@@ -18,11 +19,10 @@ class FFmpeg(Task):
         """
         super(FFmpeg, self).__init__(*args, **kwargs)
 
-        self.setOption('frameRate', self.__defaultFrameRate)
         self.setOption('scale', self.__defaultScale)
         self.setOption('videoCodec', self.__defaultVideoCodec)
+        self.setOption('pixelFormat', self.__defaultPixelFormat)
         self.setOption('bitRate', self.__defaultBitRate)
-        self.setOption('filterGraph', self.__defaultFilterGraph)
 
     def executeFFmpeg(self, sequenceCrawlers, outputFilePath):
         """
@@ -54,12 +54,14 @@ class FFmpeg(Task):
                 self.option('scale')
             )
 
-        ffmpegCommand = 'ffmpeg -loglevel error -framerate {frameRate} -start_number {startFrame} -i "{inputSequence}" -framerate {frameRate} -vcodec {videoCodec} -b {bitRate}M -minrate {bitRate}M -maxrate {bitRate}M -vf {filterGraph} {scale} -y "{output}"'.format(
+        ffmpegCommand = 'ffmpeg -loglevel error -framerate {frameRate} -start_number {startFrame} -i "{inputSequence}" -framerate {frameRate} -vcodec {videoCodec} -b {bitRate}M -minrate {bitRate}M -maxrate {bitRate}M -color_primaries smpte170m -color_trc bt709 -color_primaries {targetColorSpace} -color_trc {sourceColorSpace} -colorspace {targetColorSpace} -pix_fmt {pixelFormat} {scale} -y "{output}"'.format(
             frameRate=self.option('frameRate'),
             startFrame=startFrame,
             videoCodec=self.option('videoCodec'),
             bitRate=self.option('bitRate'),
-            filterGraph=self.option('filterGraph'),
+            pixelFormat=self.option('pixelFormat'),
+            sourceColorSpace=self.option('sourceColorSpace'),
+            targetColorSpace=self.option('targetColorSpace'),
             inputSequence=inputSequence,
             scale=scale,
             output=outputFilePath
