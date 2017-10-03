@@ -41,7 +41,7 @@
           },
           "taskHolders": [
             {
-              "task": "movGen",
+              "task": "ffmpeg",
               "taskOptions": {
                 "frameRate": 23.976,
                 "sourceColorSpace": "bt709",

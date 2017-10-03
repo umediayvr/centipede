@@ -15,7 +15,7 @@ class NukeScript(Task):
     inside nuke must be defined as one of the options by the name: "script", for instance:
     option['script'] = "myscript.py"
 
-    Reading options inside of nuke, the options should be available as "options":
+    Reading options inside of nuke, the options are available as a global "options":
     myOption = options['myOption']
     """
 

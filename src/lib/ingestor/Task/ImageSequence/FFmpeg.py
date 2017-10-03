@@ -1,12 +1,15 @@
 import os
 import subprocess
+from collections import OrderedDict
 from ..Task import Task
 
 class FFmpeg(Task):
     """
     Abstracted ffmpeg task.
 
-    Required Options: sourceColorSpace, targetColorSpace and frameRate
+    Options:
+        - optional: scale (float), videoCoded, pixelFormat and bitRate
+        - required: sourceColorSpace, targetColorSpace and frameRate (float)
     """
     __defaultScale = 1.0
     __defaultVideoCodec = "libx264"
@@ -24,7 +27,35 @@ class FFmpeg(Task):
         self.setOption('pixelFormat', self.__defaultPixelFormat)
         self.setOption('bitRate', self.__defaultBitRate)
 
-    def executeFFmpeg(self, sequenceCrawlers, outputFilePath):
+    def _perform(self):
+        """
+        Perform the task.
+        """
+        # collecting all crawlers that have the same target file path
+        movFiles = OrderedDict()
+        for pathCrawler in self.pathCrawlers():
+            targetFilePath = self.filePath(pathCrawler)
+
+            if targetFilePath not in movFiles:
+                movFiles[targetFilePath] = []
+
+            movFiles[targetFilePath].append(pathCrawler)
+
+        # calling ffmpeg
+        for movFile in movFiles.keys():
+            sequenceCrawlers = movFiles[movFile]
+            pathCrawler = sequenceCrawlers[0]
+
+            # mov generation is about to start
+            yield pathCrawler
+
+            # executing ffmpeg
+            self.__executeFFmpeg(
+                sequenceCrawlers,
+                movFile
+            )
+
+    def __executeFFmpeg(self, sequenceCrawlers, outputFilePath):
         """
         Executes ffmpeg.
         """
@@ -32,6 +63,8 @@ class FFmpeg(Task):
         startFrame = crawler.var('frame')
         padding = crawler.var('padding')
 
+        # building an image sequence name that ffmpeg undertands that is a file
+        # sequence (aka foo.%04d.ext)
         inputSequence = os.path.join(
             os.path.dirname(crawler.var('filePath')),
             '{name}.%0{padding}d.{ext}'.format(
@@ -41,30 +74,69 @@ class FFmpeg(Task):
             )
         )
 
-        # trying to create the directory automatically in case it does not exist
+        # trying to create the directory automatically in case it
+        # does not exist yet
         try:
-            os.makedirs(os.path.dirname(outputFilePath))
+            os.makedirs(
+                os.path.dirname(
+                    outputFilePath
+                )
+            )
         except OSError:
             pass
 
-        # adding options
-        scale = ""
-        if self.option('scale') != -1.0:
-            scale = '-vf scale=iw*{0}:ih*{0}'.format(
+        # arguments passed to ffmpeg
+        arguments = [
+            # error level
+            '-loglevel error',
+            # frame rate
+            '-framerate {0}'.format(
+                self.option('frameRate')
+            ),
+            # start frame
+            '-start_number {0}'.format(
+                startFrame
+            ),
+            # input sequence
+            '-i "{0}"'.format(
+                inputSequence
+            ),
+            # video codec
+            '-vcodec {0}'.format(
+                self.option('videoCodec')
+            ),
+            # bit rate
+            '-b {0}M -minrate {0}M -maxrate {0}M'.format(
+                self.option('bitRate')
+            ),
+            # target color
+            '-color_primaries {0}'.format(
+                self.option('targetColorSpace')
+            ),
+            '-colorspace {0}'.format(
+                self.option('targetColorSpace')
+            ),
+            # source color
+            '-color_trc {0}'.format(
+                self.option('sourceColorSpace')
+            ),
+            # pixel format
+            '-pix_fmt {0}'.format(
+                self.option('pixelFormat')
+            ),
+            # scale (default 1.0)
+            '-vf scale=iw*{0}:ih*{0}'.format(
                 self.option('scale')
+            ),
+            # target mov file
+            '-y "{0}"'.format(
+                outputFilePath
             )
+        ]
 
-        ffmpegCommand = 'ffmpeg -loglevel error -framerate {frameRate} -start_number {startFrame} -i "{inputSequence}" -framerate {frameRate} -vcodec {videoCodec} -b {bitRate}M -minrate {bitRate}M -maxrate {bitRate}M -color_primaries smpte170m -color_trc bt709 -color_primaries {targetColorSpace} -color_trc {sourceColorSpace} -colorspace {targetColorSpace} -pix_fmt {pixelFormat} {scale} -y "{output}"'.format(
-            frameRate=self.option('frameRate'),
-            startFrame=startFrame,
-            videoCodec=self.option('videoCodec'),
-            bitRate=self.option('bitRate'),
-            pixelFormat=self.option('pixelFormat'),
-            sourceColorSpace=self.option('sourceColorSpace'),
-            targetColorSpace=self.option('targetColorSpace'),
-            inputSequence=inputSequence,
-            scale=scale,
-            output=outputFilePath
+        # ffmpeg command
+        ffmpegCommand = 'ffmpeg {0}'.format(
+            ' '.join(arguments),
         )
 
         # calling ffmpeg
@@ -82,3 +154,10 @@ class FFmpeg(Task):
         # in case of any erros
         if error:
             raise Exception(error)
+
+
+# registering task
+Task.register(
+    'ffmpeg',
+    FFmpeg
+)

@@ -26,7 +26,9 @@
         {
           "task": "fileColorTransformation",
           "taskOptions": {
-            "lut": "{prefix}/{job}/config/LUTs/HEAVEN.cube"
+            "lut": "{prefix}/{job}/config/LUTs/Amira_Log2Video.cube",
+            "sourceColorSpace": "linear",
+            "targetColorSpace": "AlexaV3LogC"
           },
           "targetTemplate": "(tmpdir)/{name}/{baseName}",
           "matchTypes": [
@@ -39,13 +41,13 @@
           },
           "taskHolders": [
             {
-              "task": "movGen",
-              "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
+              "task": "ffmpeg",
               "taskOptions": {
                 "frameRate": 23.976,
                 "sourceColorSpace": "bt709",
                 "targetColorSpace": "smpte170m"
               },
+              "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
               "matchTypes": [
                 "exrPlate"
               ],
@@ -82,7 +84,7 @@
           }
         },
         {
-          "task": "publishToShotgun",
+          "task": "platePublish",
           "taskOptions": {
             "publishedFileType": "Scan",
             "comment": "plate publish",
