@@ -14,6 +14,10 @@ class Template(object):
     A template string is a compound of variables that were collected by the
     crawler and passed for the running:
         '{prefix}/testing/{width}X{height}/{name}.(pad {frame} 10).{ext}'
+
+    The template string can contain the prefix "!" which is used to tell
+    that the level must exist, for instance:
+        '{prefix}/!shouldExist/{width}X{height}/{name}.(pad {frame} 10).{ext}'
     """
 
     def __init__(self, inputString):
