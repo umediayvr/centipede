@@ -3,10 +3,14 @@ import os
 import re
 import ingestor
 import subprocess
+import functools
+from collections import OrderedDict
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Application(QtWidgets.QApplication):
+
+    __viewModes = ["group", "flat"]
 
     def __init__(self, argv, **kwargs):
         super(Application, self).__init__(argv, **kwargs)
@@ -70,7 +74,7 @@ class Application(QtWidgets.QApplication):
     def __buildWidgets(self):
         self.__main = QtWidgets.QMainWindow()
         self.__main.setWindowTitle('Ingestor')
-        self.__main.resize(1920, 1080)
+        self.__main.resize(1080, 720)
 
         centralWidget = QtWidgets.QWidget()
         self.__main.setCentralWidget(centralWidget)
@@ -97,12 +101,23 @@ class Application(QtWidgets.QApplication):
             self.__sourceRefreshButton.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
         )
 
+        # view mode
+        self.__sourceViewModeButton = QtWidgets.QPushButton()
+        self.__sourceViewModeButton.setToolTip('Changes the view mode')
+        self.__sourceViewModeButton.setIcon(
+            self.__sourceViewModeButton.style().standardIcon(QtWidgets.QStyle.SP_FileDialogDetailedView)
+        )
+        self.__sourceViewModeMenu = QtWidgets.QMenu(self.__sourceViewModeButton)
+        self.__sourceViewModeButton.setMenu(self.__sourceViewModeMenu)
+
         # filter
         self.__sourceFilterButton = QtWidgets.QPushButton()
         self.__sourceFilterButton.setToolTip('Filters out specific crawler types')
         self.__sourceFilterButton.setIcon(
-            self.__sourceFilterButton.style().standardIcon(QtWidgets.QStyle.SP_FileDialogDetailedView)
+            self.__sourceFilterButton.style().standardIcon(QtWidgets.QStyle.SP_FileDialogContentsView)
         )
+        self.__sourceFilterMenu = QtWidgets.QMenu(self.__sourceFilterButton)
+        self.__sourceFilterButton.setMenu(self.__sourceFilterMenu)
 
         self.__sourceDirButton.clicked.connect(self.__onSelectSourceDir)
         self.__sourceRefreshButton.clicked.connect(self.__onRefreshSourceDir)
@@ -111,10 +126,8 @@ class Application(QtWidgets.QApplication):
         sourceBarLayout.addWidget(self.__sourceDirButton)
         sourceBarLayout.addWidget(self.__sourcePath)
         sourceBarLayout.addWidget(self.__sourceRefreshButton)
+        sourceBarLayout.addWidget(self.__sourceViewModeButton)
         sourceBarLayout.addWidget(self.__sourceFilterButton)
-
-        self.__sourceFilterMenu = QtWidgets.QMenu(self.__sourceFilterButton)
-        self.__sourceFilterButton.setMenu(self.__sourceFilterMenu)
 
         sourceLayout.addLayout(sourceBarLayout)
 
@@ -166,6 +179,27 @@ class Application(QtWidgets.QApplication):
         buttonLayout.addWidget(self.__runButton)
 
         self.__main.show()
+
+        # updating view mode
+        self.__viewModeActionGroup = QtWidgets.QActionGroup(self)
+        self.__checkedViewMode = None
+        for viewMode in self.__viewModes:
+            viewAction = self.__sourceViewModeMenu.addAction(viewMode.capitalize())
+            viewAction.setActionGroup(self.__viewModeActionGroup)
+            viewAction.setCheckable(True)
+            viewAction.changed.connect(self.__onChangeView)
+
+            if (viewMode == self.__viewModes[0]):
+                viewAction.setChecked(True)
+
+    def __onChangeView(self):
+        """
+        Change the current view mode.
+        """
+        checkedAction = self.__viewModeActionGroup.checkedAction()
+        if checkedAction and checkedAction.text() != self.__checkedViewMode:
+            self.__checkedViewMode = self.__viewModeActionGroup.checkedAction().text()
+            self.__onRefreshSourceDir()
 
     def __onPerformTasks(self):
         """
@@ -272,7 +306,11 @@ class Application(QtWidgets.QApplication):
     def __openSelected(self):
 
         folderPaths = set()
-        for index, crawler in enumerate(self.__crawlerList):
+        for index, crawler in enumerate(self.__sourceViewCrawlerList):
+
+            if isinstance(crawler, list):
+                crawler = crawler[0]
+
             item = self.__sourceTree.topLevelItem(index)
             if item.isSelected():
                 folderPaths.add(os.path.dirname(crawler.var('filePath')))
@@ -323,7 +361,12 @@ class Application(QtWidgets.QApplication):
             if not self.__sourceTree.isRowHidden(i, QtCore.QModelIndex()):
                 item = self.__sourceTree.topLevelItem(i)
                 if item.checkState(0):
-                    result.append(self.__crawlerList[i])
+
+                    crawler = self.__sourceViewCrawlerList[i]
+                    if isinstance(crawler, list):
+                        result += crawler
+                    else:
+                        result.append(crawler)
 
         return result
 
@@ -394,69 +437,82 @@ class Application(QtWidgets.QApplication):
 
         ph = ingestor.PathHolder(path)
         crawler = ingestor.Crawler.Fs.Path.create(ph)
-        self.__crawlerList = self.__collectCrawlers(crawler)
+        crawlerList = self.__collectCrawlers(crawler)
+        self.__sourceViewCrawlerList = []
         self.__sourceFilterMenu.clear()
 
-        self.__crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), self.__crawlerList))
-        self.__crawlerList.sort(key=lambda x: x.var('path').lower())
+        crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), crawlerList))
+        crawlerList.sort(key=lambda x: x.var('path').lower())
         crawlerTypes = set()
         crawlerTags = {}
 
         self.__sourceTree.clear()
-        for crawler in self.__crawlerList:
-            child = QtWidgets.QTreeWidgetItem(self.__sourceTree)
 
-            # visible data
-            child.setData(0, QtCore.Qt.EditRole, crawler.var('path')[1:])
-            child.setData(1, QtCore.Qt.EditRole, crawler.var('type'))
+        # group
+        if self.__checkedViewMode == "Group":
+            groupedCrawlers = OrderedDict()
+            groupedCrawlers[None] = []
+            for crawler in crawlerList:
+                if 'group' in crawler.tagNames():
+                    groupName = os.path.join(
+                        os.path.dirname(crawler.var('filePath'))[len(path):],
+                        crawler.tag('group')
+                    )
+                    if groupName not in groupedCrawlers:
+                        groupedCrawlers[groupName] = []
+                    groupedCrawlers[groupName].append(crawler)
+                else:
+                    groupedCrawlers[None].append(crawler)
 
-            # hidden data
-#            child.setData(100, QtCore.Qt.EditRole, crawler.var('path'))
-            #child.setData(101, QtCore.Qt.EditRole, crawler.var('type'))
-            crawlerTypes.add(crawler.var('type'))
+            for groupName in groupedCrawlers.keys():
+                if groupName:
+                    parent = QtWidgets.QTreeWidgetItem(self.__sourceTree)
 
-            # adding tags
-            for tagName in crawler.tagNames():
-                if tagName not in crawlerTags:
-                    crawlerTags[tagName] = set()
-                crawlerTags[tagName].add(crawler.tag(tagName))
+                    # visible data
+                    visibleGroupName = groupName
+                    if visibleGroupName.startswith(os.sep):
+                        visibleGroupName = visibleGroupName[1:]
 
-            child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
-            child.setCheckState(0, QtCore.Qt.Checked)
+                    parent.setData(0, QtCore.Qt.EditRole, visibleGroupName)
+                    parent.setData(1, QtCore.Qt.EditRole, "todo: get this from the configuration, default shot")
 
-            variables = QtWidgets.QTreeWidgetItem(child)
-            variables.setData(
-                0,
-                QtCore.Qt.EditRole,
-                'vars'
-            )
-            for varName in sorted(crawler.varNames()):
+                    parent.setFlags(parent.flags() | QtCore.Qt.ItemIsUserCheckable)
+                    parent.setCheckState(0, QtCore.Qt.Checked)
 
-                if varName in ['filePath', 'path']:
-                    continue
+                    self.__sourceViewCrawlerList.append(groupedCrawlers[groupName])
+                    for crawler in groupedCrawlers[groupName]:
+                        self.__createChildItem(
+                            crawler,
+                            parent,
+                            crawlerTypes,
+                            crawlerTags
+                        )
 
-                variablesChild = QtWidgets.QTreeWidgetItem(variables)
-                variablesChild.setData(
-                    0,
-                    QtCore.Qt.EditRole,
-                    '{0}={1}'.format(varName, crawler.var(varName))
-                )
+                else:
+                    for crawler in groupedCrawlers[groupName]:
+                        self.__sourceViewCrawlerList.append(crawler)
+                        child = self.__createChildItem(
+                            crawler,
+                            self.__sourceTree,
+                            crawlerTypes,
+                            crawlerTags
+                        )
 
-            tags = QtWidgets.QTreeWidgetItem(child)
-            tags.setData(
-                0,
-                QtCore.Qt.EditRole,
-                'tags'
-            )
+                        child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
+                        child.setCheckState(0, QtCore.Qt.Checked)
 
-            for tagName in sorted(crawler.tagNames()):
-                tagChild = QtWidgets.QTreeWidgetItem(tags)
-                tagChild.setData(
-                    0,
-                    QtCore.Qt.EditRole,
-                    '{0}={1}'.format(tagName, crawler.tag(tagName))
-                )
+        # flat
+        else:
+            for crawler in crawlerList:
 
+                # only testing with the first crawler when grouped
+                if isinstance(crawler, list):
+                    crawler = crawler[0]
+
+                self.__sourceViewCrawlerList.append(crawler)
+                child = self.__createChildItem(crawler, self.__sourceTree, crawlerTypes, crawlerTags)
+                child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
+                child.setCheckState(0, QtCore.Qt.Checked)
 
         # crawler types
         self.__crawlerTypesMenu = self.__sourceFilterMenu.addMenu('Types')
@@ -476,6 +532,59 @@ class Application(QtWidgets.QApplication):
 
         self.__sourceTree.resizeColumnToContents(0)
 
+    def __createChildItem(self, crawler, parent, crawlerTypes, crawlerTags):
+        child = QtWidgets.QTreeWidgetItem(parent)
+
+        # visible data
+        child.setData(0, QtCore.Qt.EditRole, crawler.var('path')[1:])
+        child.setData(1, QtCore.Qt.EditRole, crawler.var('type'))
+
+        # hidden data
+    #            child.setData(100, QtCore.Qt.EditRole, crawler.var('path'))
+        #child.setData(101, QtCore.Qt.EditRole, crawler.var('type'))
+        crawlerTypes.add(crawler.var('type'))
+
+        # adding tags
+        for tagName in crawler.tagNames():
+            if tagName not in crawlerTags:
+                crawlerTags[tagName] = set()
+            crawlerTags[tagName].add(crawler.tag(tagName))
+
+        variables = QtWidgets.QTreeWidgetItem(child)
+        variables.setData(
+            0,
+            QtCore.Qt.EditRole,
+            'vars'
+        )
+        for varName in sorted(crawler.varNames()):
+
+            if varName in ['filePath', 'path']:
+                continue
+
+            variablesChild = QtWidgets.QTreeWidgetItem(variables)
+            variablesChild.setData(
+                0,
+                QtCore.Qt.EditRole,
+                '{0}={1}'.format(varName, crawler.var(varName))
+            )
+
+        tags = QtWidgets.QTreeWidgetItem(child)
+        tags.setData(
+            0,
+            QtCore.Qt.EditRole,
+            'tags'
+        )
+
+        for tagName in sorted(crawler.tagNames()):
+            tagChild = QtWidgets.QTreeWidgetItem(tags)
+            tagChild.setData(
+                0,
+                QtCore.Qt.EditRole,
+                '{0}={1}'.format(tagName, crawler.tag(tagName))
+            )
+
+        return child
+
     def __onFilterSelectNone(self):
         self.__onFilterSelectAll(False)
 
@@ -491,7 +600,12 @@ class Application(QtWidgets.QApplication):
 
         totalRows = self.__sourceTree.model().rowCount()
         for i in range(totalRows):
-            crawler = self.__crawlerList[i]
+            crawler = self.__sourceViewCrawlerList[i]
+
+            # only testing with the first crawler when grouped
+            if isinstance(crawler, list):
+                crawler = crawler[0]
+
             self.__sourceTree.model().index(i, 0)
 
             self.__sourceTree.setRowHidden(
@@ -504,12 +618,11 @@ class Application(QtWidgets.QApplication):
 
         if currentItem.isSelected():
             if self.__sourceTree.selectionModel().selectedIndexes():
-                for index, crawler in enumerate(self.__crawlerList):
+                for index in range(len(self.__sourceViewCrawlerList)):
                     item = self.__sourceTree.topLevelItem(index)
                     if item.isSelected():
                         item.setCheckState(0, currentItem.checkState(0))
 
 
 app = Application(sys.argv)
-#app.updateSource("/home/paulon/dev/umedia/ingestor/data")
 sys.exit(app.exec_())
