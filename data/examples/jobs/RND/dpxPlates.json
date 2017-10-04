@@ -13,7 +13,7 @@
         "sourceColorSpace": "AlexaV3LogC",
         "targetColorSpace": "linear"
       },
-      "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {job} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {job} {seq} {shot} {plateName}).(pad {frame} 4).exr",
+      "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {job} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {job} {seq} {shot} {plateName}).(pad {frame} 4).exr",
       "matchTypes": [
         "dpxClientPlate"
       ],
