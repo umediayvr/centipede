@@ -4,7 +4,11 @@
   ],
   "vars": {
     "prefix": "/data/job",
-    "job": "060_Heaven"
+    "job": "060_Heaven",
+    "__uiHintSourceColumns": [
+      "shot",
+      "plateName"
+    ]
   },
   "taskHolders": [
     {
