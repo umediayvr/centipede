@@ -41,9 +41,10 @@ class Image(File):
             # need to obey the information about the padding from the file itself,
             # since the sequence can be unpadded.
             self.setTag(
-                'imageSequence',
-                '{0}.####.{1}'.format(
+                'group',
+                '{0}.{1}.{2}'.format(
                     '.'.join(nameParts[:-2]),
+                    '#' * len(frame),
                     nameParts[-1]
                 )
             )

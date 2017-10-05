@@ -3,13 +3,19 @@ import os
 import re
 import ingestor
 import subprocess
+import functools
+from collections import OrderedDict
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Application(QtWidgets.QApplication):
 
+    __viewModes = ["group", "flat"]
+
     def __init__(self, argv, **kwargs):
         super(Application, self).__init__(argv, **kwargs)
+        self.__appplyStyleSheet()
+        self.__uiHintSourceColumns = []
 
         self.__buildWidgets()
 
@@ -42,7 +48,6 @@ class Application(QtWidgets.QApplication):
             taskHolderLoader.addFromJsonDirectory(configurationDirectory)
 
             if not taskHolderLoader.taskHolders():
-
                 result = QtWidgets.QMessageBox.warning(
                     self.__main,
                     "Ingestor",
@@ -59,6 +64,19 @@ class Application(QtWidgets.QApplication):
 
             else:
                 taskHolders = taskHolderLoader.taskHolders()
+                for taskHolder in taskHolders:
+                    if '__uiHintSourceColumns' in taskHolder.customVarNames():
+                        for columnName in taskHolder.customVar('__uiHintSourceColumns'):
+                            if columnName not in self.__uiHintSourceColumns:
+                                self.__uiHintSourceColumns.append(columnName)
+
+                camelCaseToSpaced = lambda x: x[0].upper() + re.sub("([a-z])([A-Z])","\g<1> \g<2>", x[1:])
+                header = QtWidgets.QTreeWidgetItem(
+                    ["Source"] + list(map(camelCaseToSpaced, self.__uiHintSourceColumns))
+                )
+                self.__sourceTree.setHeaderItem(
+                    header
+                )
 
         self.__main.setWindowTitle('Ingestor ({0})'.format(configurationDirectory))
         self.__taskHolders = taskHolders
@@ -70,7 +88,10 @@ class Application(QtWidgets.QApplication):
     def __buildWidgets(self):
         self.__main = QtWidgets.QMainWindow()
         self.__main.setWindowTitle('Ingestor')
-        self.__main.resize(1920, 1080)
+        self.__main.resize(1080, 720)
+        self.__main.setWindowIcon(
+            QtGui.QIcon("icons/ingestor.png")
+        )
 
         centralWidget = QtWidgets.QWidget()
         self.__main.setCentralWidget(centralWidget)
@@ -86,7 +107,7 @@ class Application(QtWidgets.QApplication):
         self.__sourceDirButton = QtWidgets.QPushButton()
         self.__sourceDirButton.setToolTip('Selects a source directory')
         self.__sourceDirButton.setIcon(
-            self.__sourceDirButton.style().standardIcon(QtWidgets.QStyle.SP_DirIcon)
+            QtGui.QIcon("icons/folder.png")
         )
 
         # refresh
@@ -97,12 +118,23 @@ class Application(QtWidgets.QApplication):
             self.__sourceRefreshButton.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
         )
 
+        # view mode
+        self.__sourceViewModeButton = QtWidgets.QPushButton("View Mode")
+        self.__sourceViewModeButton.setToolTip('Changes the view mode')
+        self.__sourceViewModeButton.setIcon(
+            QtGui.QIcon("icons/viewMode.png")
+        )
+        self.__sourceViewModeMenu = QtWidgets.QMenu(self.__sourceViewModeButton)
+        self.__sourceViewModeButton.setMenu(self.__sourceViewModeMenu)
+
         # filter
-        self.__sourceFilterButton = QtWidgets.QPushButton()
+        self.__sourceFilterButton = QtWidgets.QPushButton("Filter View")
         self.__sourceFilterButton.setToolTip('Filters out specific crawler types')
         self.__sourceFilterButton.setIcon(
-            self.__sourceFilterButton.style().standardIcon(QtWidgets.QStyle.SP_FileDialogDetailedView)
+            QtGui.QIcon("icons/filterView.png")
         )
+        self.__sourceFilterMenu = QtWidgets.QMenu(self.__sourceFilterButton)
+        self.__sourceFilterButton.setMenu(self.__sourceFilterMenu)
 
         self.__sourceDirButton.clicked.connect(self.__onSelectSourceDir)
         self.__sourceRefreshButton.clicked.connect(self.__onRefreshSourceDir)
@@ -111,61 +143,113 @@ class Application(QtWidgets.QApplication):
         sourceBarLayout.addWidget(self.__sourceDirButton)
         sourceBarLayout.addWidget(self.__sourcePath)
         sourceBarLayout.addWidget(self.__sourceRefreshButton)
+        sourceBarLayout.addWidget(self.__sourceViewModeButton)
         sourceBarLayout.addWidget(self.__sourceFilterButton)
-
-        self.__sourceFilterMenu = QtWidgets.QMenu(self.__sourceFilterButton)
-        self.__sourceFilterButton.setMenu(self.__sourceFilterMenu)
 
         sourceLayout.addLayout(sourceBarLayout)
 
-        sourceAreaWidget = QtWidgets.QWidget()
-        sourceAreaWidget.setLayout(sourceLayout)
+        self.__sourceAreaWidget = QtWidgets.QWidget()
+        self.__sourceAreaWidget.setLayout(sourceLayout)
 
         targetLayout = QtWidgets.QVBoxLayout()
 
-        self.__refreshTarget = QtWidgets.QPushButton()
-        self.__refreshTarget.setToolTip('Refreshes the target')
-        self.__refreshTarget.setIcon(
-            self.__refreshTarget.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
+        self.__nextButton = QtWidgets.QPushButton("Next")
+        self.__nextButton.setIcon(
+            QtGui.QIcon("icons/next.png")
         )
-        self.__refreshTarget.clicked.connect(self.updateTarget)
+        self.__nextButton.clicked.connect(self.updateTarget)
 
-        targetAreaWidget = QtWidgets.QWidget()
-        targetAreaWidget.setLayout(targetLayout)
+        self.__backButton = QtWidgets.QPushButton("Back")
+        self.__backButton.setIcon(
+            QtGui.QIcon("icons/back.png")
+        )
+        self.__backButton.setVisible(False)
+        self.__backButton.clicked.connect(self.__onBack)
+
+        self.__targetAreaWidget = QtWidgets.QWidget()
+        self.__targetAreaWidget.setVisible(False)
+        self.__targetAreaWidget.setLayout(targetLayout)
+        self.__runOnTheFarmCheckbox = QtWidgets.QCheckBox("Run on the farm")
+        self.__runOnTheFarmCheckbox.setVisible(False)
 
         targetBarLayout = QtWidgets.QHBoxLayout()
-        targetBarLayout.addWidget(self.__refreshTarget)
-
         targetLayout.addLayout(targetBarLayout)
 
-        treeArea.addWidget(sourceAreaWidget)
-        treeArea.addWidget(targetAreaWidget)
+        treeArea.addWidget(self.__sourceAreaWidget)
+        treeArea.addWidget(self.__targetAreaWidget)
 
         self.__sourceTree = self.__createTreeWidget(["Source"])
         self.__sourceTree.itemChanged.connect(self.__sourceCheckChanged)
         self.__sourceTree.customContextMenuRequested.connect(self.__onSourceTreeContextMenu)
 
         self.__targetTree = self.__createTreeWidget(["Target"])
-        self.__targetTree.itemSelectionChanged.connect(self.__onTargetSelectionChanged)
+        #self.__targetTree.itemSelectionChanged.connect(self.__onTargetSelectionChanged)
+        self.__targetTree.customContextMenuRequested.connect(self.__onTargetTreeContextMenu)
 
         sourceLayout.addWidget(self.__sourceTree)
         targetLayout.addWidget(self.__targetTree)
+
+        # header
+        headerLayout = QtWidgets.QHBoxLayout()
+        centralWidget.layout().addLayout(headerLayout)
+
+        logo = QtWidgets.QLabel()
+        logo.setPixmap(QtGui.QPixmap("icons/header.png").scaledToHeight(64, QtCore.Qt.SmoothTransformation))
+        logo.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        headerLayout.addWidget(
+            logo
+        )
+
+        headerLayout.addStretch()
 
         centralWidget.layout().addWidget(treeArea)
         buttonLayout = QtWidgets.QHBoxLayout()
         centralWidget.layout().addLayout(buttonLayout)
 
         self.__runButton = QtWidgets.QPushButton('Run')
+        self.__runButton.setVisible(False)
         self.__runButton.setToolTip('Performs the tasks')
         self.__runButton.setIcon(
-            self.__runButton.style().standardIcon(QtWidgets.QStyle.SP_ArrowForward)
+            QtGui.QIcon("icons/run.png")
         )
         self.__runButton.clicked.connect(self.__onPerformTasks)
 
+        buttonLayout.addWidget(self.__runOnTheFarmCheckbox)
         buttonLayout.addStretch()
+        buttonLayout.addWidget(self.__backButton)
+        buttonLayout.addWidget(self.__nextButton)
         buttonLayout.addWidget(self.__runButton)
 
         self.__main.show()
+
+        # updating view mode
+        self.__viewModeActionGroup = QtWidgets.QActionGroup(self)
+        self.__checkedViewMode = None
+        for viewMode in self.__viewModes:
+            viewAction = self.__sourceViewModeMenu.addAction(viewMode.capitalize())
+            viewAction.setActionGroup(self.__viewModeActionGroup)
+            viewAction.setCheckable(True)
+            viewAction.changed.connect(self.__onChangeView)
+
+            if (viewMode == self.__viewModes[0]):
+                viewAction.setChecked(True)
+
+    def __onBack(self):
+        self.__runOnTheFarmCheckbox.setVisible(False)
+        self.__backButton.setVisible(False)
+        self.__nextButton.setVisible(True)
+        self.__runButton.setVisible(False)
+        self.__sourceAreaWidget.setVisible(True)
+        self.__targetAreaWidget.setVisible(False)
+
+    def __onChangeView(self):
+        """
+        Change the current view mode.
+        """
+        checkedAction = self.__viewModeActionGroup.checkedAction()
+        if checkedAction and checkedAction.text() != self.__checkedViewMode:
+            self.__checkedViewMode = self.__viewModeActionGroup.checkedAction().text()
+            self.__onRefreshSourceDir()
 
     def __onPerformTasks(self):
         """
@@ -267,12 +351,39 @@ class Application(QtWidgets.QApplication):
             action = menu.addAction('Show Folder')
             action.triggered.connect(self.__openSelected)
 
+            action = menu.addAction('Play in RV')
+            action.triggered.connect(self.__playSelectedInRv)
+
             menu.exec_(self.__sourceTree.mapToGlobal(point))
+
+    def __onTargetTreeContextMenu(self, point):
+
+        selectedIndexes = self.__targetTree.selectionModel().selectedIndexes()
+        if selectedIndexes:
+            value = selectedIndexes[0].data(0)
+
+            if str(value).endswith('.json'):
+                menu = QtWidgets.QMenu(self.__main)
+                action = menu.addAction('Show Config')
+                action.triggered.connect(functools.partial(self.__openSelectedConfig, value))
+
+                menu.exec_(self.__sourceTree.mapToGlobal(point))
+
+    def __openSelectedConfig(self, configName):
+        subprocess.Popen(
+            ['xdg-open', configName],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
 
     def __openSelected(self):
 
         folderPaths = set()
-        for index, crawler in enumerate(self.__crawlerList):
+        for index, crawler in enumerate(self.__sourceViewCrawlerList):
+
+            if isinstance(crawler, list):
+                crawler = crawler[0]
+
             item = self.__sourceTree.topLevelItem(index)
             if item.isSelected():
                 folderPaths.add(os.path.dirname(crawler.var('filePath')))
@@ -284,6 +395,25 @@ class Application(QtWidgets.QApplication):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
+
+
+    def __playSelectedInRv(self):
+
+        folderPaths = []
+        for index, crawler in enumerate(self.__sourceViewCrawlerList):
+
+            if isinstance(crawler, list):
+                crawler = crawler[0]
+
+            item = self.__sourceTree.topLevelItem(index)
+            if item.isSelected():
+                folderPaths.append(crawler.var('filePath'))
+
+        subprocess.Popen(
+            ['rv', ' '.join(folderPaths)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
 
     def __onSelectSourceDir(self):
         currentDir = self.__sourcePath.text() or '/'
@@ -306,8 +436,9 @@ class Application(QtWidgets.QApplication):
         sourceTree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
         header = QtWidgets.QTreeWidgetItem(columns)
-        sourceTree.header().setStretchLastSection(True)
-        sourceTree.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        #sourceTree.header().setStretchLastSection(True)
+        #sourceTree.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        sourceTree.header().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         sourceTree.setHeaderItem(header)
 
         return sourceTree
@@ -323,48 +454,121 @@ class Application(QtWidgets.QApplication):
             if not self.__sourceTree.isRowHidden(i, QtCore.QModelIndex()):
                 item = self.__sourceTree.topLevelItem(i)
                 if item.checkState(0):
-                    result.append(self.__crawlerList[i])
+
+                    crawler = self.__sourceViewCrawlerList[i]
+                    if isinstance(crawler, list):
+                        result += crawler
+                    else:
+                        result.append(crawler)
 
         return result
 
     def updateTarget(self):
         visibleCrawlers = self.__visibleCrawlers()
+        self.__targetAreaWidget.setVisible(True)
+        self.__runOnTheFarmCheckbox.setVisible(True)
+        self.__sourceAreaWidget.setVisible(False)
+
+        self.__nextButton.setVisible(False)
+        self.__backButton.setVisible(True)
+        self.__runButton.setVisible(True)
 
         templates = []
 
         self.__targetTree.clear()
 
         for taskHolder in self.__taskHolders:
-            matchedCrawlers = taskHolder.query(visibleCrawlers)
 
-            child = QtWidgets.QTreeWidgetItem(self.__targetTree)
-            child.setData(0, QtCore.Qt.EditRole, type(taskHolder.task()).__name__)
-            #child.setExpanded(True)
+            try:
+                matchedCrawlers = taskHolder.query(visibleCrawlers)
+            except Exception as error:
+                QtWidgets.QMessageBox.critical(
+                    self.__main,
+                    "Template processing error",
+                    "<nobr>" + str(error).replace("\n", "<br>") + "</nobr>",
+                    QtWidgets.QMessageBox.Ok,
+                )
+                raise error
 
-            templateEntry = QtWidgets.QTreeWidgetItem(child)
-            templateEntry.setData(0, QtCore.Qt.EditRole, 'template')
+            groupedCrawlers = OrderedDict()
+            groupedCrawlers[None] = []
+            for matchedCrawler in matchedCrawlers.keys():
 
-            templateChild = QtWidgets.QTreeWidgetItem(templateEntry)
-            templateChild.setData(0, QtCore.Qt.EditRole, taskHolder.targetTemplate().inputString())
+                # group
+                if self.__checkedViewMode == "Group" and 'group' in matchedCrawler.tagNames():
+                    groupName = os.path.join(
+                        os.path.dirname(matchedCrawler.var('filePath')),
+                        matchedCrawler.tag('group')
+                    )
+                    if groupName not in groupedCrawlers:
+                        groupedCrawlers[groupName] = []
 
-            # missing selection sync with the source side
-            fileEntry = QtWidgets.QTreeWidgetItem(child)
-            fileEntry.setData(0, QtCore.Qt.EditRole, 'files')
-            fileEntry.setExpanded(True)
+                    groupedCrawlers[groupName].append(matchedCrawler)
 
-            for matchedCrawler, targetFilePath in matchedCrawlers.items():
-                matchedChild = QtWidgets.QTreeWidgetItem(fileEntry)
-                matchedChild.setData(0, QtCore.Qt.EditRole, targetFilePath)
+                # flat
+                else:
+                    groupedCrawlers[None].append(matchedCrawler)
 
-            # tasks (missing checkbox to enable the task?)
-            self.__createSubtasks(child, taskHolder)
+            # testing
+            for groupName, crawlerList in groupedCrawlers.items():
+                for crawler in crawlerList:
+
+                    nameSuffix = ""
+                    if groupName is not None:
+                        nameSuffix = " (+{0} files)".format(len(matchedCrawlers[crawler])-1)
+
+                    matchedChild = QtWidgets.QTreeWidgetItem(self.__targetTree)
+                    matchedChild.setData(0, QtCore.Qt.EditRole, matchedCrawlers[crawler] + nameSuffix)
+
+                    mainTask = QtWidgets.QTreeWidgetItem(matchedChild)
+                    mainTask.setData(0, QtCore.Qt.EditRole, "Task")
+
+                    taskName = QtWidgets.QTreeWidgetItem(mainTask)
+                    taskName.setData(0, QtCore.Qt.EditRole, "Name")
+
+                    taskNameValue = QtWidgets.QTreeWidgetItem(taskName)
+                    taskNameValue.setData(0, QtCore.Qt.EditRole, type(taskHolder.task()).__name__)
+
+                    if 'configName' in taskHolder.customVarNames():
+                        configName = QtWidgets.QTreeWidgetItem(mainTask)
+                        configName.setData(0, QtCore.Qt.EditRole, "Config")
+
+                        configNameValue = QtWidgets.QTreeWidgetItem(configName)
+                        configNameValue.setData(
+                            0,
+                            QtCore.Qt.EditRole,
+                            os.path.join(
+                                taskHolder.customVar('configPath'),
+                                taskHolder.customVar('configName'),
+                            )
+                        )
+
+                    templateEntry = QtWidgets.QTreeWidgetItem(mainTask)
+                    templateEntry.setData(0, QtCore.Qt.EditRole, 'Template')
+
+                    templateChild = QtWidgets.QTreeWidgetItem(templateEntry)
+                    templateChild.setData(0, QtCore.Qt.EditRole, taskHolder.targetTemplate().inputString())
+
+                    # tasks (missing checkbox to enable the task?)
+                    self.__createSubtasks(mainTask, taskHolder)
+
+                    if groupName is not None:
+                        filesEntry = QtWidgets.QTreeWidgetItem(matchedChild)
+                        filesEntry.setData(0, QtCore.Qt.EditRole, 'All Files')
+                        #filesEntry.setExpanded(True)
+
+                        for childCrawler in crawlerList:
+                            child = QtWidgets.QTreeWidgetItem(filesEntry)
+                            child.setData(0, QtCore.Qt.EditRole, matchedCrawlers[childCrawler])
+                        break
+
 
         self.__targetTree.resizeColumnToContents(0)
 
     def __createSubtasks(self, parentEntry, taskHolder):
         if taskHolder.subTaskHolders():
             subTaskChild = QtWidgets.QTreeWidgetItem(parentEntry)
-            subTaskChild.setData(0, QtCore.Qt.EditRole, 'sub tasks')
+            subTaskChild.setData(0, QtCore.Qt.EditRole, 'Sub tasks')
 
             for childTaskHolder in taskHolder.subTaskHolders():
                 taskName = type(childTaskHolder.task()).__name__
@@ -373,12 +577,12 @@ class Application(QtWidgets.QApplication):
                 taskChild.setData(0, QtCore.Qt.EditRole, taskName)
 
                 templateEntry = QtWidgets.QTreeWidgetItem(taskChild)
-                templateEntry.setData(0, QtCore.Qt.EditRole, 'template')
+                templateEntry.setData(0, QtCore.Qt.EditRole, 'Template')
 
                 templateChild = QtWidgets.QTreeWidgetItem(templateEntry)
                 templateChild.setData(0, QtCore.Qt.EditRole, childTaskHolder.targetTemplate().inputString())
 
-                self.__createSubtasks(subTaskChild, childTaskHolder)
+                self.__createSubtasks(taskChild, childTaskHolder)
 
     def __collectCrawlers(self, crawler):
         result = []
@@ -394,69 +598,87 @@ class Application(QtWidgets.QApplication):
 
         ph = ingestor.PathHolder(path)
         crawler = ingestor.Crawler.Fs.Path.create(ph)
-        self.__crawlerList = self.__collectCrawlers(crawler)
+        crawlerList = self.__collectCrawlers(crawler)
+        self.__sourceViewCrawlerList = []
         self.__sourceFilterMenu.clear()
 
-        self.__crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), self.__crawlerList))
-        self.__crawlerList.sort(key=lambda x: x.var('path').lower())
+        crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), crawlerList))
+        crawlerList.sort(key=lambda x: x.var('path').lower())
         crawlerTypes = set()
         crawlerTags = {}
 
         self.__sourceTree.clear()
-        for crawler in self.__crawlerList:
-            child = QtWidgets.QTreeWidgetItem(self.__sourceTree)
 
-            # visible data
-            child.setData(0, QtCore.Qt.EditRole, crawler.var('path')[1:])
-            child.setData(1, QtCore.Qt.EditRole, crawler.var('type'))
+        # group
+        if self.__checkedViewMode == "Group":
+            groupedCrawlers = OrderedDict()
+            groupedCrawlers[None] = []
+            for crawler in crawlerList:
+                if 'group' in crawler.tagNames():
+                    groupName = os.path.join(
+                        os.path.dirname(crawler.var('filePath'))[len(path):],
+                        crawler.tag('group')
+                    )
+                    if groupName not in groupedCrawlers:
+                        groupedCrawlers[groupName] = []
+                    groupedCrawlers[groupName].append(crawler)
+                else:
+                    groupedCrawlers[None].append(crawler)
 
-            # hidden data
-#            child.setData(100, QtCore.Qt.EditRole, crawler.var('path'))
-            #child.setData(101, QtCore.Qt.EditRole, crawler.var('type'))
-            crawlerTypes.add(crawler.var('type'))
+            for groupName in groupedCrawlers.keys():
+                if groupName:
+                    parent = QtWidgets.QTreeWidgetItem(self.__sourceTree)
 
-            # adding tags
-            for tagName in crawler.tagNames():
-                if tagName not in crawlerTags:
-                    crawlerTags[tagName] = set()
-                crawlerTags[tagName].add(crawler.tag(tagName))
+                    # visible data
+                    visibleGroupName = groupName + '   '
+                    if visibleGroupName.startswith(os.sep):
+                        visibleGroupName = visibleGroupName[1:]
 
-            child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
-            child.setCheckState(0, QtCore.Qt.Checked)
+                    parent.setData(0, QtCore.Qt.EditRole, visibleGroupName)
 
-            variables = QtWidgets.QTreeWidgetItem(child)
-            variables.setData(
-                0,
-                QtCore.Qt.EditRole,
-                'vars'
-            )
-            for varName in sorted(crawler.varNames()):
+                    # adding column information
+                    self.__addColumnInformation(groupedCrawlers[groupName][0], parent)
 
-                if varName in ['filePath', 'path']:
-                    continue
+                    parent.setFlags(parent.flags() | QtCore.Qt.ItemIsUserCheckable)
+                    parent.setCheckState(0, QtCore.Qt.Checked)
 
-                variablesChild = QtWidgets.QTreeWidgetItem(variables)
-                variablesChild.setData(
-                    0,
-                    QtCore.Qt.EditRole,
-                    '{0}={1}'.format(varName, crawler.var(varName))
-                )
+                    self.__sourceViewCrawlerList.append(groupedCrawlers[groupName])
+                    for crawler in groupedCrawlers[groupName]:
+                        self.__createChildItem(
+                            crawler,
+                            parent,
+                            crawlerTypes,
+                            crawlerTags
+                        )
 
-            tags = QtWidgets.QTreeWidgetItem(child)
-            tags.setData(
-                0,
-                QtCore.Qt.EditRole,
-                'tags'
-            )
+                else:
+                    for crawler in groupedCrawlers[groupName]:
+                        self.__sourceViewCrawlerList.append(crawler)
+                        child = self.__createChildItem(
+                            crawler,
+                            self.__sourceTree,
+                            crawlerTypes,
+                            crawlerTags
+                        )
 
-            for tagName in sorted(crawler.tagNames()):
-                tagChild = QtWidgets.QTreeWidgetItem(tags)
-                tagChild.setData(
-                    0,
-                    QtCore.Qt.EditRole,
-                    '{0}={1}'.format(tagName, crawler.tag(tagName))
-                )
+                        child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
+                        child.setCheckState(0, QtCore.Qt.Checked)
 
+                        self.__addColumnInformation(crawler, child)
+
+        # flat
+        else:
+            for crawler in crawlerList:
+
+                # only testing with the first crawler when grouped
+                if isinstance(crawler, list):
+                    crawler = crawler[0]
+
+                self.__sourceViewCrawlerList.append(crawler)
+                child = self.__createChildItem(crawler, self.__sourceTree, crawlerTypes, crawlerTags)
+                child.setFlags(child.flags() | QtCore.Qt.ItemIsUserCheckable)
+                child.setCheckState(0, QtCore.Qt.Checked)
+                self.__addColumnInformation(crawler, child)
 
         # crawler types
         self.__crawlerTypesMenu = self.__sourceFilterMenu.addMenu('Types')
@@ -476,6 +698,66 @@ class Application(QtWidgets.QApplication):
 
         self.__sourceTree.resizeColumnToContents(0)
 
+    def __addColumnInformation(self, crawler, treeItem):
+        # adding column information
+        for index, column in enumerate(self.__uiHintSourceColumns):
+            if column in crawler.varNames():
+                treeItem.setData(
+                    index + 1,
+                    QtCore.Qt.EditRole, crawler.var(column) +  '   '
+                )
+
+    def __createChildItem(self, crawler, parent, crawlerTypes, crawlerTags):
+        child = QtWidgets.QTreeWidgetItem(parent)
+
+
+        # visible data
+        child.setData(0, QtCore.Qt.EditRole, crawler.var('path')[1:])
+        self.__addColumnInformation(crawler, child)
+
+        crawlerTypes.add(crawler.var('type'))
+
+        # adding tags
+        for tagName in crawler.tagNames():
+            if tagName not in crawlerTags:
+                crawlerTags[tagName] = set()
+            crawlerTags[tagName].add(crawler.tag(tagName))
+
+        variables = QtWidgets.QTreeWidgetItem(child)
+        variables.setData(
+            0,
+            QtCore.Qt.EditRole,
+            'vars'
+        )
+        for varName in sorted(crawler.varNames()):
+
+            if varName in ['filePath', 'path']:
+                continue
+
+            variablesChild = QtWidgets.QTreeWidgetItem(variables)
+            variablesChild.setData(
+                0,
+                QtCore.Qt.EditRole,
+                '{0}={1}'.format(varName, crawler.var(varName))
+            )
+
+        tags = QtWidgets.QTreeWidgetItem(child)
+        tags.setData(
+            0,
+            QtCore.Qt.EditRole,
+            'tags'
+        )
+
+        for tagName in sorted(crawler.tagNames()):
+            tagChild = QtWidgets.QTreeWidgetItem(tags)
+            tagChild.setData(
+                0,
+                QtCore.Qt.EditRole,
+                '{0}={1}'.format(tagName, crawler.tag(tagName))
+            )
+
+        return child
+
     def __onFilterSelectNone(self):
         self.__onFilterSelectAll(False)
 
@@ -491,7 +773,12 @@ class Application(QtWidgets.QApplication):
 
         totalRows = self.__sourceTree.model().rowCount()
         for i in range(totalRows):
-            crawler = self.__crawlerList[i]
+            crawler = self.__sourceViewCrawlerList[i]
+
+            # only testing with the first crawler when grouped
+            if isinstance(crawler, list):
+                crawler = crawler[0]
+
             self.__sourceTree.model().index(i, 0)
 
             self.__sourceTree.setRowHidden(
@@ -504,12 +791,73 @@ class Application(QtWidgets.QApplication):
 
         if currentItem.isSelected():
             if self.__sourceTree.selectionModel().selectedIndexes():
-                for index, crawler in enumerate(self.__crawlerList):
+                for index in range(len(self.__sourceViewCrawlerList)):
                     item = self.__sourceTree.topLevelItem(index)
                     if item.isSelected():
                         item.setCheckState(0, currentItem.checkState(0))
 
+    def __appplyStyleSheet(self):
+        self.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
+        defaultFont = QtWidgets.QApplication.font()
+        defaultFont.setPointSize(defaultFont.pointSize() + 2.0)
+        self.setFont(defaultFont)
+
+        # modify palette to dark
+        darkPalette = QtGui.QPalette()
+        darkPalette.setColor(
+            QtGui.QPalette.Window,
+            QtGui.QColor(53,53,53)
+        )
+
+        darkPalette.setColor(
+            QtGui.QPalette.WindowText,
+            QtCore.Qt.white
+        )
+
+        darkPalette.setColor(
+            QtGui.QPalette.Disabled,
+            QtGui.QPalette.WindowText,
+            QtGui.QColor(127,127,127)
+        )
+
+        darkPalette.setColor(
+            QtGui.QPalette.Base,
+            QtGui.QColor(42,42,42)
+        )
+
+        darkPalette.setColor(
+            QtGui.QPalette.AlternateBase,
+            QtGui.QColor(66,66,66)
+        )
+
+        darkPalette.setColor(QtGui.QPalette.ToolTipBase, QtCore.Qt.white)
+        darkPalette.setColor(QtGui.QPalette.ToolTipText, QtCore.Qt.white)
+        darkPalette.setColor(QtGui.QPalette.Text, QtCore.Qt.white)
+        darkPalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Text, QtGui.QColor(127,127,127))
+        darkPalette.setColor(QtGui.QPalette.Dark,QtGui.QColor(35,35,35))
+        darkPalette.setColor(QtGui.QPalette.Shadow,QtGui.QColor(20,20,20))
+        darkPalette.setColor(QtGui.QPalette.Button,QtGui.QColor(53,53,53))
+        darkPalette.setColor(QtGui.QPalette.ButtonText, QtCore.Qt.white)
+        darkPalette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.ButtonText,QtGui.QColor(127,127,127))
+        darkPalette.setColor(QtGui.QPalette.BrightText, QtCore.Qt.red)
+        darkPalette.setColor(QtGui.QPalette.Link,QtGui.QColor(42,130,218))
+        darkPalette.setColor(QtGui.QPalette.Highlight,QtGui.QColor(42,130,218))
+        darkPalette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.Highlight,QtGui.QColor(80,80,80))
+        darkPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)
+        darkPalette.setColor(QtGui.QPalette.Disabled,QtGui.QPalette.HighlightedText,QtGui.QColor(127,127,127))
+
+        self.setPalette(darkPalette)
+
+        styleSheetFile = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            "darkstyle",
+            "darkstyle.qss"
+        )
+
+        styleSheetContents = '\n'.join(open(styleSheetFile, "r").readlines())
+        self.setStyleSheet(
+            styleSheetContents
+        )
 
 app = Application(sys.argv)
-#app.updateSource("/home/paulon/dev/umedia/ingestor/data")
 sys.exit(app.exec_())

@@ -14,6 +14,10 @@ class Template(object):
     A template string is a compound of variables that were collected by the
     crawler and passed for the running:
         '{prefix}/testing/{width}X{height}/{name}.(pad {frame} 10).{ext}'
+
+    The template string can contain the prefix "!" which is used to tell
+    that the level must exist, for instance:
+        '{prefix}/!shouldExist/{width}X{height}/{name}.(pad {frame} 10).{ext}'
     """
 
     def __init__(self, inputString):
@@ -104,7 +108,7 @@ class Template(object):
                     resolvedPath = os.sep.join(finalPath)
                     if not os.path.exists(resolvedPath):
                         raise RequiredPathNotFoundError(
-                            'Path marked as required ({0}) does not exist: "{1}"'.format(
+                            'Template contains a path marked as required:\n"{0}"\n\nThis error is caused because the target path does not exist in the file system:\n{1}'.format(
                                 pathLevel,
                                 resolvedPath
                             )

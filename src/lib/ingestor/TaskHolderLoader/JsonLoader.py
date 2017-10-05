@@ -36,7 +36,11 @@ class JsonLoader(TaskHolderLoader):
 
         with open(fileName, 'r') as f:
             contents = '\n'.join(f.readlines())
-            self.addFromJson(contents, os.path.dirname(fileName))
+            self.addFromJson(
+                contents,
+                os.path.dirname(fileName),
+                os.path.basename(fileName),
+            )
 
     def addFromJsonDirectory(self, directory):
         """
@@ -54,7 +58,7 @@ class JsonLoader(TaskHolderLoader):
         for fileName in glob.glob(os.path.join(directory, '*.json')):
             self.addFromJsonFile(fileName)
 
-    def addFromJson(self, jsonContents, configPath):
+    def addFromJson(self, jsonContents, configPath, configName=''):
         """
         Add taskHolders from json.
 
@@ -64,7 +68,11 @@ class JsonLoader(TaskHolderLoader):
             "*/*.py"
           ],
           "vars": {
-            "prefix": "/tmp/test"
+            "prefix": "/tmp/test",
+            "__uiHintSourceColumns": [
+                "shot",
+                "type"
+            ]
           },
           "taskHolders": [
             {
@@ -131,6 +139,7 @@ class JsonLoader(TaskHolderLoader):
             vars = dict(contents['vars'])
 
         vars['configPath'] = configPath
+        vars['configName'] = configName
 
         self.__loadTaskHolder(contents, vars)
 
