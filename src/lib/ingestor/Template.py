@@ -108,7 +108,7 @@ class Template(object):
                     resolvedPath = os.sep.join(finalPath)
                     if not os.path.exists(resolvedPath):
                         raise RequiredPathNotFoundError(
-                            'Path marked as required ({0}) does not exist: "{1}"'.format(
+                            'Template contains a path marked as required:\n"{0}"\n\nThis error is caused because the target path does not exist in the file system:\n{1}'.format(
                                 pathLevel,
                                 resolvedPath
                             )
