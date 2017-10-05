@@ -90,7 +90,7 @@ class Application(QtWidgets.QApplication):
         self.__main.setWindowTitle('Ingestor')
         self.__main.resize(1080, 720)
         self.__main.setWindowIcon(
-            QtGui.QIcon("icons/ingestor.png")
+            QtGui.QIcon("{0}/icons/ingestor.png".format(os.path.dirname(os.path.realpath(__file__))))
         )
 
         centralWidget = QtWidgets.QWidget()
@@ -107,7 +107,7 @@ class Application(QtWidgets.QApplication):
         self.__sourceDirButton = QtWidgets.QPushButton()
         self.__sourceDirButton.setToolTip('Selects a source directory')
         self.__sourceDirButton.setIcon(
-            QtGui.QIcon("icons/folder.png")
+            QtGui.QIcon("{0}/icons/folder.png".format(os.path.dirname(os.path.realpath(__file__))))
         )
 
         # refresh
@@ -122,7 +122,7 @@ class Application(QtWidgets.QApplication):
         self.__sourceViewModeButton = QtWidgets.QPushButton("View Mode")
         self.__sourceViewModeButton.setToolTip('Changes the view mode')
         self.__sourceViewModeButton.setIcon(
-            QtGui.QIcon("icons/viewMode.png")
+            QtGui.QIcon("{0}/icons/viewMode.png".format(os.path.dirname(os.path.realpath(__file__))))
         )
         self.__sourceViewModeMenu = QtWidgets.QMenu(self.__sourceViewModeButton)
         self.__sourceViewModeButton.setMenu(self.__sourceViewModeMenu)
@@ -131,7 +131,7 @@ class Application(QtWidgets.QApplication):
         self.__sourceFilterButton = QtWidgets.QPushButton("Filter View")
         self.__sourceFilterButton.setToolTip('Filters out specific crawler types')
         self.__sourceFilterButton.setIcon(
-            QtGui.QIcon("icons/filterView.png")
+            QtGui.QIcon("{0}/icons/filterView.png".format(os.path.dirname(os.path.realpath(__file__))))
         )
         self.__sourceFilterMenu = QtWidgets.QMenu(self.__sourceFilterButton)
         self.__sourceFilterButton.setMenu(self.__sourceFilterMenu)
@@ -155,13 +155,13 @@ class Application(QtWidgets.QApplication):
 
         self.__nextButton = QtWidgets.QPushButton("Next")
         self.__nextButton.setIcon(
-            QtGui.QIcon("icons/next.png")
+            QtGui.QIcon("{0}/icons/next.png".format(os.path.dirname(os.path.realpath(__file__))))
         )
         self.__nextButton.clicked.connect(self.updateTarget)
 
         self.__backButton = QtWidgets.QPushButton("Back")
         self.__backButton.setIcon(
-            QtGui.QIcon("icons/back.png")
+            QtGui.QIcon("{0}/icons/back.png".format(os.path.dirname(os.path.realpath(__file__))))
         )
         self.__backButton.setVisible(False)
         self.__backButton.clicked.connect(self.__onBack)
@@ -194,7 +194,7 @@ class Application(QtWidgets.QApplication):
         centralWidget.layout().addLayout(headerLayout)
 
         logo = QtWidgets.QLabel()
-        logo.setPixmap(QtGui.QPixmap("icons/header.png").scaledToHeight(64, QtCore.Qt.SmoothTransformation))
+        logo.setPixmap(QtGui.QPixmap("{0}/icons/header.png".format(os.path.dirname(os.path.realpath(__file__)))).scaledToHeight(64, QtCore.Qt.SmoothTransformation))
         logo.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         headerLayout.addWidget(
             logo
@@ -210,7 +210,7 @@ class Application(QtWidgets.QApplication):
         self.__runButton.setVisible(False)
         self.__runButton.setToolTip('Performs the tasks')
         self.__runButton.setIcon(
-            QtGui.QIcon("icons/run.png")
+            QtGui.QIcon("{0}/icons/run.png".format(os.path.dirname(os.path.realpath(__file__))))
         )
         self.__runButton.clicked.connect(self.__onPerformTasks)
 
@@ -855,6 +855,8 @@ class Application(QtWidgets.QApplication):
         )
 
         styleSheetContents = '\n'.join(open(styleSheetFile, "r").readlines())
+        styleSheetContents = styleSheetContents.replace("darkstyle/", '{0}/'.format(os.path.dirname(styleSheetFile)))
+
         self.setStyleSheet(
             styleSheetContents
         )
