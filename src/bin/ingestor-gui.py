@@ -376,10 +376,14 @@ class Application(QtWidgets.QApplication):
             raise err
 
         else:
-             QtWidgets.QMessageBox.information(
+            message = "Ingestion completed successfully!"
+            if self.__runOnTheFarmCheckbox.checkState() == QtCore.Qt.Checked:
+                message = "Ingestion submitted to the farm!"
+
+            QtWidgets.QMessageBox.information(
                 self.__main,
                 "Ingestor",
-                "Ingestion completed successfully!",
+                message,
                 QtWidgets.QMessageBox.Ok
             )
 
@@ -554,7 +558,7 @@ class Application(QtWidgets.QApplication):
 
                     nameSuffix = ""
                     if groupName is not None:
-                        nameSuffix = " (+{0} files)".format(len(matchedCrawlers[crawler])-1)
+                        nameSuffix = " (+{0} files)".format(len(crawlerList)-1)
 
                     matchedChild = QtWidgets.QTreeWidgetItem(self.__targetTree)
                     matchedChild.setData(0, QtCore.Qt.EditRole, matchedCrawlers[crawler] + nameSuffix)
@@ -634,19 +638,21 @@ class Application(QtWidgets.QApplication):
         return result
 
     def updateSource(self, path):
+        self.__sourceTree.clear()
+        self.__sourceViewCrawlerList = []
+        self.__sourceFilterMenu.clear()
+
+        if not path:
+            return
 
         ph = ingestor.PathHolder(path)
         crawler = ingestor.Crawler.Fs.Path.create(ph)
         crawlerList = self.__collectCrawlers(crawler)
-        self.__sourceViewCrawlerList = []
-        self.__sourceFilterMenu.clear()
 
         crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), crawlerList))
         crawlerList.sort(key=lambda x: x.var('path').lower())
         crawlerTypes = set()
         crawlerTags = {}
-
-        self.__sourceTree.clear()
 
         # group
         if self.__checkedViewMode == "Group":
