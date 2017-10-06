@@ -1,9 +1,11 @@
 import sys
+import uuid
 import os
 import re
 import ingestor
 import subprocess
 import functools
+import json
 from collections import OrderedDict
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -170,6 +172,7 @@ class Application(QtWidgets.QApplication):
         self.__targetAreaWidget.setVisible(False)
         self.__targetAreaWidget.setLayout(targetLayout)
         self.__runOnTheFarmCheckbox = QtWidgets.QCheckBox("Run on the farm")
+        self.__runOnTheFarmCheckbox.setChecked(True)
         self.__runOnTheFarmCheckbox.setVisible(False)
 
         targetBarLayout = QtWidgets.QHBoxLayout()
@@ -266,8 +269,100 @@ class Application(QtWidgets.QApplication):
 
         visibleCrawlers = self.__visibleCrawlers()
         try:
-            for taskHolder in self.__taskHolders:
-                self.__recursiveTaskRunner(visibleCrawlers, taskHolder)
+
+            # run on the farm
+            if self.__runOnTheFarmCheckbox.checkState() == QtCore.Qt.Checked:
+
+                # current environment
+                outputEnvironment = "/data/studio/upipe/tmp/ingestor_environment_{0}.json".format(
+                    str(uuid.uuid1())
+                )
+
+                with open(outputEnvironment, 'w') as outputFile:
+                    bakeEnv = dict(os.environ)
+                    del bakeEnv['USER']
+                    del bakeEnv['HOSTNAME']
+                    del bakeEnv['UMEDIA_LOCAL_DATA']
+                    bakeEnv['PYTHONPATH'] += ":{0}".format(
+                        os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "lib")
+                    )
+
+                    json.dump(
+                        bakeEnv,
+                        outputFile
+                    )
+
+                groupedCrawlers = OrderedDict()
+                groupedCrawlers[None] = []
+                for visibleCrawler in visibleCrawlers:
+
+                    # group
+                    if self.__checkedViewMode == "Group" and 'group' in visibleCrawler.tagNames():
+                        groupName = os.path.join(
+                            os.path.dirname(visibleCrawler.var('filePath')),
+                            visibleCrawler.tag('group')
+                        )
+                        if groupName not in groupedCrawlers:
+                            groupedCrawlers[groupName] = []
+
+                        groupedCrawlers[groupName].append(visibleCrawler)
+
+                    # flat
+                    else:
+                        groupedCrawlers[None].append(visibleCrawler)
+
+                configPath = self.__taskHolders[0].customVar('configPath')
+                for fileGroupName, crawlers in groupedCrawlers.items():
+
+                    if not len(crawlers):
+                        continue
+
+                    outputFileLocation = "/data/studio/upipe/tmp/ingestor_{0}.json".format(
+                        str(uuid.uuid1())
+                    )
+
+                    with open(outputFileLocation, 'w') as outputFile:
+                        json.dump(
+                            list(map(lambda x: x.var('filePath'), crawlers)),
+                            outputFile
+                        )
+
+                    # executing deadline command
+                    if fileGroupName is None:
+                        fileGroupName = "Generic files"
+                    else:
+                        fileGroupName = os.path.basename(fileGroupName)
+
+                    command = ' '.join([
+                        "deadlinecommand",
+                        "-SubmitCommandLineJob",
+                        "-executable",
+                        "upython",
+                        "-arguments",
+                        '\\"{0} -env {1} upython {2} -configPath {3} -files {4}\\"'.format(
+                            os.path.join(os.path.dirname(os.path.realpath(__file__)), "ingestor-env.py"),
+                            outputEnvironment,
+                            os.path.join(os.path.dirname(os.path.realpath(__file__)), "ingestor-farm.py"),
+                            configPath,
+                            outputFileLocation
+                        ),
+                        "-name",
+                        '\\"Ingestor: {0}\\"'.format(fileGroupName),
+                        "-group",
+                        "desktop"
+                    ])
+
+                    subprocess.Popen(
+                        command,
+                        shell=True,
+                        env=dict(os.environ)
+                    )
+
+            # run locally
+            else:
+                for taskHolder in self.__taskHolders:
+                    taskHolder.run(visibleCrawlers)
+
         except Exception as err:
             QtWidgets.QMessageBox.critical(
                self.__main,
@@ -287,62 +382,6 @@ class Application(QtWidgets.QApplication):
                 "Ingestion completed successfully!",
                 QtWidgets.QMessageBox.Ok
             )
-
-    def __recursiveTaskRunner(self, crawlers, taskHolder):
-        matchedCrawlers = taskHolder.query(crawlers)
-        if matchedCrawlers:
-
-            # cloning task so we can modify it
-            clonedTask = taskHolder.task().clone()
-
-            for matchedCrawler, targetFilePath in matchedCrawlers.items():
-
-                # todo:
-                # need to have a way to clone a crawler, so we can
-                # modify it safely
-                for customVarName in taskHolder.customVarNames():
-                    matchedCrawler.setVar(
-                        customVarName,
-                        taskHolder.customVar(customVarName)
-                    )
-
-                clonedTask.add(matchedCrawler, targetFilePath)
-
-            # performing task
-            currentTaskName = type(clonedTask).__name__
-            sys.stdout.write('Running task: {0}\n'.format(currentTaskName))
-            for pathCrawler in clonedTask.run():
-                sys.stdout.write('  - {0}: {1}\n'.format(
-                        currentTaskName,
-                        matchedCrawlers[pathCrawler]
-                    )
-                )
-                sys.stdout.flush()
-
-            if taskHolder.subTaskHolders():
-                newCrawlers = []
-                for templateGeneratedFile in set(matchedCrawlers.values()):
-                    childCrawler = ingestor.Crawler.Fs.Path.create(
-                        ingestor.PathHolder(templateGeneratedFile)
-                    )
-
-                    # setting the task holder custom variables to this crawler.
-                    # This basically transfer the global variables declared in
-                    # the json configuration to the crawler, so subtasks can use
-                    # them to resolve templates (when necessary).
-                    for customVarName in taskHolder.customVarNames():
-                        childCrawler.setVar(
-                            customVarName,
-                            taskHolder.customVar(customVarName)
-                        )
-
-                    # appending the new crawler
-                    newCrawlers.append(
-                        childCrawler
-                    )
-
-                for subTaskHolder in taskHolder.subTaskHolders():
-                    self.__recursiveTaskRunner(newCrawlers, subTaskHolder)
 
     def __onSourceTreeContextMenu(self, point):
 
