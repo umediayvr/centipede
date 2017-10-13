@@ -34,6 +34,22 @@ class Path(Crawler):
         """
         return self.__pathHolder
 
+    def clone(self):
+        """
+        Returns a cloned instance about the current crawler.
+        """
+        newInstance = self.__class__(self.pathHolder())
+
+        # clonning variables
+        for varName in self.varNames():
+            newInstance.setVar(varName, self.var(varName))
+
+        # clonning tags
+        for tagName in self.tagNames():
+            newInstance.setTag(tagName, self.tag(tagName))
+
+        return newInstance
+
     @classmethod
     def test(cls, parentCrawler, pathInfo):
         """

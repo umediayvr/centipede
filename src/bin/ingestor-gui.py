@@ -2,6 +2,7 @@ import sys
 import uuid
 import os
 import re
+import shutil
 import ingestor
 import subprocess
 import functools
@@ -13,41 +14,64 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Application(QtWidgets.QApplication):
 
     __viewModes = ["group", "flat"]
+    __remoteTempDirectory = os.environ['UMEDIA_TEMP_REMOTE_DIR']
 
     def __init__(self, argv, **kwargs):
         super(Application, self).__init__(argv, **kwargs)
+
+        # showing a dialog to pick where the task holder
+        # configuration is localized
+        self.__configurationDirectory = ""
+
         self.__appplyStyleSheet()
         self.__uiHintSourceColumns = []
 
         self.__buildWidgets()
 
-        # showing a dialog to pick where the task holder
-        # configuration is localized
-        configurationDirectory = ""
-
         # getting configuration directory from the args
         if len(argv) > 1:
-            configurationDirectory = argv[1]
+            self.__configurationDirectory = argv[1]
 
+        self.updateConfiguration()
+        self.__main.setWindowTitle('Ingestor ({0})'.format(self.__configurationDirectory))
+
+        # getting source files directory from the args
+        if len(argv) > 2:
+            self.__sourcePath.setText(argv[2])
+
+    def updateConfiguration(self):
         taskHolders = []
         while not taskHolders:
 
-            if configurationDirectory == "":
-                configurationDirectory = QtWidgets.QFileDialog.getExistingDirectory(
+            if self.__configurationDirectory == "":
+                self.__configurationDirectory = QtWidgets.QFileDialog.getExistingDirectory(
                     self.__main,
                     "Select a directory with the configuration that should be used by the ingestor",
-                    configurationDirectory,
+                    self.__configurationDirectory,
                     QtWidgets.QFileDialog.ShowDirsOnly
                 )
 
                 # cancelled
-                if configurationDirectory == "":
+                if self.__configurationDirectory == "":
                     raise Exception("Ingestor Cancelled")
                     break
 
-            # collecting path holders from the directory
+            # collecting task holders from the directory
             taskHolderLoader = ingestor.TaskHolderLoader.JsonLoader()
-            taskHolderLoader.addFromJsonDirectory(configurationDirectory)
+            try:
+                taskHolderLoader.addFromJsonDirectory(self.__configurationDirectory)
+            except Exception as err:
+                QtWidgets.QMessageBox.critical(
+                   self.__main,
+                   "Ingestor",
+                   "Failed to load the configuration ({0}):\n{1}".format(
+                       self.__configurationDirectory,
+                       str(err)
+                   ),
+                   QtWidgets.QMessageBox.Ok
+                )
+
+                raise err
 
             if not taskHolderLoader.taskHolders():
                 result = QtWidgets.QMessageBox.warning(
@@ -62,30 +86,30 @@ class Application(QtWidgets.QApplication):
                     raise Exception("Ingestor Cancelled")
                     break
                 else:
-                    configurationDirectory = ""
+                    self.__configurationDirectory = ""
 
             else:
                 taskHolders = taskHolderLoader.taskHolders()
+                columns = []
                 for taskHolder in taskHolders:
                     if '__uiHintSourceColumns' in taskHolder.customVarNames():
                         for columnName in taskHolder.customVar('__uiHintSourceColumns'):
-                            if columnName not in self.__uiHintSourceColumns:
-                                self.__uiHintSourceColumns.append(columnName)
+                            if columnName not in columns:
+                                columns.append(columnName)
 
-                camelCaseToSpaced = lambda x: x[0].upper() + re.sub("([a-z])([A-Z])","\g<1> \g<2>", x[1:])
-                header = QtWidgets.QTreeWidgetItem(
-                    ["Source"] + list(map(camelCaseToSpaced, self.__uiHintSourceColumns))
-                )
-                self.__sourceTree.setHeaderItem(
-                    header
-                )
+                if columns != self.__uiHintSourceColumns:
+                    self.__uiHintSourceColumns = columns
+                    camelCaseToSpaced = lambda x: x[0].upper() + re.sub("([a-z])([A-Z])","\g<1> \g<2>", x[1:])
+                    header = QtWidgets.QTreeWidgetItem(
+                        ["Source"] + list(map(camelCaseToSpaced, self.__uiHintSourceColumns))
+                    )
 
-        self.__main.setWindowTitle('Ingestor ({0})'.format(configurationDirectory))
+                    self.__sourceTree.setHeaderItem(
+                        header
+                    )
+
         self.__taskHolders = taskHolders
-
-        # getting source files directory from the args
-        if len(argv) > 2:
-            self.__sourcePath.setText(argv[2])
+        self.__onRefreshSourceDir()
 
     def __buildWidgets(self):
         self.__main = QtWidgets.QMainWindow()
@@ -268,14 +292,22 @@ class Application(QtWidgets.QApplication):
             return
 
         visibleCrawlers = self.__visibleCrawlers()
+
         try:
+
+            # current environment
+            baseRemoteTemporaryPath = os.path.join(
+                self.__remoteTempDirectory,
+                str(uuid.uuid1())
+            )
+            os.makedirs(baseRemoteTemporaryPath)
 
             # run on the farm
             if self.__runOnTheFarmCheckbox.checkState() == QtCore.Qt.Checked:
 
-                # current environment
-                outputEnvironment = "/data/studio/upipe/tmp/ingestor_environment_{0}.json".format(
-                    str(uuid.uuid1())
+                outputEnvironment = os.path.join(
+                    baseRemoteTemporaryPath,
+                    "ingestorEnv.json"
                 )
 
                 with open(outputEnvironment, 'w') as outputFile:
@@ -317,8 +349,11 @@ class Application(QtWidgets.QApplication):
                     if not len(crawlers):
                         continue
 
-                    outputFileLocation = "/data/studio/upipe/tmp/ingestor_{0}.json".format(
-                        str(uuid.uuid1())
+                    outputFileLocation = os.path.join(
+                        baseRemoteTemporaryPath,
+                        "{0}_group.json".format(
+                            str(uuid.uuid1())
+                        )
                     )
 
                     with open(outputFileLocation, 'w') as outputFile:
@@ -333,17 +368,25 @@ class Application(QtWidgets.QApplication):
                     else:
                         fileGroupName = os.path.basename(fileGroupName)
 
+                    # making a copy of the current configuration that is going
+                    # to be used when it is running on the farm
+                    targetConfigPath = os.path.join(
+                        baseRemoteTemporaryPath,
+                        "config"
+                    )
+                    shutil.copytree(configPath, targetConfigPath)
+
                     command = ' '.join([
                         "deadlinecommand",
                         "-SubmitCommandLineJob",
                         "-executable",
-                        "upython",
+                        "python",
                         "-arguments",
                         '\\"{0} -env {1} upython {2} -configPath {3} -files {4}\\"'.format(
                             os.path.join(os.path.dirname(os.path.realpath(__file__)), "ingestor-env.py"),
                             outputEnvironment,
                             os.path.join(os.path.dirname(os.path.realpath(__file__)), "ingestor-farm.py"),
-                            configPath,
+                            targetConfigPath,
                             outputFileLocation
                         ),
                         "-name",
@@ -360,6 +403,15 @@ class Application(QtWidgets.QApplication):
 
             # run locally
             else:
+                # applying overrides
+                overrides = self.__loadSourceOverrides()
+                if overrides:
+                    for crawler in visibleCrawlers:
+                        filePath = crawler.var('filePath')
+                        if filePath in overrides:
+                            for varName, varValue in overrides[filePath].items():
+                                crawler.setVar(varName, varValue)
+
                 for taskHolder in self.__taskHolders:
                     taskHolder.run(visibleCrawlers)
 
@@ -388,16 +440,107 @@ class Application(QtWidgets.QApplication):
             )
 
     def __onSourceTreeContextMenu(self, point):
+        self.__sourceTree.resizeColumnToContents(0)
 
-        if self.__sourceTree.selectionModel().selectedIndexes():
+        selectedIndexes = self.__sourceTree.selectionModel().selectedIndexes()
+
+        if selectedIndexes:
+
+            selectedColumn = selectedIndexes[0].column()
             menu = QtWidgets.QMenu(self.__main)
-            action = menu.addAction('Show Folder')
-            action.triggered.connect(self.__openSelected)
+            if selectedColumn == 0:
+                action = menu.addAction('Show Folder')
+                action.triggered.connect(self.__openSelected)
 
-            action = menu.addAction('Play in RV')
-            action.triggered.connect(self.__playSelectedInRv)
+                action = menu.addAction('Play in RV')
+                action.triggered.connect(self.__playSelectedInRv)
+            else:
+                action = menu.addAction('Override Value')
+                action.triggered.connect(self.__onChangeCrawlerValue)
+
+                action = menu.addAction('Reset Value')
+                action.triggered.connect(self.__onResetCrawlerValue)
 
             menu.exec_(self.__sourceTree.mapToGlobal(point))
+
+    def __onChangeCrawlerValue(self):
+
+        value = None
+        overrides = dict(self.__sourceOverrides)
+        for selectedIndex in self.__sourceTree.selectionModel().selectedIndexes():
+            selectedColumn = selectedIndex.column()
+
+            if selectedIndex.parent().row() != -1:
+                continue
+
+            columnName = self.__uiHintSourceColumns[selectedColumn - 1]
+
+            crawler = self.__sourceViewCrawlerList[selectedIndex.row()]
+            if not isinstance(crawler, list):
+                crawler = [crawler]
+
+            hintValue = ""
+            if columnName in crawler[0].varNames():
+                hintValue = crawler[0].var(columnName)
+
+            if value is None:
+                value = QtWidgets.QInputDialog.getText(
+                    self.__main,
+                    "Override Value",
+                    "New Value",
+                    QtWidgets.QLineEdit.Normal,
+                    str(hintValue)
+                )
+
+                # cancelled
+                if not value[1]:
+                    return
+
+                value = type(hintValue)(value[0])
+
+            for crawlerItem in crawler:
+                if crawlerItem.var('filePath') not in overrides:
+                    overrides[crawlerItem.var('filePath')] = {}
+
+                overrides[crawlerItem.var('filePath')][columnName] = value
+
+        if not os.path.exists(os.path.dirname(self.__sourceOverridesConfig())):
+            os.mkdir(os.path.dirname(self.__sourceOverridesConfig()))
+
+        with open(self.__sourceOverridesConfig(), 'w') as sourceFile:
+            json.dump(overrides, sourceFile, indent=4)
+
+        if value is not None:
+            self.__onRefreshSourceDir()
+
+    def __onResetCrawlerValue(self):
+        overrides = dict(self.__sourceOverrides)
+        for selectedIndex in self.__sourceTree.selectionModel().selectedIndexes():
+            selectedColumn = selectedIndex.column()
+
+            if selectedIndex.parent().row() != -1:
+                continue
+
+            columnName = self.__uiHintSourceColumns[selectedColumn - 1]
+
+            crawler = self.__sourceViewCrawlerList[selectedIndex.row()]
+            if not isinstance(crawler, list):
+                crawler = [crawler]
+
+            crawlerFilePaths = map(lambda x: x.var('filePath'), crawler)
+            for filePath in crawlerFilePaths:
+                if filePath in overrides:
+                    if columnName in overrides[filePath]:
+                        del overrides[filePath][columnName]
+
+                    if not len(overrides[filePath]):
+                        del overrides[filePath]
+
+        if os.path.exists(os.path.dirname(self.__sourceOverridesConfig())):
+            with open(self.__sourceOverridesConfig(), 'w') as sourceFile:
+                json.dump(overrides, sourceFile, indent=4)
+
+            self.__onRefreshSourceDir()
 
     def __onTargetTreeContextMenu(self, point):
 
@@ -475,7 +618,9 @@ class Application(QtWidgets.QApplication):
 
     def __createTreeWidget(self, columns=[]):
         sourceTree = QtWidgets.QTreeWidget()
+
         sourceTree.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        sourceTree.setSelectionBehavior(QtWidgets.QTreeWidget.SelectItems)
         sourceTree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
         header = QtWidgets.QTreeWidgetItem(columns)
@@ -504,10 +649,21 @@ class Application(QtWidgets.QApplication):
                     else:
                         result.append(crawler)
 
-        return result
+        return list(map(lambda x: x.clone(), result))
 
     def updateTarget(self):
+        self.updateConfiguration()
+
         visibleCrawlers = self.__visibleCrawlers()
+
+        # applying overrides
+        overrides = self.__loadSourceOverrides()
+        for crawler in visibleCrawlers:
+            filePath = crawler.var('filePath')
+            if filePath in overrides:
+                for varName, varValue in overrides[filePath].items():
+                    crawler.setVar(varName, varValue)
+
         self.__targetAreaWidget.setVisible(True)
         self.__runOnTheFarmCheckbox.setVisible(True)
         self.__sourceAreaWidget.setVisible(False)
@@ -582,7 +738,7 @@ class Application(QtWidgets.QApplication):
                             QtCore.Qt.EditRole,
                             os.path.join(
                                 taskHolder.customVar('configPath'),
-                                taskHolder.customVar('configName'),
+                                taskHolder.customVar('configName')
                             )
                         )
 
@@ -637,10 +793,23 @@ class Application(QtWidgets.QApplication):
 
         return result
 
+    def __sourceOverridesConfig(self):
+        return os.path.join(self.__configurationDirectory, "overrides", "source.json")
+
+    def __loadSourceOverrides(self):
+        result = {}
+
+        if os.path.exists(self.__sourceOverridesConfig()):
+            with open(self.__sourceOverridesConfig()) as sourceFile:
+                result = json.load(sourceFile)
+
+        return result
+
     def updateSource(self, path):
         self.__sourceTree.clear()
         self.__sourceViewCrawlerList = []
         self.__sourceFilterMenu.clear()
+        self.__sourceOverrides = self.__loadSourceOverrides()
 
         if not path:
             return
@@ -746,18 +915,42 @@ class Application(QtWidgets.QApplication):
     def __addColumnInformation(self, crawler, treeItem):
         # adding column information
         for index, column in enumerate(self.__uiHintSourceColumns):
+
+            hasOverride = False
+            value = ''
+            if crawler.var('filePath') in self.__sourceOverrides and column in self.__sourceOverrides[crawler.var('filePath')]:
+                value = self.__sourceOverrides[crawler.var('filePath')][column]
+                hasOverride = True
+
             if column in crawler.varNames():
-                treeItem.setData(
+                if not hasOverride:
+                    value = crawler.var(column)
+
+            treeItem.setData(
+                index + 1,
+                QtCore.Qt.EditRole,
+                str(value) +  '   '
+            )
+
+            if hasOverride:
+                font = QtGui.QFont()
+                font.setItalic(True)
+                treeItem.setFont(
                     index + 1,
-                    QtCore.Qt.EditRole, crawler.var(column) +  '   '
+                    font
                 )
+
+                treeItem.setForeground(
+                    index + 1,
+                    QtGui.QBrush(QtGui.QColor(255, 152, 28))
+                )
+
 
     def __createChildItem(self, crawler, parent, crawlerTypes, crawlerTags):
         child = QtWidgets.QTreeWidgetItem(parent)
 
-
         # visible data
-        child.setData(0, QtCore.Qt.EditRole, crawler.var('path')[1:])
+        child.setData(0, QtCore.Qt.EditRole, crawler.var('path')[1:] + '   ')
         self.__addColumnInformation(crawler, child)
 
         crawlerTypes.add(crawler.var('type'))

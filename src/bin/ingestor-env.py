@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 
-env = {}
+env = dict(os.environ)
 envArg = sys.argv.index('-env')
 envFile = sys.argv[envArg + 1]
 with open(envFile) as jsonFile:

@@ -12,9 +12,9 @@ class Oiio(Image):
         """
         super(Oiio, self).__init__(*args, **kwargs)
 
+        # reading width/height from the file
         self.__imageBuf = OpenImageIO.ImageBuf(self.pathHolder().path())
 
-        # reading width/height
         spec = self.__imageBuf.spec()
         self.setVar('width', spec.width)
         self.setVar('height', spec.height)
