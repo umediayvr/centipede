@@ -109,3 +109,19 @@ class Crawler(object):
             )
 
         return self.__tags[name]
+
+    def clone(self):
+        """
+        Returns a cloned instance about the current crawler.
+        """
+        newInstance = self.__class__(self.var('name'))
+
+        # clonning variables
+        for varName in self.varNames():
+            newInstance.setVar(varName, self.var(varName))
+
+        # clonning tags
+        for tagName in self.tagNames():
+            newInstance.setTag(tagName, self.tag(tagName))
+
+        return newInstance
