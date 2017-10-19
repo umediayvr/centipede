@@ -20,19 +20,36 @@ class Image(File):
         """
         Return if path holder is holding a file that is part of a image sequence.
         """
-        nameParts = self.pathHolder().baseName().split(".")
-        return (len(nameParts) >= 3 and self.pathHolder().baseName().split(".")[-2].isdigit())
+        # first test is to test agains the conventional image seq abc.0001.ext
+        isImageSeq = self.__isStandardSequence()
+
+        # second test is to check against the non-conventional image seq abc_0001.ext
+        if not isImageSeq:
+            isImageSeq = self.__isAmbiguousSequence()
+
+        return isImageSeq
 
     def __computeImageSequence(self):
         """
         Compute the image sequence tags and vars.
         """
-        if self.isSequence():
-            nameParts = self.pathHolder().baseName().split(".")
+        nameParts = self.pathHolder().baseName().split(".")
+        frame = None
+        name = None
+        frameSep = None
+        if self.__isStandardSequence():
             frame = nameParts[-2]
+            name = '.'.join(nameParts[:-2])
+            frameSep = "."
+        elif self.__isAmbiguousSequence():
+            nameParts = nameParts[0].split("_")
+            frame = nameParts[-1]
+            name = '_'.join(nameParts[:-1])
+            frameSep = "_"
 
+        if frame is not None:
             self.setVar('imageType', 'sequence')
-            self.setVar('name', '.'.join(nameParts[:-2]))
+            self.setVar('name', name)
             self.setVar('frame', int(frame))
             self.setVar('padding', len(frame))
 
@@ -42,11 +59,36 @@ class Image(File):
             # since the sequence can be unpadded.
             self.setTag(
                 'group',
-                '{0}.{1}.{2}'.format(
-                    '.'.join(nameParts[:-2]),
+                '{0}{1}{2}.{3}'.format(
+                    name,
+                    frameSep,
                     '#' * len(frame),
-                    nameParts[-1]
+                    self.var('ext')
                 )
             )
         else:
             self.setTag('image', self.pathHolder().baseName())
+
+    def __isStandardSequence(self):
+        """
+        Return a boolean telling if the crawler contains a standard image sequence.
+
+        The crawler must follow the standard seq covention: abc.0001.ext
+        """
+        nameParts = self.pathHolder().baseName().split(".")
+        isImageSeq = (len(nameParts) >= 3 and self.pathHolder().baseName().split(".")[-2].isdigit())
+
+        return isImageSeq
+
+    def __isAmbiguousSequence(self):
+        """
+        Return a boolean telling if the crawler contains an ambiguous image sequence.
+
+        This crawler must follow the ambiguous seq covention: abc_0001.ext
+        """
+        nameParts = self.pathHolder().baseName().split(".")
+        parts = nameParts[0].split("_")
+        if len(parts) > 1:
+            isImageSeq = (parts[-1].isdigit() and len(parts[-1]) >= 4)
+
+        return isImageSeq
