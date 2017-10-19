@@ -41,6 +41,8 @@ class Application(QtWidgets.QApplication):
 
     def updateConfiguration(self):
         taskHolders = []
+        currentVisibleCrawlers = self.__visibleCrawlers()
+
         while not taskHolders:
 
             if self.__configurationDirectory == "":
@@ -110,6 +112,34 @@ class Application(QtWidgets.QApplication):
 
         self.__taskHolders = taskHolders
         self.__onRefreshSourceDir()
+
+        totalRows = self.__sourceTree.model().rowCount()
+        result = []
+
+        for i in range(totalRows):
+            crawler = self.__sourceViewCrawlerList[i]
+
+            if not self.__sourceTree.isRowHidden(i, QtCore.QModelIndex()):
+                visible = False
+                for visibleCrawler in currentVisibleCrawlers:
+                    if isinstance(visibleCrawler, list):
+                        useVisibleCrawler = visibleCrawler[0]
+                    else:
+                        useVisibleCrawler = visibleCrawler
+
+                    if isinstance(crawler, list):
+                        useCrawler = crawler[0]
+                    else:
+                        useCrawler = crawler
+
+                    if useVisibleCrawler.var('filePath') == useCrawler.var('filePath'):
+                        visible = True
+                        break
+
+                item = self.__sourceTree.topLevelItem(i)
+
+                if not visible:
+                    item.setCheckState(0, QtCore.Qt.Unchecked)
 
     def __buildWidgets(self):
         self.__main = QtWidgets.QMainWindow()
@@ -374,7 +404,10 @@ class Application(QtWidgets.QApplication):
                         baseRemoteTemporaryPath,
                         "config"
                     )
-                    shutil.copytree(configPath, targetConfigPath)
+
+                    # copying the configuration
+                    if not os.path.exists(targetConfigPath):
+                        shutil.copytree(configPath, targetConfigPath)
 
                     command = ' '.join([
                         "deadlinecommand",
