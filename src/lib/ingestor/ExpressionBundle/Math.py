@@ -12,10 +12,10 @@ class _Math(object):
         Sum (cast to integer).
         """
         intArgs = _Math.__castToInt(*args)
-        return operator.add(
+        return int(operator.add(
             intArgs[0],
             intArgs[1]
-        )
+        ))
 
     @staticmethod
     def subtractInt(*args):
@@ -23,10 +23,10 @@ class _Math(object):
         Subtraction (cast to integer).
         """
         intArgs = _Math.__castToInt(*args)
-        return operator.sub(
+        return int(operator.sub(
             intArgs[0],
             intArgs[1]
-        )
+        ))
 
     @staticmethod
     def multiplyInt(*args):
@@ -34,10 +34,10 @@ class _Math(object):
         Multiply (cast to integer).
         """
         intArgs = _Math.__castToInt(*args)
-        return operator.mul(
+        return int(operator.mul(
             intArgs[0],
             intArgs[1]
-        )
+        ))
 
     @staticmethod
     def divideInt(*args):
@@ -45,10 +45,10 @@ class _Math(object):
         Divide (cast to integeselfr).
         """
         intArgs = _Math.__castToInt(*args)
-        return operator.truediv(
+        return int(operator.truediv(
             intArgs[0],
             intArgs[1]
-        )
+        ))
 
     @staticmethod
     def __castToInt(*args):

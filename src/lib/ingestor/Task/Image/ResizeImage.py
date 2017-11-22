@@ -1,6 +1,7 @@
 import os
 import multiprocessing
 import OpenImageIO as oiio
+from ...Template import Template
 from ..Task import Task
 
 
@@ -15,11 +16,23 @@ class ResizeImage(Task):
         """
         Perform the task.
         """
-        width = self.option('width')
-        height = self.option('height')
 
         for pathCrawler in self.pathCrawlers():
             yield pathCrawler
+
+            width = self.option('width')
+            height = self.option('height')
+
+            # resolving template
+            if isinstance(width, str):
+                width = int(Template(width).valueFromCrawler(
+                    pathCrawler
+                ))
+
+            if isinstance(height, str):
+                height = int(Template(height).valueFromCrawler(
+                    pathCrawler
+                ))
 
             targetFilePath = self.filePath(pathCrawler)
 
