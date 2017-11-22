@@ -7,7 +7,9 @@ from ..Task import Task
 
 class ResizeImage(Task):
     """
-    Resizes the image to the sizes defined by the options "width" and "height".
+    Image resize task.
+
+    Required Options: "width" and "height" (both support expressions)
 
     TODO: missing to umedia metadata/source image attributes.
     """
@@ -16,7 +18,6 @@ class ResizeImage(Task):
         """
         Perform the task.
         """
-
         for pathCrawler in self.pathCrawlers():
             yield pathCrawler
 
