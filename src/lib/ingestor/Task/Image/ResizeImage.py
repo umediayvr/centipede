@@ -4,12 +4,12 @@ import OpenImageIO as oiio
 from ...Template import Template
 from ..Task import Task
 
-
 class ResizeImage(Task):
     """
     Image resize task.
 
-    Required Options: "width" and "height" (both support expressions)
+    Options:
+    - Required: "width" and "height" (both support expressions)
 
     TODO: missing to umedia metadata/source image attributes.
     """
@@ -52,7 +52,7 @@ class ResizeImage(Task):
                 width,
                 height,
                 inputSpec.nchannels,
-                oiio.FLOAT
+                inputSpec.format
             )
 
             # resized image buf
