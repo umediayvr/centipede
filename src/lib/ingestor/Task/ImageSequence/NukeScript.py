@@ -21,7 +21,7 @@ class NukeScript(Task):
 
     def _perform(self):
         """
-        Executes nuke script.
+        Execute the nuke script.
         """
         # collecting all crawlers that have the same target file path
         sequenceFiles = OrderedDict()
@@ -34,13 +34,29 @@ class NukeScript(Task):
             sequenceFiles[targetFilePath].append(pathCrawler)
 
         # calling nuke script
-        for targetSequenceName, sequenceCrawlers in sequenceFiles.items():
+        for targetSequenceFilePath, sequenceCrawlers in sequenceFiles.items():
             pathCrawler = sequenceCrawlers[0]
             startFrame = sequenceCrawlers[0].var('frame')
             endFrame = sequenceCrawlers[-1].var('frame')
+            targetSequenceFilePath = self.filePath(pathCrawler)
+
+            # nuke does not create folders at render time, creating them
+            # beforehand
+            requiredRenderDirName = os.path.dirname(targetSequenceFilePath)
+            if not os.path.exists(requiredRenderDirName):
+                os.makedirs(requiredRenderDirName)
+
+            # converting the active frame to the frame padding notation
+            sourceSequenceFilePath = pathCrawler.var('filePath').split(".")
+            sourceSequenceFilePath = '{0}.{1}.{2}'.format(
+                '.'.join(sourceSequenceFilePath[:-2]),
+                ("#" * len(sourceSequenceFilePath[-2])),
+                sourceSequenceFilePath[-1]
+            )
 
             # nuke script is about to start
-            yield pathCrawler
+            for sequenceCrawler in sequenceCrawlers:
+                yield sequenceCrawler
 
             # generating a temporary file that is going to contain the options
             # that should be used by nuke script
@@ -52,7 +68,8 @@ class NukeScript(Task):
 
             # resolving options
             options = {
-                'sequence': targetSequenceName,
+                'sourceSequence': sourceSequenceFilePath,
+                'targetSequence': targetSequenceFilePath,
                 'startFrame': startFrame,
                 'endFrame': endFrame
             }
@@ -83,7 +100,7 @@ class NukeScript(Task):
 
             # calling nuke
             process = subprocess.Popen(
-                'nuke -x -t "{scriptLoader}" --ingestor-options "{optionsFile}"'.format(
+                'nuke -x -t "{scriptLoader}" --ingestor-options "{optionsFile}" --log-level error'.format(
                     scriptLoader=scriptLoaderPath,
                     optionsFile=tempJsonOptionsFile.name
                 ),
