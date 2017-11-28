@@ -98,3 +98,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# qbs
+build_release
+default
+products
+
