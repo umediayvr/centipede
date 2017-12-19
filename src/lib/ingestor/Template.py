@@ -18,6 +18,10 @@ class Template(object):
     The template string can contain the prefix "!" which is used to tell
     that the level must exist, for instance:
         '{prefix}/!shouldExist/{width}X{height}/{name}.(pad {frame} 10).{ext}'
+
+    Also, you can use the token "<parentPath>" to pass the computed parent path
+    to an expression. Keep in mind this is only supported by expressions.
+        '{prefix}/testing/(computeVersion <parentPath>)/{name}.(pad {frame} 10).{ext}'
     """
 
     def __init__(self, inputString):
@@ -89,13 +93,17 @@ class Template(object):
                 # otherwise it could side effect in expressions that create
                 # new versions...
                 rawExpression = templatePart[:endIndex]
+
+                # this is a special token that allows to pass the parent path
+                # to an expression, replacing it with the parent path at this point.
+                rawExpression = rawExpression.replace("<parentPath>", finalResolvedTemplate.replace("!", ""))
                 if rawExpression not in self.__expressionValueCache:
                     self.__expressionValueCache[rawExpression] = ExpressionEvaluator.parseRun(
                         rawExpression
                     )
 
                 expressionValue = self.__expressionValueCache[rawExpression]
-                finalResolvedTemplate += expressionValue + templatePart[endIndex+1:]
+                finalResolvedTemplate += expressionValue + templatePart[endIndex + 1:]
             else:
                 finalResolvedTemplate += templatePart
 
