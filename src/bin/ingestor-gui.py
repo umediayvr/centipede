@@ -31,6 +31,8 @@ class Application(QtWidgets.QApplication):
         # getting configuration directory from the args
         if len(argv) > 1:
             self.__configurationDirectory = argv[1]
+        elif 'INGESTOR_CONFIG_DIR' in os.environ:
+            self.__configurationDirectory = os.environ['INGESTOR_CONFIG_DIR']
 
         self.updateConfiguration()
         self.__main.setWindowTitle('Ingestor ({0})'.format(self.__configurationDirectory))
