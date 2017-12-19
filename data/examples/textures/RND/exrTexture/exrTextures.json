@@ -1,0 +1,29 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/data/job",
+    "job": "999_r_d",
+    "variant": "default",
+    "__uiHintSourceColumns": [
+      "assetName",
+      "mapType",
+      "variant"
+    ]
+  },
+  "taskHolders": [
+    {
+      "task": "createTextureVersion",
+      "matchTypes": [
+        "exrTexture"
+      ],
+      "matchVars": {
+      },
+      "taskOptions": {
+        "maketxArgs": "-v -u --unpremult --oiio"
+      },
+      "targetTemplate": "{prefix}/{job}/publish/assets/!{assetName}/texture/{variant}/(textureNewVersion <parentPath>)/files.json"
+    }
+  ]
+}
