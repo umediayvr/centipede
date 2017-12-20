@@ -13,9 +13,18 @@ class ExrTexture(ingestor.Crawler.Fs.Image.Exr):
         parts = self.var("name").split("_")
 
         self.setVar("assetName", parts[0])
-        self.setVar("mapType", parts[1].upper())
+        self.setVar("mapType", parts[1])
         self.setVar("udim", self.__parseUDIM(self.pathHolder()))
         self.setVar("variant", "default")
+
+    def setVar(self, name, value):
+        """
+        Override setVar to be able to hook when mapType is assigned.
+        """
+        if name == "mapType":
+            value = value.upper()
+
+        super(ExrTexture, self).setVar(name, value)
 
     @classmethod
     def test(cls, pathHolder, parentCrawler):
