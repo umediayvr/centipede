@@ -5,7 +5,6 @@
   "vars": {
     "prefix": "/data/job",
     "job": "999_r_d",
-    "variant": "default",
     "__uiHintSourceColumns": [
       "assetName",
       "mapType",
