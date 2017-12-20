@@ -31,6 +31,9 @@
           ],
           "matchVars": {
           },
+          "taskOptions": {
+            "comment": "texture publish"
+          },
           "targetTemplate": "{filePath}"
         }
       ]

@@ -15,6 +15,8 @@ class CreateTextureVersion(Task):
         """
         super(CreateTextureVersion, self).__init__(*args, **kwargs)
         self.setOption('maketxArgs', "-v -u --unpremult --oiio")
+        self.setOption('incremental', True)
+        self.setOption('incrementalSpecificVersion', 0)
 
     def _perform(self):
         """
@@ -97,6 +99,53 @@ class CreateTextureVersion(Task):
                 ),
                 shell=True
             )
+
+            # creating hardlinks
+            if self.option('incremental'):
+
+                previousVersion = textures['metadata']['version'] - 1
+                if self.option('incrementalSpecificVersion'):
+                    previousVersion = self.option('incrementalSpecificVersion')
+
+                textures["metadata"]['incrementalVersion'] = previousVersion
+                previousVersion = 'v{0}'.format(str(previousVersion).zfill(3))
+
+                previousVersionFile = os.path.join(
+                    os.path.dirname(os.path.dirname(self.filePath(pathCrawler))),
+                    previousVersion,
+                    "files.json"
+                )
+
+                # looking at the versions
+                if os.path.exists(previousVersionFile):
+                    previousVersionContents = json.load(open(previousVersionFile))
+                    for textureType in previousVersionContents.keys():
+                        if textureType == "metadata":
+                            continue
+
+                        # comparing textures
+                        if textureType not in textures:
+                            textures[textureType] = []
+
+                        # creating relative hard links
+                        for textureFileName in previousVersionContents[textureType]:
+
+                            if textureFileName not in textures[textureType]:
+                                # make hardlink
+                                textures[textureType].append(textureFileName)
+                                os.link(
+                                    os.path.join(
+                                        os.path.dirname(os.path.dirname(jsonFilePath)),
+                                        previousVersion,
+                                        textureType,
+                                        os.path.basename(textureFileName)
+                                    ),
+                                    os.path.join(
+                                        os.path.dirname(jsonFilePath),
+                                        textureType,
+                                        os.path.basename(textureFileName)
+                                    ),
+                                )
 
         # writting the json file
         with open(jsonFilePath, 'w') as jsonOutFile:
