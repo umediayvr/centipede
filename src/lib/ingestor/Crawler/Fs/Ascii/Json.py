@@ -6,12 +6,6 @@ class Json(Ascii):
     Json crawler.
     """
 
-    def __init__(self, *args, **kwargs):
-        """
-        Create a json crawler.
-        """
-        super(Ascii, self).__init__(*args, **kwargs)
-
     def _runParser(self):
         """
         Parse the json contents.

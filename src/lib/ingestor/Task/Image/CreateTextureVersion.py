@@ -20,11 +20,25 @@ class CreateTextureVersion(Task):
         """
         Perform the task.
         """
-        textures = {}
+        textures = {
+            "metadata": {}
+        }
         jsonFilePath = None
         for pathCrawler in self.pathCrawlers():
 
             if jsonFilePath is None:
+                assetName = pathCrawler.var("assetName")
+                variant = pathCrawler.var("variant")
+                version = int(
+                    os.path.basename(
+                        os.path.dirname(self.filePath(pathCrawler))
+                    )[1:]
+                )
+
+                textures["metadata"]["assetName"] = assetName
+                textures["metadata"]["variant"] = variant
+                textures["metadata"]["version"] = version
+
                 yield pathCrawler
 
             targetFilePath = self.filePath(pathCrawler)
