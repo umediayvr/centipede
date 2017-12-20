@@ -35,9 +35,6 @@ class ExrTexture(ingestor.Crawler.Fs.Image.Exr):
         name = pathHolder.baseName()[:-(len(pathHolder.ext()) + 1)]
         parts = name.split("_")
 
-        if len(parts) >= 4 and parts[3].startswith("u") and parts[4].startswith("v"):
-            print(parts)
-
         udim = None
         if len(parts) >= 3:
             # detecting based on mari UDIM:
