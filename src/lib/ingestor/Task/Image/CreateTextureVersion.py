@@ -23,8 +23,12 @@ class CreateTextureVersion(Task):
         Perform the task.
         """
         textures = {
-            "metadata": {}
+            "metadata": {},
+            "files": {}
         }
+        sourceVersions = set()
+        totalSize = 0
+
         jsonFilePath = None
         for pathCrawler in self.pathCrawlers():
 
@@ -40,29 +44,27 @@ class CreateTextureVersion(Task):
                 textures["metadata"]["assetName"] = assetName
                 textures["metadata"]["variant"] = variant
                 textures["metadata"]["version"] = version
+                textures["metadata"]["sourceVersions"] = sourceVersions
+                sourceVersions.add(version)
 
                 yield pathCrawler
 
-            targetFilePath = self.filePath(pathCrawler)
-            jsonFilePath = targetFilePath
+            jsonFilePath = self.filePath(pathCrawler)
+            ext = pathCrawler.var('ext')
 
             textureTargetLocation = self.__computeTextureTargetLocation(
                 pathCrawler,
-                pathCrawler.var('ext')
+                ext
             )
 
-            if pathCrawler.var('ext') not in textures:
+            if ext not in textures["files"]:
                 # trying to create the directory automatically in case it does not exist
                 try:
                     os.makedirs(os.path.dirname(textureTargetLocation))
                 except OSError:
                     pass
 
-                textures[pathCrawler.var('ext')] = []
-
-            textures[pathCrawler.var('ext')].append(
-                os.path.basename(textureTargetLocation)
-            )
+                textures["files"][ext] = {}
 
             sourceTexturePath = pathCrawler.var('filePath')
 
@@ -72,24 +74,28 @@ class CreateTextureVersion(Task):
                 textureTargetLocation
             )
 
+            textureLocation = os.path.basename(textureTargetLocation)
+            textureSize = os.stat(textureTargetLocation).st_size
+            textures["files"][ext][textureLocation] = {
+                "sourceVersion": textures["metadata"]["version"],
+                "size": textureSize
+            }
+            totalSize += textureSize
+
             # now computing tx
             textureTxTargetLocation = self.__computeTextureTargetLocation(
                 pathCrawler,
                 "tx"
             )
 
-            if "tx" not in textures:
-                textures["tx"] = []
+            if "tx" not in textures["files"]:
+                textures["files"]["tx"] = {}
 
                 # trying to create the directory automatically in case it does not exist
                 try:
                     os.makedirs(os.path.dirname(textureTxTargetLocation))
                 except OSError:
                     pass
-
-            textures["tx"].append(
-                os.path.basename(textureTxTargetLocation)
-            )
 
             subprocess.call(
                 '/data/studio/upipe/plugins/maya/2018/mtoa/2.0.2.3/bin/linux/bin/maketx {0} -o "{2}" "{1}"'.format(
@@ -100,6 +106,13 @@ class CreateTextureVersion(Task):
                 shell=True
             )
 
+            txSize = os.stat(textureTxTargetLocation).st_size
+            textures["files"]["tx"][os.path.basename(textureTxTargetLocation)] = {
+                "sourceVersion": textures["metadata"]["version"],
+                "size": txSize
+            }
+            totalSize += txSize
+
             # creating hardlinks
             if self.option('incremental'):
 
@@ -107,32 +120,29 @@ class CreateTextureVersion(Task):
                 if self.option('incrementalSpecificVersion'):
                     previousVersion = self.option('incrementalSpecificVersion')
 
-                textures["metadata"]['incrementalVersion'] = previousVersion
                 previousVersion = 'v{0}'.format(str(previousVersion).zfill(3))
-
                 previousVersionFile = os.path.join(
                     os.path.dirname(os.path.dirname(self.filePath(pathCrawler))),
                     previousVersion,
-                    "files.json"
+                    os.path.basename(jsonFilePath)
                 )
 
                 # looking at the versions
                 if os.path.exists(previousVersionFile):
                     previousVersionContents = json.load(open(previousVersionFile))
-                    for textureType in previousVersionContents.keys():
-                        if textureType == "metadata":
-                            continue
-
+                    for textureType in previousVersionContents['files'].keys():
                         # comparing textures
-                        if textureType not in textures:
-                            textures[textureType] = []
+                        if textureType not in textures["files"]:
+                            textures["files"][textureType] = {}
 
                         # creating relative hard links
-                        for textureFileName in previousVersionContents[textureType]:
-
-                            if textureFileName not in textures[textureType]:
+                        for textureFileName in previousVersionContents["files"][textureType].keys():
+                            if textureFileName not in textures["files"][textureType]:
                                 # make hardlink
-                                textures[textureType].append(textureFileName)
+                                textures["files"][textureType][textureFileName] = previousVersionContents["files"][textureType][textureFileName]
+                                sourceVersions.add(textures["files"][textureType][textureFileName]['sourceVersion'])
+                                totalSize += textures["files"][textureType][textureFileName]['size']
+
                                 os.link(
                                     os.path.join(
                                         os.path.dirname(os.path.dirname(jsonFilePath)),
@@ -147,7 +157,10 @@ class CreateTextureVersion(Task):
                                     ),
                                 )
 
-        # writting the json file
+        textures["metadata"]["size"] = totalSize
+        textures["metadata"]["sourceVersions"] = list(textures["metadata"]["sourceVersions"])
+
+        # writing json file
         with open(jsonFilePath, 'w') as jsonOutFile:
             json.dump(textures, jsonOutFile, indent=4, sort_keys=True)
 
