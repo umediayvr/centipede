@@ -35,6 +35,18 @@
             "comment": "texture publish"
           },
           "targetTemplate": "{filePath}"
+        },
+        {
+          "task": "chmod",
+          "taskOptions": {
+            "mode": 555
+          },
+          "matchTypes": [
+            "json"
+          ],
+          "matchVars": {
+          },
+          "targetTemplate": "(dirname {filePath})"
         }
       ]
     }
