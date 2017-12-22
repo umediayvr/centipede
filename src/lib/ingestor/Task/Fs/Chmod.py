@@ -5,7 +5,7 @@ class Chmod(Task):
     """
     Chmod task that can be operated over a single file or over a directory path recursively.
 
-    Require options: mode (444 for read-only)
+    Require options: directoryMode and fileMode
     """
 
     def _perform(self):
@@ -13,13 +13,17 @@ class Chmod(Task):
         Perform the task.
         """
         alreadyDone = set()
-        octalMode = int(str(self.option('mode')), 8)
+        directoryMode = int(str(self.option('directoryMode')), 8)
+        fileMode = int(str(self.option('fileMode')), 8)
+
         for pathCrawler in self.pathCrawlers():
             yield pathCrawler
             filePath = self.filePath(pathCrawler)
 
-            if alreadyDone in alreadyDone:
+            if filePath in alreadyDone:
                 continue
+            else:
+                alreadyDone.add(filePath)
 
             collectedFiles = self.__collectAllFiles(filePath)
             collectedFiles.sort(reverse=True)
@@ -29,7 +33,10 @@ class Chmod(Task):
                 if os.path.islink(collectedFile):
                     continue
 
-                os.chmod(collectedFile, octalMode)
+                if os.path.isdir(collectedFile):
+                    os.chmod(collectedFile, directoryMode)
+                else:
+                    os.chmod(collectedFile, fileMode)
 
     @classmethod
     def __collectAllFiles(cls, path):

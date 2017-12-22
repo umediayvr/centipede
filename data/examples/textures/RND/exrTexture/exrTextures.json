@@ -39,7 +39,8 @@
         {
           "task": "chmod",
           "taskOptions": {
-            "mode": 555
+            "directoryMode": 755,
+            "fileMode": 644
           },
           "matchTypes": [
             "json"
