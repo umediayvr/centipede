@@ -42,6 +42,7 @@ class TexturePublish(Task):
         # get version, assetName, variant from json contents under info
         output = {
             'job': sourceCrawler.var('job'),
+            'assetName': assetName,
             'name': "{0}-{1}".format(assetName, variant),
             'jsonFile': filePath,
             'publishedFileType': self.option('publishedFileType'),
@@ -90,7 +91,7 @@ class TexturePublish(Task):
 
         # in case of any erros
         if error:
-            print(error)
+            raise Exception(error)
 
 
 # registering task
