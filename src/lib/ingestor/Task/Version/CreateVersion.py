@@ -162,7 +162,7 @@ class CreateVersion(Task):
             totalSize += metadata['size']
         self.addInfo('size', totalSize)
         self.addInfo('version', self.version())
-        self.addInfo('user', os.environ.get('USER', ''))
+        self.addInfo('user', os.environ.get('USERNAME', ''))
         self.addInfo('totalTime', int(time.time() - self.__startTime))
         if self.assetName():
             self.addInfo('assetName', self.assetName())
