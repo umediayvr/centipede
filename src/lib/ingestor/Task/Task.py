@@ -1,6 +1,5 @@
 from ..Crawler.Fs import Path
 from collections import OrderedDict
-import copy
 
 class TaskTypeNotFoundError(Exception):
     """Task type not found error."""
@@ -17,6 +16,7 @@ class Task(object):
 
     A task is used to operate over file paths resolved by the template runner.
     """
+
     __registered = {}
 
     def __init__(self):
@@ -49,7 +49,7 @@ class Task(object):
         """
         Return a list of the option names.
         """
-        return self.__options.keys()
+        return list(self.__options.keys())
 
     def filePath(self, pathCrawler):
         """
@@ -66,7 +66,7 @@ class Task(object):
         """
         Return a list of path crawlers associated with the task.
         """
-        return self.__pathCrawlers.keys()
+        return list(self.__pathCrawlers.keys())
 
     def add(self, pathCrawler, filePath):
         """
@@ -123,7 +123,7 @@ class Task(object):
         """
         Return a list of registered tasks.
         """
-        return Task.__registered.keys()
+        return list(Task.__registered.keys())
 
     @staticmethod
     def create(taskType, *args, **kwargs):
