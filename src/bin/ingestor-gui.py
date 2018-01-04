@@ -362,10 +362,7 @@ class Application(QtWidgets.QApplication):
 
                     # group
                     if self.__checkedViewMode == "Group" and 'group' in visibleCrawler.tagNames():
-                        groupName = os.path.join(
-                            os.path.dirname(visibleCrawler.var('filePath')),
-                            visibleCrawler.tag('group')
-                        )
+                        groupName = visibleCrawler.tag('group')
                         if groupName not in groupedCrawlers:
                             groupedCrawlers[groupName] = []
 
@@ -730,10 +727,7 @@ class Application(QtWidgets.QApplication):
 
                 # group
                 if self.__checkedViewMode == "Group" and 'group' in matchedCrawler.tagNames():
-                    groupName = os.path.join(
-                        os.path.dirname(matchedCrawler.var('filePath')),
-                        matchedCrawler.tag('group')
-                    )
+                    groupName = matchedCrawler.tag('group')
                     if groupName not in groupedCrawlers:
                         groupedCrawlers[groupName] = []
 
@@ -864,10 +858,7 @@ class Application(QtWidgets.QApplication):
             groupedCrawlers[None] = []
             for crawler in crawlerList:
                 if 'group' in crawler.tagNames():
-                    groupName = os.path.join(
-                        os.path.dirname(crawler.var('filePath'))[len(path):],
-                        crawler.tag('group')
-                    )
+                    groupName = crawler.tag('group')
                     if groupName not in groupedCrawlers:
                         groupedCrawlers[groupName] = []
                     groupedCrawlers[groupName].append(crawler)
