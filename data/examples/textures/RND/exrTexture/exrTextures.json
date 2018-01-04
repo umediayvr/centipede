@@ -22,7 +22,7 @@
       "taskOptions": {
         "maketxArgs": "-v -u --unpremult --oiio"
       },
-      "targetTemplate": "{prefix}/{job}/publish/assets/!{assetName}/texture/{variant}/(newVersion <parentPath>)/info.json",
+      "targetTemplate": "{prefix}/{job}/publish/assets/!{assetName}/texture/{variant}/(newVersion <parentPath>)/data.json",
       "taskHolders": [
         {
           "task": "sgTexturePublish",
@@ -35,19 +35,6 @@
             "comment": "texture publish"
           },
           "targetTemplate": "{filePath}"
-        },
-        {
-          "task": "chmod",
-          "taskOptions": {
-            "directoryMode": 755,
-            "fileMode": 644
-          },
-          "matchTypes": [
-            "json"
-          ],
-          "matchVars": {
-          },
-          "targetTemplate": "(dirname {filePath})"
         }
       ]
     }

@@ -5,6 +5,8 @@ class ExrTexture(ingestor.Crawler.Fs.Image.Exr):
     Custom crawler used to detect textures.
     """
 
+    __groupTextures = False
+
     def __init__(self, *args, **kwargs):
         """
         Create a Texture object.
@@ -25,6 +27,11 @@ class ExrTexture(ingestor.Crawler.Fs.Image.Exr):
             value = value.upper()
 
         super(ExrTexture, self).setVar(name, value)
+
+        # we need to update the group tag name after a change in the
+        # assetName or variant
+        if self.__groupTextures and name in ['assetName', 'variant']:
+            self.__updateGroupTag()
 
     @classmethod
     def test(cls, pathHolder, parentCrawler):
@@ -59,6 +66,21 @@ class ExrTexture(ingestor.Crawler.Fs.Image.Exr):
                 v = int(parts[3][1:]) - 1
                 udim = 1000 + (u + 1) + (v * 10)
         return udim
+
+    def __updateGroupTag(self):
+        """
+        Update the group tag.
+        """
+        if 'assetName' not in self.varNames() or 'variant' not in self.varNames():
+            return
+
+        self.setTag(
+            "group",
+            "{}-{}".format(
+                self.var('assetName'),
+                self.var('variant')
+            )
+        )
 
 
 # registering crawler
