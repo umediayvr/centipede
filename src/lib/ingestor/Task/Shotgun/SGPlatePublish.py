@@ -1,20 +1,19 @@
 import os
 import json
-import inspect
-import shutil
 import tempfile
 import subprocess
 from collections import OrderedDict
 from ..Task import Task
 from ...Template import Template
 
-class PlatePublish(Task):
+class SGPlatePublish(Task):
     """
     Publish a plate to shotgun.
 
     Required Options: movieFile and thumbnailFile.
     Optional Options: publishedFileType, comment and taskName.
     """
+
     __defaultPublishedFileType = "Scan"
     __defaultComment = "plate publish"
 
@@ -22,7 +21,7 @@ class PlatePublish(Task):
         """
         Create a PlatePublish object.
         """
-        super(PlatePublish, self).__init__(*args, **kwargs)
+        super(SGPlatePublish, self).__init__(*args, **kwargs)
 
         self.setOption('publishedFileType', self.__defaultPublishedFileType)
         self.setOption('comment', self.__defaultComment)
@@ -122,6 +121,13 @@ class PlatePublish(Task):
 
 # registering task
 Task.register(
+    'sgPlatePublish',
+    SGPlatePublish
+)
+
+# backward compatibility registration
+# TODO: remove this in future releases
+Task.register(
     'platePublish',
-    PlatePublish
+    SGPlatePublish
 )

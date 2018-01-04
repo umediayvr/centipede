@@ -1,2 +1,2 @@
-from .PlatePublish import PlatePublish
-from .TexturePublish import TexturePublish
+from .SGPlatePublish import SGPlatePublish
+from .SGTexturePublish import SGTexturePublish

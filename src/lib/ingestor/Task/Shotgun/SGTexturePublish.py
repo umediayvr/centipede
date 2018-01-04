@@ -4,7 +4,7 @@ import tempfile
 import subprocess
 from ..Task import Task
 
-class TexturePublish(Task):
+class SGTexturePublish(Task):
     """
     Publish a texture to shotgun.
 
@@ -18,7 +18,7 @@ class TexturePublish(Task):
         """
         Create a TexturePublish object.
         """
-        super(TexturePublish, self).__init__(*args, **kwargs)
+        super(SGTexturePublish, self).__init__(*args, **kwargs)
 
         self.setOption('publishedFileType', self.__defaultPublishedFileType)
         self.setOption('comment', self.__defaultComment)
@@ -33,7 +33,7 @@ class TexturePublish(Task):
         filePath = sourceCrawler.var("filePath")
 
         # metadata information about the version
-        info = sourceCrawler.contents()["metadata"]
+        info = json.load(open(os.path.join(os.path.dirname(filePath), "info.json")))
         assetName = info["assetName"]
         variant = info["variant"]
         version = info["version"]
@@ -97,5 +97,5 @@ class TexturePublish(Task):
 # registering task
 Task.register(
     'sgTexturePublish',
-    TexturePublish
+    SGTexturePublish
 )
