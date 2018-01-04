@@ -38,7 +38,7 @@ class CreateIncrementalVersion(CreateVersion):
 
     def addIncrementalFiles(self, version):
         """
-        Add files under localized under input version to the current version as hardlink.
+        Add files localized under the input version to the current version as hardlink.
         """
         # building the incremental version full path
         incrementalVersionPath = os.path.join(
