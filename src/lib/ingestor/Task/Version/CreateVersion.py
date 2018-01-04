@@ -41,7 +41,7 @@ class CreateVersion(Task):
         """
         self.__loadPublishData()
 
-        return self.__assetName
+        return self.__variant
 
     def assetName(self):
         """
