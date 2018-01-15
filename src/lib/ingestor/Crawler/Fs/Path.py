@@ -4,6 +4,12 @@ from ..Crawler import Crawler
 from ...PathHolder import PathHolder
 from collections import OrderedDict
 
+# compatibility with python 2/3
+try:
+    basestring
+except NameError:
+    basestring = str
+
 class InvalidPathError(Exception):
     """Invalid Path Error."""
 
@@ -28,6 +34,12 @@ class Path(Crawler):
         self.setVar('ext', pathHolder.ext())
         self.setVar('baseName', pathHolder.baseName())
         self.setVar('name', os.path.splitext(pathHolder.baseName())[0])
+        if not 'sourceDirectory' in self.varNames():
+            path = pathHolder.path()
+            if not pathHolder.isDirectory():
+                path = os.path.dirname(path)
+            self.setVar('sourceDirectory', path)
+        self.__globCache = None
 
     def pathHolder(self):
         """
@@ -41,11 +53,11 @@ class Path(Crawler):
         """
         newInstance = self.__class__(self.pathHolder())
 
-        # clonning variables
+        # cloning variables
         for varName in self.varNames():
             newInstance.setVar(varName, self.var(varName))
 
-        # clonning tags
+        # cloning tags
         for tagName in self.tagNames():
             newInstance.setTag(tagName, self.tag(tagName))
 
@@ -68,12 +80,34 @@ class Path(Crawler):
 
         return json.dumps(crawlerContents)
 
+    def glob(self, filterTypes=[]):
+        """
+        Return a list of all crawlers found recursively under this path
+        Filter result list by exact crawler type (str) or class type (includes derived classes)
+        """
+        if self.__globCache is None:
+            # Recursively collect all crawlers for this path
+            self.__globCache = Path.__collectCrawlers(self)
+
+        if not filterTypes:
+            return self.__globCache
+
+        filteredCrawlers = set()
+        for filterType in filterTypes:
+            # if filter type is string, filter by exact crawler type
+            if isinstance( filterType, basestring ):
+                filteredCrawlers.update( filter(lambda x: x.var('type')==filterType, self.__globCache) )
+            # if filter type is class, filter by instance to include derived classes
+            elif issubclass( filterType, Path):
+                filteredCrawlers.update( filter(lambda x: isinstance(x, filterType), self.__globCache) )
+        return list(filteredCrawlers)
+
     @classmethod
     def test(cls, parentCrawler, pathInfo):
         """
         Tells if crawler implementation, can handle it.
 
-        For re-implementation: Should return a bollean telling if the
+        For re-implementation: Should return a boolean telling if the
         crawler implementation can crawler it.
         """
         raise NotImplemented
@@ -143,6 +177,13 @@ class Path(Crawler):
 
         return crawler
 
+    @staticmethod
+    def createFromPath( fullPath, parentCrawler=None ):
+        """
+        Convenience method to create a crawler directly from the path string.
+        """
+        return Path.create( PathHolder( fullPath ), parentCrawler )
+
     def __setPathHolder(self, pathHolder):
         """
         Set the path holder to the crawler.
@@ -151,3 +192,14 @@ class Path(Crawler):
             "Invalid PathHolder type"
 
         self.__pathHolder = pathHolder
+
+    @staticmethod
+    def __collectCrawlers(crawler):
+        result = []
+        result.append(crawler)
+
+        if not crawler.isLeaf():
+            for childCrawler in crawler.children():
+                result += Path.__collectCrawlers(childCrawler)
+
+        return result
