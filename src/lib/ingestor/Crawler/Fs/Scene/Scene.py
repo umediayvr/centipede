@@ -1,4 +1,4 @@
-
+from ..File import File
 
 class Scene(File):
     """
@@ -10,3 +10,10 @@ class Scene(File):
         Create a scene crawler.
         """
         super(Scene, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def extensions(cls):
+        """
+        Return the list of available extensions, to be implemented by derived classes.
+        """
+        raise NotImplemented
