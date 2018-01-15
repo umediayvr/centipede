@@ -90,6 +90,12 @@ class CreateVersion(Task):
 
         return self.__versionPath
 
+    def versionName(self):
+        """
+        Return the name of the version base folder.
+        """
+        return os.path.basename(self.versionPath())
+
     def dataPath(self):
         """
         Return the path where the data should be stored for the version.
