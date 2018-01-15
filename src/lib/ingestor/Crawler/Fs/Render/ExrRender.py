@@ -12,5 +12,4 @@ class ExrRender(Exr):
         super(ExrRender, self).__init__(*args, **kwargs)
         parts = self.var("name").split("_")
 
-        renderType = parts[-1]
-        self.setVar('renderType', renderType)
+        self.setVar('renderType', parts[-1])
