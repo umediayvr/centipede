@@ -1,0 +1,28 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/data/job",
+    "job": "999_r_d",
+    "__uiHintSourceColumns": [
+      "shot",
+      "step",
+      "variant",
+      "type"
+    ]
+  },
+  "taskHolders": [
+    {
+      "task": "createRenderVersion",
+      "matchTypes": [
+        "shotRender"
+      ],
+      "matchVars": {
+      },
+      "taskOptions": {
+      },
+      "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{variant}/(newVersion <parentPath>)"
+    }
+  ]
+}
