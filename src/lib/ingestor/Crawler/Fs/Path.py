@@ -34,7 +34,7 @@ class Path(Crawler):
         self.setVar('ext', pathHolder.ext())
         self.setVar('baseName', pathHolder.baseName())
         self.setVar('name', os.path.splitext(pathHolder.baseName())[0])
-        if not 'sourceDirectory' in self.varNames():
+        if 'sourceDirectory' not in self.varNames():
             path = pathHolder.path()
             if not pathHolder.isDirectory():
                 path = os.path.dirname(path)
@@ -82,8 +82,9 @@ class Path(Crawler):
 
     def glob(self, filterTypes=[]):
         """
-        Return a list of all crawlers found recursively under this path
-        Filter result list by exact crawler type (str) or class type (includes derived classes)
+        Return a list of all crawlers found recursively under this path.
+
+        Filter result list by exact crawler type (str) or class type (includes derived classes).
         """
         if self.__globCache is None:
             # Recursively collect all crawlers for this path
@@ -95,11 +96,11 @@ class Path(Crawler):
         filteredCrawlers = set()
         for filterType in filterTypes:
             # if filter type is string, filter by exact crawler type
-            if isinstance( filterType, basestring ):
-                filteredCrawlers.update( filter(lambda x: x.var('type')==filterType, self.__globCache) )
+            if isinstance(filterType, basestring):
+                filteredCrawlers.update(filter(lambda x: x.var('type') == filterType, self.__globCache))
             # if filter type is class, filter by instance to include derived classes
-            elif issubclass( filterType, Path):
-                filteredCrawlers.update( filter(lambda x: isinstance(x, filterType), self.__globCache) )
+            elif issubclass(filterType, Path):
+                filteredCrawlers.update(filter(lambda x: isinstance(x, filterType), self.__globCache))
         return list(filteredCrawlers)
 
     @classmethod
@@ -133,6 +134,23 @@ class Path(Crawler):
         Return a list of registered path types.
         """
         return Path.__registeredTypes.keys()
+
+    @staticmethod
+    def registeredSubclasses(baseClassOrTypeName):
+        """
+        Return a list of registered subClasses for the given class or class type name.
+        """
+        if isinstance(baseClassOrTypeName, basestring):
+            assert baseClassOrTypeName in Path.__registeredTypes
+            baseClass = Path.__registeredTypes[baseClassOrTypeName]
+        else:
+            assert issubclass(baseClassOrTypeName, Path)
+            baseClass = baseClassOrTypeName
+        result = set()
+        for registeredType in Path.__registeredTypes.values():
+            if issubclass(registeredType, baseClass):
+                result.add(registeredType)
+        return list(result)
 
     @staticmethod
     def create(pathHolder, parentCrawler=None):
@@ -178,11 +196,11 @@ class Path(Crawler):
         return crawler
 
     @staticmethod
-    def createFromPath( fullPath, parentCrawler=None ):
+    def createFromPath(fullPath, parentCrawler=None):
         """
-        Convenience method to create a crawler directly from the path string.
+        Create a crawler directly from a path string.
         """
-        return Path.create( PathHolder( fullPath ), parentCrawler )
+        return Path.create(PathHolder(fullPath), parentCrawler)
 
     def __setPathHolder(self, pathHolder):
         """
