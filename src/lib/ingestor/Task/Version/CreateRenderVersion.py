@@ -55,13 +55,12 @@ class CreateRenderVersion(CreateIncrementalVersion):
         return os.path.join(
             self.dataPath(),
             "renders",
-            "{0}_{1}_{2}_{3}_{4}_{5}.{6}.{7}".format(
+            "{}_{}_{}_{}_{}.{}.{}".format(
                 crawler.var('job'),
                 crawler.var('seq'),
                 crawler.var('shot'),
                 crawler.var('step'),
                 crawler.var('variant'),
-                self.versionName(),
                 str(crawler.var('frame')).zfill(crawler.var('padding')),
                 crawler.var('ext')
             )
