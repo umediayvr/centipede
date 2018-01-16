@@ -60,16 +60,12 @@ class CreateVersion(Task):
         """
         Return an integer containing the published version.
         """
-        self.__loadPublishData()
-
         return self.__version
 
     def versionPath(self):
         """
         Return the path for the version base folder.
         """
-        self.__loadPublishData()
-
         return self.__versionPath
 
     def versionName(self):
@@ -82,16 +78,12 @@ class CreateVersion(Task):
         """
         Return the path where the data should be stored for the version.
         """
-        self.__loadPublishData()
-
         return self.__dataPath
 
     def configPath(self):
         """
         Return the path about the location for the configuration used by the ingestor.
         """
-        self.__loadPublishData()
-
         return self.__configPath
 
     def addFile(self, filePath, metadata=None):
@@ -165,6 +157,13 @@ class CreateVersion(Task):
             return self.__info[key]
         return defaultValue
 
+    def add(self, *args, **kwargs):
+        """
+        Cache the static information about the first crawler you add.
+        """
+        super(CreateVersion, self).add(*args, **kwargs)
+        self.__loadPublishData()
+
     def _perform(self):
         """
         Perform the task.
@@ -197,9 +196,6 @@ class CreateVersion(Task):
         self.addInfo('version', self.version())
         self.addInfo('user', os.environ.get('USERNAME', ''))
         self.addInfo('totalTime', int(time.time() - self.__startTime))
-        if self.assetName():
-            self.addInfo('assetName', self.assetName())
-            self.addInfo('variant', self.variant())
 
         # writing info json file
         infoJsonFilePath = os.path.join(self.versionPath(), "info.json")
