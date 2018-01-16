@@ -37,8 +37,6 @@ class CreateVersion(Task):
 
         self.__files = {}
         self.__info = {}
-        self.__assetName = None
-        self.__variant = None
         self.__dataOwnerInfo = None
         self.__startTime = time.time()
         self.__loadedPublishedData = False
@@ -65,22 +63,6 @@ class CreateVersion(Task):
         self.__loadPublishData()
 
         return self.__version
-
-    def variant(self):
-        """
-        Return the name for a variant or None.
-        """
-        self.__loadPublishData()
-
-        return self.__variant
-
-    def assetName(self):
-        """
-        Return the name for the asset or None.
-        """
-        self.__loadPublishData()
-
-        return self.__assetName
 
     def versionPath(self):
         """
@@ -175,6 +157,14 @@ class CreateVersion(Task):
         """
         self.__info[key] = value
 
+    def info(self, key, defaultValue=None):
+        """
+        Return value of given info if it exists, else defaultValue.
+        """
+        if key in self.__info:
+            return self.__info[key]
+        return defaultValue
+
     def _perform(self):
         """
         Perform the task.
@@ -249,11 +239,10 @@ class CreateVersion(Task):
             # variant and version. For this reason looking only in the first one
             pathCrawler = self.pathCrawlers()[0]
 
-            # may contain asset name, if that is the case it should
-            # also contain variant.
-            if "assetName" in pathCrawler.varNames():
-                self.__assetName = pathCrawler.var("assetName")
-                self.__variant = pathCrawler.var("variant")
+            # Add generic info that is expected to be on the crawler
+            for info in ["job", "seq", "shot", "assetName", "step", "variant"]:
+                if info in pathCrawler.varNames():
+                    self.addInfo(info, pathCrawler.var(info))
 
             # creating the version directory
             self.__versionPath = self.filePath(pathCrawler)
