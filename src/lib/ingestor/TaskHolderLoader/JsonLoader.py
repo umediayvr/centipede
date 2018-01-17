@@ -9,7 +9,7 @@ from ..TaskHolder import TaskHolder
 from ..TaskWrapper import TaskWrapper
 from .TaskHolderLoader import TaskHolderLoader
 
-class UnexpectedtContentError(Exception):
+class UnexpectedContentError(Exception):
     """Unexpected content error."""
 
 class InvalidFileError(Exception):
@@ -111,14 +111,14 @@ class JsonLoader(TaskHolderLoader):
 
         # root checking
         if not isinstance(contents, dict):
-            raise UnexpectedtContentError('Expecting object as root!')
+            raise UnexpectedContentError('Expecting object as root!')
 
         # loading scripts
         if 'scripts' in contents:
 
             # scripts checking
             if not isinstance(contents['scripts'], list):
-                raise UnexpectedtContentError('Expecting a list of scripts!')
+                raise UnexpectedContentError('Expecting a list of scripts!')
 
             for script in contents['scripts']:
                 scriptFiles = glob.glob(os.path.join(configPath, script))
@@ -137,7 +137,7 @@ class JsonLoader(TaskHolderLoader):
         if 'vars' in contents:
             # vars checking
             if not isinstance(contents['vars'], dict):
-                raise UnexpectedtContentError('Expecting a list of vars!')
+                raise UnexpectedContentError('Expecting a list of vars!')
             vars = dict(contents['vars'])
 
         vars['configPath'] = configPath
@@ -154,13 +154,13 @@ class JsonLoader(TaskHolderLoader):
 
             # task holders checking
             if not isinstance(contents['taskHolders'], list):
-                raise UnexpectedtContentError('Expecting a list of task holders!')
+                raise UnexpectedContentError('Expecting a list of task holders!')
 
             for taskHolderInfo in contents['taskHolders']:
 
                 # task holder info checking
                 if not isinstance(taskHolderInfo, dict):
-                    raise UnexpectedtContentError('Expecting an object to describe the task holder!')
+                    raise UnexpectedContentError('Expecting an object to describe the task holder!')
 
                 task = Task.create(taskHolderInfo['task'])
 
