@@ -139,7 +139,6 @@ class Task(object):
         for optionName in self.optionNames():
             contents["options"][optionName] = self.option(optionName)
 
-        # crawlers
         for pathCrawler in self.pathCrawlers():
 
             # we can expect all crawlers in the task to have the same configPath
