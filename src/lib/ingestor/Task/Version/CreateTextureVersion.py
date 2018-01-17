@@ -1,5 +1,5 @@
 import os
-import shutil
+import tempfile
 import subprocess
 from ..Task import Task
 from .CreateIncrementalVersion import CreateIncrementalVersion
@@ -21,41 +21,40 @@ class CreateTextureVersion(CreateIncrementalVersion):
         Perform the task.
         """
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
 
             textureOriginalTargetLocation = self.__computeTextureTargetLocation(
                 pathCrawler,
                 pathCrawler.var('ext')
             )
 
-            # making any necessary directories for target the texture file
-            if not os.path.exists(os.path.dirname(textureOriginalTargetLocation)):
-                os.makedirs(os.path.dirname(textureOriginalTargetLocation))
-
             # copying the texture file
-            shutil.copyfile(
+            self.copyFile(
                 pathCrawler.var('filePath'),
                 textureOriginalTargetLocation
             )
 
             # computing a mipmap version for the texture
-            textureTxTargetLocation = self.__computeTextureTargetLocation(
-                pathCrawler,
-                "tx"
-            )
-
-            # making any necessary directories for target the texture file
-            if not os.path.exists(os.path.dirname(textureTxTargetLocation)):
-                os.makedirs(os.path.dirname(textureTxTargetLocation))
-
+            tempTxFilePath = tempfile.mktemp(suffix=".tx")
             subprocess.call(
                 '/data/studio/upipe/plugins/maya/2018/mtoa/2.0.2.3/bin/linux/bin/maketx {} -o "{}" "{}"'.format(
                     self.option("maketxArgs"),
-                    textureTxTargetLocation,
+                    tempTxFilePath,
                     textureOriginalTargetLocation
                 ),
                 shell=True
             )
+
+            # copying the texture file
+            textureTxTargetLocation = self.__computeTextureTargetLocation(pathCrawler, "tx")
+
+            # copying tx to the target location
+            self.copyFile(
+                tempTxFilePath,
+                textureTxTargetLocation
+            )
+
+            # removing temporary tx file
+            os.remove(tempTxFilePath)
 
             # adding texture files to the published version
             self.addFile(textureOriginalTargetLocation)
