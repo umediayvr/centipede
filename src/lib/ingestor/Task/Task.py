@@ -1,5 +1,13 @@
+import os
+import json
 from ..Crawler.Fs import Path
 from collections import OrderedDict
+
+# compatibility with python 2/3
+try:
+    basestring
+except NameError:
+    basestring = str
 
 class TaskTypeNotFoundError(Exception):
     """Task type not found error."""
@@ -19,12 +27,19 @@ class Task(object):
 
     __registered = {}
 
-    def __init__(self):
+    def __init__(self, taskType):
         """
         Create a task object.
         """
         self.__pathCrawlers = OrderedDict()
         self.__options = {}
+        self.__taskType = taskType
+
+    def type(self):
+        """
+        Return the task type.
+        """
+        return self.__taskType
 
     def option(self, name):
         """
@@ -75,7 +90,7 @@ class Task(object):
         assert isinstance(pathCrawler, Path), \
             "Invalid Path Crawler!"
 
-        assert isinstance(filePath, str), \
+        assert isinstance(filePath, basestring), \
             "FilePath needs to be defined as string"
 
         self.__pathCrawlers[pathCrawler] = filePath
@@ -96,7 +111,7 @@ class Task(object):
         """
         Clone the current task.
         """
-        clone = self.__class__()
+        clone = self.__class__(self.type())
 
         # copying options
         for optionName in self.optionNames():
@@ -107,6 +122,40 @@ class Task(object):
             clone.add(pathCrawler, self.filePath(pathCrawler))
 
         return clone
+
+    def toJson(self):
+        """
+        Serialize a task to json (it can be loaded later through createFromJson).
+        """
+        contents = {
+            "type": self.type(),
+            "options": {},
+            "jsonConfigPath": "",
+            "configName": "",
+            "pathCrawlerData": []
+        }
+
+        # current options
+        for optionName in self.optionNames():
+            contents["options"][optionName] = self.option(optionName)
+
+        # crawlers
+        for pathCrawler in self.pathCrawlers():
+
+            # we can expect all crawlers in the task to have the same configPath
+            # and configName (when defined)
+            if not contents['jsonConfigPath'] and 'configName' in pathCrawler.varNames():
+                contents['jsonConfigPath'] = os.path.join(
+                    pathCrawler.var("configPath"),
+                    pathCrawler.var("configName")
+                )
+
+            contents['pathCrawlerData'].append({
+                'filePath': self.filePath(pathCrawler),
+                'serializedPathCrawler': pathCrawler.toJson()
+            })
+
+        return json.dumps(contents)
 
     @staticmethod
     def register(name, taskClass):
@@ -136,7 +185,39 @@ class Task(object):
                     taskType
                 )
             )
-        return Task.__registered[taskType](*args, **kwargs)
+        return Task.__registered[taskType](taskType, *args, **kwargs)
+
+    @staticmethod
+    def createFromJson(jsonContents):
+        """
+        Factory a task based on the jsonContents (serialized via toJson).
+        """
+        contents = json.loads(jsonContents)
+        taskType = contents["type"]
+        taskOptions = contents["options"]
+        pathCrawlerData = contents["pathCrawlerData"]
+        jsonConfigPath = contents["jsonConfigPath"]
+
+        # loading json config which may load custom crawlers, expressions etc...
+        if jsonConfigPath:
+            from ..TaskHolderLoader import JsonLoader
+            JsonLoader().addFromJsonFile(jsonConfigPath)
+
+        task = Task.create(taskType)
+
+        # setting task options
+        for optionName, optionValue in taskOptions.items():
+            task.setOption(optionName, optionValue)
+
+        # adding crawlers
+        for pathCrawlerDataItem in pathCrawlerData:
+            filePath = pathCrawlerDataItem['filePath']
+            crawler = Path.createFromJson(
+                pathCrawlerDataItem['serializedPathCrawler']
+            )
+            task.add(crawler, filePath)
+
+        return task
 
     def _perform(self):
         """
