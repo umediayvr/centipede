@@ -1,6 +1,12 @@
 import os
 from .ExpressionEvaluator import ExpressionEvaluator
 
+# compatibility with python 2/3
+try:
+    basestring
+except NameError:
+    basestring = str
+
 class VariableNotFoundError(Exception):
     """Variable not found error."""
 
@@ -148,7 +154,7 @@ class Template(object):
         """
         Set the raw template string.
         """
-        assert isinstance(inputString, str), \
+        assert isinstance(inputString, basestring), \
             "Invalid template string!"
 
         self.__inputString = inputString
