@@ -119,9 +119,3 @@ class Crawler(object):
             newInstance.setTag(tagName, self.tag(tagName))
 
         return newInstance
-
-    def _childrenChildren(self):
-        """
-        For re-implementation: Should return a list of crawlers.
-        """
-        return []
