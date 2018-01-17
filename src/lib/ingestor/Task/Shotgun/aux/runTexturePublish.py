@@ -19,24 +19,28 @@ def publish(content):
     sgtk.set_authenticated_user(user)
 
     tk = sgtk.sgtk_from_path(content['jsonFile'])
-    projectEntity = tk.entity_from_path( tk.project_path )
+    projectEntity = tk.entity_from_path(tk.project_path)
     projectId = projectEntity.get("id")
 
     filters = [
-            ['code', 'is', content['assetName']],
-            ['project', 'is', {'type': 'Project', 'id': projectId}]
+        ['code', 'is', content['assetName']],
+        ['project', 'is', {'type': 'Project', 'id': projectId}]
     ]
     assetData = tk.shotgun.find('Asset', filters)
     if len(assetData) != 1:
-        sys.stderr.write( "[runTexturePublish] Cannot find unique asset {} in project {}. Skip Publish.".format( content['assetName'], projectEntity.get('name') ) )
+        sys.stderr.write(
+            "[runTexturePublish] Cannot find unique asset {} in project {}. Skip Publish.".format(
+                content['assetName'],
+                projectEntity.get('name')
+            )
+        )
         return
 
-    ctx = tk.context_from_entity_dictionary( assetData[0] )
-
+    ctx = tk.context_from_entity_dictionary(assetData[0])
     sgtk.platform.start_engine('tk-shell', tk, ctx)
     sgtk.platform.change_context(ctx)
 
-    sgPublish = sgtk.util.register_publish(
+    sgtk.util.register_publish(
         tk,
         ctx,
         content['jsonFile'],
