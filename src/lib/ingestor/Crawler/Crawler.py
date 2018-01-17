@@ -45,12 +45,6 @@ class Crawler(object):
         """
         return True
 
-    def _childrenChildren(self):
-        """
-        For re-implementation: Should return a list of crawlers.
-        """
-        return []
-
     def children(self):
         """
         Return a list of crawlers.
@@ -112,7 +106,7 @@ class Crawler(object):
 
     def clone(self):
         """
-        Returns a cloned instance about the current crawler.
+        Return a cloned instance about the current crawler.
         """
         newInstance = self.__class__(self.var('name'))
 
@@ -125,3 +119,9 @@ class Crawler(object):
             newInstance.setTag(tagName, self.tag(tagName))
 
         return newInstance
+
+    def _childrenChildren(self):
+        """
+        For re-implementation: Should return a list of crawlers.
+        """
+        return []
