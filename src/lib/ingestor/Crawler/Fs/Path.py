@@ -1,4 +1,5 @@
 import os
+import json
 from ..Crawler import Crawler
 from ...PathHolder import PathHolder
 from collections import OrderedDict
@@ -36,7 +37,7 @@ class Path(Crawler):
 
     def clone(self):
         """
-        Returns a cloned instance about the current crawler.
+        Return a cloned instance about the current crawler.
         """
         newInstance = self.__class__(self.pathHolder())
 
@@ -49,6 +50,23 @@ class Path(Crawler):
             newInstance.setTag(tagName, self.tag(tagName))
 
         return newInstance
+
+    def toJson(self):
+        """
+        Serialize the path crawler to json (it can be recovery later using fromJson).
+        """
+        crawlerContents = {
+            "vars": {},
+            "tags": {}
+        }
+
+        for varName in self.varNames():
+            crawlerContents['vars'][varName] = self.var(varName)
+
+        for tagName in self.tagNames():
+            crawlerContents['tags'][tagName] = self.tag(tagName)
+
+        return json.dumps(crawlerContents)
 
     @classmethod
     def test(cls, parentCrawler, pathInfo):
@@ -100,6 +118,30 @@ class Path(Crawler):
                 pathHolder.path()
             )
         return result
+
+    @staticmethod
+    def createFromJson(jsonContents):
+        """
+        Create a crawler based on the jsonContents (serialized via toJson).
+        """
+        contents = json.loads(jsonContents)
+        crawlerType = contents["vars"]["type"]
+        filePath = contents["vars"]["filePath"]
+
+        # creating crawler
+        crawler = Path.__registeredTypes[crawlerType](
+            PathHolder(filePath)
+        )
+
+        # setting vars
+        for varName, varValue in contents["vars"].items():
+            crawler.setVar(varName, varValue)
+
+        # setting tags
+        for tagName, tagValue in contents["tags"].items():
+            crawler.setVar(tagName, tagValue)
+
+        return crawler
 
     def __setPathHolder(self, pathHolder):
         """
