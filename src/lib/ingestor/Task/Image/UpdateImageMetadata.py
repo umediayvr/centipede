@@ -1,8 +1,6 @@
 import os
 from datetime import datetime
-import OpenImageIO as oiio
 from ..Task import Task
-
 
 class UpdateImageMetadata(Task):
     """
@@ -13,6 +11,8 @@ class UpdateImageMetadata(Task):
         """
         Perform the task.
         """
+        import OpenImageIO as oiio
+
         for pathCrawler in self.pathCrawlers():
             yield pathCrawler
 
@@ -63,6 +63,7 @@ class UpdateImageMetadata(Task):
                 'umedia:{0}'.format(name),
                 value
             )
+
 
 # registering task
 Task.register(

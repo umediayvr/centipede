@@ -1,14 +1,10 @@
-import os
-import multiprocessing
-import OpenImageIO as oiio
-from .ResizeImage import ResizeImage
 from ..Task import Task
-
 
 class ImageThumbnail(Task):
     """
     Generates a thumbnail for the input image keeping the spect ratio.
     """
+
     __defaultWidth = 640
     __defaultHeight = 480
 
