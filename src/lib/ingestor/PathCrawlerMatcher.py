@@ -46,8 +46,9 @@ class PathCrawlerMatcher(object):
 
         foundType = False
         for matchType in self.matchTypes():
-            if fnmatch(crawlerType, matchType):
+            if matchType == "*" or fnmatch(crawlerType, matchType):
                 foundType = True
+                break
 
         if not foundType:
             return False
