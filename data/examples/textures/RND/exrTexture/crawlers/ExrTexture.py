@@ -5,7 +5,7 @@ class ExrTexture(ingestor.Crawler.Fs.Image.Exr):
     Custom crawler used to detect textures.
     """
 
-    __groupTextures = False
+    __groupTextures = True
 
     def __init__(self, *args, **kwargs):
         """
