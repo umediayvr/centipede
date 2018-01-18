@@ -21,26 +21,23 @@ class Subprocess(TaskWrapper):
         """
         super(Subprocess, self).__init__()
 
-        # the default user comes from the environ, otherwise assumes an empty user that
-        # is going to fallback to the current user.
         self.setOption('user', '')
 
     def _commandPrefix(self):
         """
         For re-implementation: should return a string used as prefix for the command executed as subprocess.
         """
+        # returning right away when no user is specified
         user = self.option('user')
-        if user:
+        if user == '':
+            return ''
 
-            # in case the user starts with '$' means the value is driven by an environment variable.
-            if user.startswith('$'):
-                user = os.environ[user[1:]]
+        # otherwise in case the user starts with '$' means the value is driven by an environment variable.
+        if user.startswith('$'):
+            user = os.environ[user[1:]]
 
-            return 'su {} -c'.format(
-                user
-            )
-
-        return ''
+        # running as different user
+        return 'su {} -c'.format(user)
 
     def _command(self):
         """
