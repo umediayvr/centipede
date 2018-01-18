@@ -1,5 +1,3 @@
-import OpenImageIO as oiio
-import os
 from ..Task import Task
 from collections import OrderedDict
 
@@ -7,6 +5,7 @@ class SequenceThumbnail(Task):
     """
     Creates a thumbnail for the image sequence.
     """
+
     __defaultWidth = 640
     __defaultHeight = 480
 

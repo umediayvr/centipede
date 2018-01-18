@@ -1,7 +1,5 @@
 import os
 from array import array
-import OpenImageIO as oiio
-import PyOpenColorIO as ocio
 from .UpdateImageMetadata import UpdateImageMetadata
 from ...Template import Template
 from ..Task import Task
@@ -17,6 +15,9 @@ class FileColorTransformation(Task):
         """
         Perform the task.
         """
+        import OpenImageIO as oiio
+        import PyOpenColorIO as ocio
+
         sourceColorSpace = self.option('sourceColorSpace')
         targetColorSpace = self.option('targetColorSpace')
         metadata = {

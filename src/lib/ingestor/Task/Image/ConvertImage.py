@@ -1,8 +1,6 @@
-import OpenImageIO as oiio
 import os
 from ..Task import Task
 from .UpdateImageMetadata import UpdateImageMetadata
-
 
 class ConvertImage(Task):
     """
@@ -13,6 +11,8 @@ class ConvertImage(Task):
         """
         Perform the task.
         """
+        import OpenImageIO as oiio
+
         for pathCrawler in self.pathCrawlers():
             yield pathCrawler
 

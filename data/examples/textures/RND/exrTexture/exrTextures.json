@@ -22,7 +22,11 @@
       "taskOptions": {
         "maketxArgs": "-v -u --unpremult --oiio"
       },
-      "targetTemplate": "{prefix}/{job}/publish/assets/!{assetName}/texture/{variant}/(newVersion <parentPath>)/data.json",
+      "taskWrapper": "subprocess",
+      "taskWrapperOptions": {
+        "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+      },
+      "targetTemplate": "{prefix}/{job}/publish/assets/!{assetName}/texture/{variant}/(newVersion <parentPath>)",
       "taskHolders": [
         {
           "task": "sgTexturePublish",

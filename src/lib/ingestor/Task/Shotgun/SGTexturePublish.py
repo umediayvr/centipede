@@ -30,10 +30,10 @@ class SGTexturePublish(Task):
         currentFolder = os.path.dirname(os.path.realpath(__file__))
 
         sourceCrawler = tuple(self.pathCrawlers())[0]
-        filePath = sourceCrawler.var("filePath")
+        versionFolder = sourceCrawler.var("filePath")
 
         # metadata information about the version
-        info = json.load(open(os.path.join(os.path.dirname(filePath), "info.json")))
+        info = json.load(open(os.path.join(versionFolder, "info.json")))
         assetName = info["assetName"]
         variant = info["variant"]
         version = info["version"]
@@ -44,7 +44,7 @@ class SGTexturePublish(Task):
             'job': sourceCrawler.var('job'),
             'assetName': assetName,
             'name': "{0}-{1}".format(assetName, variant),
-            'jsonFile': filePath,
+            'jsonFile': os.path.join(versionFolder, "data.json"),
             'publishedFileType': self.option('publishedFileType'),
             'version': version,
             'comment': self.option('comment')

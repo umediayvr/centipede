@@ -1,5 +1,7 @@
+import os
 import sys
 from .Task import Task
+from .TaskWrapper import TaskWrapper
 from .Template import Template
 from .Crawler.Fs.Path import Path
 from .PathHolder import PathHolder
@@ -22,6 +24,7 @@ class TaskHolder(object):
         self.__setTargetTemplate(targetTemplate)
         self.__setPathCrawlerMatcher(pathCrawlerMatcher)
         self.__subTaskHolders = []
+        self.__taskWrapper = TaskWrapper.create('default')
         self.__vars = {}
         self.__query = PathCrawlerQuery(
             self.targetTemplate(),
@@ -52,6 +55,20 @@ class TaskHolder(object):
             )
 
         return self.__vars[name]
+
+    def setTaskWrapper(self, taskWrapper):
+        """
+        Override the default task wrapper to use a custom one.
+        """
+        assert isinstance(taskWrapper, TaskWrapper), "Invalid taskWrapper type!"
+
+        self.__taskWrapper = taskWrapper
+
+    def taskWrapper(self):
+        """
+        Return the task wrapper used to execute the task.
+        """
+        return self.__taskWrapper
 
     def task(self):
         """
@@ -94,9 +111,27 @@ class TaskHolder(object):
 
     def run(self, crawlers, verbose=True):
         """
-        Performs the task.
+        Perform the task.
         """
-        self.__recursiveTaskRunner(crawlers, self, verbose)
+        # running task per group
+        groupedCrawlers = {}
+        noGroupIndex = 0
+        for crawler in crawlers:
+            # group
+            if 'group' in crawler.tagNames():
+                groupName = str(crawler.tag('group'))
+                if groupName not in groupedCrawlers:
+                    groupedCrawlers[groupName] = []
+
+                groupedCrawlers[groupName].append(crawler)
+
+            # no group
+            else:
+                groupedCrawlers[noGroupIndex] = [crawler]
+                noGroupIndex += 1
+
+        for crawlers in groupedCrawlers.values():
+            self.__recursiveTaskRunner(crawlers, self, verbose)
 
     def __setTask(self, task):
         """
@@ -127,26 +162,25 @@ class TaskHolder(object):
     @classmethod
     def __recursiveTaskRunner(cls, crawlers, taskHolder, verbose):
         """
-        Performs the task runner recursively.
+        Perform the task runner recursively.
         """
         matchedCrawlers = taskHolder.query(crawlers)
         if matchedCrawlers:
-
-            # cloning task so we can modify it
+            # cloning task so we can modify it safely
             clonedTask = taskHolder.task().clone()
-
+            clonedCrawlers = {}
             for matchedCrawler, targetFilePath in matchedCrawlers.items():
 
-                # todo:
-                # need to have a way to clone a crawler, so we can
-                # modify it safely
+                # cloning crawler so we can modify it safely
+                clonedCrawler = matchedCrawler.clone()
+                clonedCrawlers[clonedCrawler] = targetFilePath
                 for customVarName in taskHolder.customVarNames():
-                    matchedCrawler.setVar(
+                    clonedCrawler.setVar(
                         customVarName,
                         taskHolder.customVar(customVarName)
                     )
 
-                clonedTask.add(matchedCrawler, targetFilePath)
+                clonedTask.add(clonedCrawler, targetFilePath)
 
             # performing task
             currentTaskName = type(clonedTask).__name__
@@ -154,17 +188,21 @@ class TaskHolder(object):
             if verbose:
                 sys.stdout.write('Running task: {0}\n'.format(currentTaskName))
 
-                for pathCrawler in clonedTask.run():
-                    sys.stdout.write('  - {0}: {1}\n'.format(
+            # executing task through the wrapper
+            for pathCrawler in taskHolder.taskWrapper().run(clonedTask):
+                if verbose:
+                    sys.stdout.write('  - {0}: {1} -> {2}\n'.format(
                             currentTaskName,
-                            matchedCrawlers[pathCrawler]
+                            os.path.basename(pathCrawler.var('filePath')),
+                            clonedCrawlers[pathCrawler]
                         )
                     )
                     sys.stdout.flush()
+                    sys.stderr.flush()
 
             if taskHolder.subTaskHolders():
                 newCrawlers = []
-                for templateGeneratedFile in set(matchedCrawlers.values()):
+                for templateGeneratedFile in set(clonedCrawlers.values()):
                     childCrawler = Path.create(
                         PathHolder(templateGeneratedFile)
                     )

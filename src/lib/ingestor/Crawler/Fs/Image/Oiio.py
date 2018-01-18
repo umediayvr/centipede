@@ -1,5 +1,11 @@
-import OpenImageIO
 from .Image import Image
+
+try:
+    import OpenImageIO
+except ImportError:
+    hasOpenImageIO = False
+else:
+    hasOpenImageIO = True
 
 class Oiio(Image):
     """
@@ -12,15 +18,20 @@ class Oiio(Image):
         """
         super(Oiio, self).__init__(*args, **kwargs)
 
-        # reading width/height from the file
-        self.__imageBuf = OpenImageIO.ImageBuf(self.pathHolder().path())
+        # alternatively width and height information could come from the
+        # parent directory crawler "1920x1080". For more details take a look
+        # at "Directory" crawler.
+        if hasOpenImageIO:
+            self.__imageBuf = OpenImageIO.ImageBuf(self.pathHolder().path())
 
-        spec = self.__imageBuf.spec()
-        self.setVar('width', spec.width)
-        self.setVar('height', spec.height)
+            spec = self.__imageBuf.spec()
+            self.setVar('width', spec.width)
+            self.setVar('height', spec.height)
 
     def imageBuf(self):
         """
         Return the oiio image's buffer for the path.
         """
+        assert hasOpenImageIO, "OpenImageIO is not available"
+
         return self.__imageBuf

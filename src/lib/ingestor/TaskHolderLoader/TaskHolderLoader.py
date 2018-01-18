@@ -1,5 +1,4 @@
 from ..TaskHolder import TaskHolder
-from collections import OrderedDict
 
 class TaskHolderLoader(object):
     """
@@ -14,7 +13,7 @@ class TaskHolderLoader(object):
 
     def addTaskHolder(self, taskHolder):
         """
-        Add a task holder to the config loader
+        Add a task holder to the config loader.
         """
         assert (isinstance(taskHolder, TaskHolder)), \
             "Invalid task holder object"

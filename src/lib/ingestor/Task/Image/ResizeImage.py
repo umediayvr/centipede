@@ -1,6 +1,5 @@
 import os
 import multiprocessing
-import OpenImageIO as oiio
 from ...Template import Template
 from ..Task import Task
 
@@ -18,6 +17,8 @@ class ResizeImage(Task):
         """
         Perform the task.
         """
+        import OpenImageIO as oiio
+
         for pathCrawler in self.pathCrawlers():
             yield pathCrawler
 

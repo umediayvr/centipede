@@ -6,9 +6,10 @@ from ..Task import Task
 from ..Template import Template
 from ..PathCrawlerMatcher import PathCrawlerMatcher
 from ..TaskHolder import TaskHolder
+from ..TaskWrapper import TaskWrapper
 from .TaskHolderLoader import TaskHolderLoader
 
-class UnexpectedtContentError(Exception):
+class UnexpectedContentError(Exception):
     """Unexpected content error."""
 
 class InvalidFileError(Exception):
@@ -25,6 +26,7 @@ class JsonLoader(TaskHolderLoader):
     def addFromJsonFile(self, fileName):
         """
         Add json from a file.
+
         The json file need to follow the format expected
         by {@link addFromJson}.
         """
@@ -45,6 +47,7 @@ class JsonLoader(TaskHolderLoader):
     def addFromJsonDirectory(self, directory):
         """
         Add json from inside of a directory with json files.
+
         The json file need to follow the format expected
         by {@link addFromJson}.
         """
@@ -108,21 +111,20 @@ class JsonLoader(TaskHolderLoader):
 
         # root checking
         if not isinstance(contents, dict):
-            raise UnexpectedtContentError('Expecting object as root!')
+            raise UnexpectedContentError('Expecting object as root!')
 
         # loading scripts
         if 'scripts' in contents:
 
-           # scripts checking
+            # scripts checking
             if not isinstance(contents['scripts'], list):
-                raise UnexpectedtContentError('Expecting a list of scripts!')
+                raise UnexpectedContentError('Expecting a list of scripts!')
 
             for script in contents['scripts']:
                 scriptFiles = glob.glob(os.path.join(configPath, script))
 
                 for scriptFile in scriptFiles:
                     try:
-                        #d = dict(locals(), **globals())
                         exec(open(scriptFile).read(), globals())
                     except Exception as err:
                         sys.stderr.write('Error on executing script: "{0}"\n'.format(
@@ -133,9 +135,9 @@ class JsonLoader(TaskHolderLoader):
 
         vars = {}
         if 'vars' in contents:
-           # vars checking
+            # vars checking
             if not isinstance(contents['vars'], dict):
-                raise UnexpectedtContentError('Expecting a list of vars!')
+                raise UnexpectedContentError('Expecting a list of vars!')
             vars = dict(contents['vars'])
 
         vars['configPath'] = configPath
@@ -150,15 +152,15 @@ class JsonLoader(TaskHolderLoader):
         # loading task holders
         if 'taskHolders' in contents:
 
-           # task holders checking
+            # task holders checking
             if not isinstance(contents['taskHolders'], list):
-                raise UnexpectedtContentError('Expecting a list of task holders!')
+                raise UnexpectedContentError('Expecting a list of task holders!')
 
             for taskHolderInfo in contents['taskHolders']:
 
-               # task holder info checking
+                # task holder info checking
                 if not isinstance(taskHolderInfo, dict):
-                    raise UnexpectedtContentError('Expecting an object to describe the task holder!')
+                    raise UnexpectedContentError('Expecting an object to describe the task holder!')
 
                 task = Task.create(taskHolderInfo['task'])
 
@@ -182,6 +184,18 @@ class JsonLoader(TaskHolderLoader):
                     targetTemplate,
                     pathCrawlerMatcher
                 )
+
+                # task wrapper
+                if 'taskWrapper' in taskHolderInfo:
+                    taskWrapper = TaskWrapper.create(taskHolderInfo['taskWrapper'])
+
+                    # looking for task wrapper options
+                    if 'taskWrapperOptions' in taskHolderInfo:
+                        for optionName, optionValue in taskHolderInfo['taskWrapperOptions'].items():
+                            taskWrapper.setOption(optionName, optionValue)
+
+                    # setting task wrapper to the holder
+                    taskHolder.setTaskWrapper(taskWrapper)
 
                 # adding variables to the task holder
                 for varName, varValue in vars.items():

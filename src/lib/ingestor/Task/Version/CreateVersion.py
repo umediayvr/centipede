@@ -10,9 +10,23 @@ class FileNotUnderDataDirectoryError(Exception):
 class MetadataNotFoundError(Exception):
     """Metadata Not Found Error."""
 
+class InvalidFileOwnerError(Exception):
+    """Invalid File Owner Error."""
+
+class MakeDirsError(Exception):
+    """Make Dirs Error."""
+
+class CopyFileError(Exception):
+    """Copy File Error."""
+
+class FailedToLockDataError(Exception):
+    """Failed To Lock Data Error."""
+
 class CreateVersion(Task):
     """
     ABC for creating a version.
+
+    Optional options: dataOwner
     """
 
     def __init__(self, *args, **kwargs):
@@ -20,12 +34,29 @@ class CreateVersion(Task):
         Create a version.
         """
         super(CreateVersion, self).__init__(*args, **kwargs)
+
         self.__files = {}
         self.__info = {}
         self.__assetName = None
         self.__variant = None
+        self.__dataOwnerInfo = None
         self.__startTime = time.time()
         self.__loadedPublishedData = False
+
+    def copyFile(self, sourceFile, targetFile):
+        """
+        Auxiliary method used to copy a file by creating any necessary directories.
+        """
+        self.makeDirs(os.path.dirname(targetFile))
+
+        shutil.copyfile(sourceFile, targetFile)
+
+    def makeDirs(self, targetPath):
+        """
+        Auxiliary method used to create directories.
+        """
+        if not os.path.exists(targetPath):
+            os.makedirs(targetPath)
 
     def version(self):
         """
@@ -100,8 +131,11 @@ class CreateVersion(Task):
         # making metadata immutable
         metadata = dict(metadata)
 
+        # querying the stats about the file
+        fileStat = os.stat(filePath)
+
         # getting file size
-        metadata['size'] = os.stat(filePath).st_size
+        metadata['size'] = fileStat.st_size
 
         # adding type based on the file ext when it's not defined
         if 'type' not in metadata:
@@ -143,6 +177,9 @@ class CreateVersion(Task):
         self.__writeInfo()
         self.__writeData()
         self.__copyIngestorConfig()
+
+        for pathCrawler in self.pathCrawlers():
+            yield pathCrawler
 
     def __copyIngestorConfig(self):
         """
@@ -212,7 +249,10 @@ class CreateVersion(Task):
                 self.__assetName = pathCrawler.var("assetName")
                 self.__variant = pathCrawler.var("variant")
 
-            self.__versionPath = os.path.dirname(self.filePath(pathCrawler))
+            # creating the version directory
+            self.__versionPath = self.filePath(pathCrawler)
+            os.makedirs(self.__versionPath)
+
             self.__dataPath = os.path.join(self.__versionPath, "data")
             self.__configPath = pathCrawler.var('configPath')
 

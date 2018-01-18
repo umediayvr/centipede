@@ -3,6 +3,9 @@ import json
 from ..Task import Task
 from .CreateVersion import CreateVersion
 
+class HardlinkFileError(Exception):
+    """Hardlink Error."""
+
 class CreateIncrementalVersion(CreateVersion):
     """
     ABC for creating an incremental version.
@@ -15,6 +18,13 @@ class CreateIncrementalVersion(CreateVersion):
         super(CreateIncrementalVersion, self).__init__(*args, **kwargs)
         self.setOption('incremental', True)
         self.setOption('incrementalSpecificVersion', 0)
+
+    def hardlinkFile(self, sourceFile, targetFile):
+        """
+        Hard-link a file by creating any necessary directories automatically.
+        """
+        self.makeDirs(os.path.dirname(targetFile))
+        os.link(sourceFile, targetFile)
 
     def addFile(self, filePath, metadata=None):
         """
@@ -71,12 +81,8 @@ class CreateIncrementalVersion(CreateVersion):
             sourceFile = os.path.join(incrementalVersionPath, fileEntry)
             targetFile = os.path.join(self.versionPath(), fileEntry)
 
-            # making sure the target directory exists
-            if not os.path.exists(os.path.dirname(targetFile)):
-                os.makedirs(os.path.dirname(targetFile))
-
             # making hardlink
-            os.link(sourceFile, targetFile)
+            self.hardlinkFile(sourceFile, targetFile)
 
             # adding file to the version
             self.addFile(targetFile, fileMetadata)
