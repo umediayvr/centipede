@@ -213,6 +213,9 @@ class Path(Crawler):
 
     @staticmethod
     def __collectCrawlers(crawler):
+        """
+        Resursively collect crawlers.
+        """
         result = []
         result.append(crawler)
 
