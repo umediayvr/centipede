@@ -75,7 +75,7 @@ class CreateIncrementalVersion(CreateVersion):
         for fileEntry, fileMetadata in incrementalVersionContents.items():
 
             # file is part of the current version, skipping it
-            if fileEntry in currentVersionRelativeFilePaths and fileMetadata['type'] in excludeTypes:
+            if fileEntry in currentVersionRelativeFilePaths or fileMetadata['type'] in excludeTypes:
                 continue
 
             sourceFile = os.path.join(incrementalVersionPath, fileEntry)
