@@ -87,7 +87,7 @@ class CreateIncrementalVersion(CreateVersion):
             # adding file to the version
             self.addFile(targetFile, fileMetadata)
 
-    def _perform(self,incrementalExcludeTypes=[]):
+    def _perform(self, incrementalExcludeTypes=[]):
         """
         Perform the task.
         """
