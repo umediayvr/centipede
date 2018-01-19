@@ -110,7 +110,7 @@ class Crawler(object):
         """
         newInstance = self.__class__(self.var('name'))
 
-        # clonning variables
+        # cloning variables
         for varName in self.varNames():
             newInstance.setVar(varName, self.var(varName))
 

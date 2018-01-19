@@ -1,0 +1,47 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/data/job",
+    "job": "999_r_d",
+    "__uiHintSourceColumns": [
+      "shot",
+      "step",
+      "variant",
+      "type"
+    ]
+  },
+  "taskHolders": [
+    {
+      "task": "createRenderVersion",
+      "matchTypes": [
+        "shotRender"
+      ],
+      "matchVars": {
+      },
+      "taskOptions": {
+        "incremental": false
+      },
+      "taskWrapper": "subprocess",
+      "taskWrapperOptions": {
+        "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+      },
+      "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{variant}/(newVersion <parentPath>)",
+      "taskHolders": [
+        {
+          "task": "sgRenderPublish",
+          "matchTypes": [
+            "*"
+          ],
+          "matchVars": {
+          },
+          "taskOptions": {
+            "comment": "render publish"
+          },
+          "targetTemplate": "{filePath}"
+        }
+      ]
+    }
+  ]
+}

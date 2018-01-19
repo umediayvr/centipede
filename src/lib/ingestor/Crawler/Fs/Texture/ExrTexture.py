@@ -1,6 +1,6 @@
-import ingestor
+from ..Image import Exr
 
-class ExrTexture(ingestor.Crawler.Fs.Image.Exr):
+class ExrTexture(Exr):
     """
     Custom crawler used to detect textures.
     """

@@ -46,7 +46,7 @@ class CreateIncrementalVersion(CreateVersion):
             metadata
         )
 
-    def addIncrementalFiles(self, version):
+    def addIncrementalFiles(self, version, excludeTypes=[]):
         """
         Add files localized under the input version to the current version as hardlink.
         """
@@ -75,7 +75,7 @@ class CreateIncrementalVersion(CreateVersion):
         for fileEntry, fileMetadata in incrementalVersionContents.items():
 
             # file is part of the current version, skipping it
-            if fileEntry in currentVersionRelativeFilePaths:
+            if fileEntry in currentVersionRelativeFilePaths or fileMetadata['type'] in excludeTypes:
                 continue
 
             sourceFile = os.path.join(incrementalVersionPath, fileEntry)
@@ -87,7 +87,7 @@ class CreateIncrementalVersion(CreateVersion):
             # adding file to the version
             self.addFile(targetFile, fileMetadata)
 
-    def _perform(self):
+    def _perform(self, incrementalExcludeTypes=[]):
         """
         Perform the task.
         """
@@ -100,7 +100,7 @@ class CreateIncrementalVersion(CreateVersion):
             if self.option('incrementalSpecificVersion'):
                 incrementalVersion = self.option('incrementalSpecificVersion')
 
-            self.addIncrementalFiles(incrementalVersion)
+            self.addIncrementalFiles(incrementalVersion, incrementalExcludeTypes)
 
         # source version info
         sourceVersions = set()
