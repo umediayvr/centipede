@@ -22,7 +22,6 @@ class CreateRenderVersion(CreateIncrementalVersion):
         sourceScenes = set()
 
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
 
             targetFile = self.__computeRenderTargetLocation(pathCrawler)
             # copying the render file

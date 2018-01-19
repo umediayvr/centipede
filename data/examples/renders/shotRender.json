@@ -21,8 +21,27 @@
       "matchVars": {
       },
       "taskOptions": {
+        "incremental": false
       },
-      "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{variant}/(newVersion <parentPath>)"
+      "taskWrapper": "subprocess",
+      "taskWrapperOptions": {
+        "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+      },
+      "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{variant}/(newVersion <parentPath>)",
+      "taskHolders": [
+        {
+          "task": "sgRenderPublish",
+          "matchTypes": [
+            "*"
+          ],
+          "matchVars": {
+          },
+          "taskOptions": {
+            "comment": "render publish"
+          },
+          "targetTemplate": "{filePath}"
+        }
+      ]
     }
   ]
 }
