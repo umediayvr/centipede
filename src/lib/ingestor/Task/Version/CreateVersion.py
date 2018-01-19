@@ -25,9 +25,16 @@ class FailedToLockDataError(Exception):
 class CreateVersion(Task):
     """
     ABC for creating a version.
-
-    Optional options: dataOwner
     """
+
+    __genericCrawlerInfo = [
+        "job",
+        "seq",
+        "shot",
+        "assetName",
+        "step",
+        "variant"
+    ]
 
     def __init__(self, *args, **kwargs):
         """
@@ -250,7 +257,7 @@ class CreateVersion(Task):
             pathCrawler = self.pathCrawlers()[0]
 
             # Add generic info that is expected to be on the crawler
-            for info in ["job", "seq", "shot", "assetName", "step", "variant"]:
+            for info in self.__genericCrawlerInfo:
                 if info in pathCrawler.varNames():
                     self.addInfo(info, pathCrawler.var(info))
 
