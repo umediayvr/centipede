@@ -88,6 +88,7 @@ class Image(File):
         """
         nameParts = self.pathHolder().baseName().split(".")
         parts = nameParts[0].split("_")
+        isImageSeq = False
         if len(parts) > 1:
             isImageSeq = (parts[-1].isdigit() and len(parts[-1]) >= 4)
 
