@@ -162,7 +162,21 @@ class CreateVersion(Task):
         Cache the static information about the first crawler you add.
         """
         super(CreateVersion, self).add(*args, **kwargs)
+
+        # make sure to do not create any files/directories at this point, since this call does not guarantee
+        # the task is going to be executed right away (since tasks can be serialized).
         self.__loadPublishData()
+
+    def run(self):
+        """
+        Run the task.
+
+        We need to wrap this call to make sure the versionPath is created before
+        any of the sub-classess try to write to it through _perform.
+        """
+        os.makedirs(self.versionPath())
+
+        return super(CreateVersion, self).run()
 
     def _perform(self):
         """
@@ -242,8 +256,6 @@ class CreateVersion(Task):
 
             # creating the version directory
             self.__versionPath = self.filePath(pathCrawler)
-            os.makedirs(self.__versionPath)
-
             self.__dataPath = os.path.join(self.__versionPath, "data")
             self.__configPath = pathCrawler.var('configPath')
 
