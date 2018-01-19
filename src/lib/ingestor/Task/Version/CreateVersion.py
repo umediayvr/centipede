@@ -179,7 +179,7 @@ class CreateVersion(Task):
         Run the task.
 
         We need to wrap this call to make sure the versionPath is created before
-        any of the sub-classess try to write to it through _perform.
+        any of the sub-classes try to write to it through _perform.
         """
         os.makedirs(self.versionPath())
 
