@@ -12,26 +12,19 @@ class Oiio(Image):
     Open image io crawler.
     """
 
-    def __init__(self, *args, **kwargs):
+    def var(self, name):
         """
-        Create a exr path crawler.
+        Return var value using lazy loading implementation for width and height.
         """
-        super(Oiio, self).__init__(*args, **kwargs)
+        if name in ['width', 'height'] and name not in self.varNames():
+            # alternatively width and height information could come from the
+            # parent directory crawler "1920x1080". For more details take a look
+            # at "Directory" crawler.
+            if hasOpenImageIO:
+                imageInput = OpenImageIO.ImageInput.open(self.pathHolder().path())
+                spec = imageInput.spec()
+                self.setVar('width', spec.width)
+                self.setVar('height', spec.height)
+                imageInput.close()
 
-        # alternatively width and height information could come from the
-        # parent directory crawler "1920x1080". For more details take a look
-        # at "Directory" crawler.
-        if hasOpenImageIO:
-            self.__imageBuf = OpenImageIO.ImageBuf(self.pathHolder().path())
-
-            spec = self.__imageBuf.spec()
-            self.setVar('width', spec.width)
-            self.setVar('height', spec.height)
-
-    def imageBuf(self):
-        """
-        Return the oiio image's buffer for the path.
-        """
-        assert hasOpenImageIO, "OpenImageIO is not available"
-
-        return self.__imageBuf
+        return super(Oiio, self).var(name)
