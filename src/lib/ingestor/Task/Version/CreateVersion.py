@@ -25,9 +25,16 @@ class FailedToLockDataError(Exception):
 class CreateVersion(Task):
     """
     ABC for creating a version.
-
-    Optional options: dataOwner
     """
+
+    __genericCrawlerInfo = [
+        "job",
+        "seq",
+        "shot",
+        "assetName",
+        "step",
+        "variant"
+    ]
 
     def __init__(self, *args, **kwargs):
         """
@@ -162,7 +169,21 @@ class CreateVersion(Task):
         Cache the static information about the first crawler you add.
         """
         super(CreateVersion, self).add(*args, **kwargs)
+
+        # make sure to do not create any files/directories at this point, since this call does not guarantee
+        # the task is going to be executed right away (since tasks can be serialized).
         self.__loadPublishData()
+
+    def run(self):
+        """
+        Run the task.
+
+        We need to wrap this call to make sure the versionPath is created before
+        any of the sub-classes try to write to it through _perform.
+        """
+        os.makedirs(self.versionPath())
+
+        return super(CreateVersion, self).run()
 
     def _perform(self):
         """
@@ -236,14 +257,12 @@ class CreateVersion(Task):
             pathCrawler = self.pathCrawlers()[0]
 
             # Add generic info that is expected to be on the crawler
-            for info in ["job", "seq", "shot", "assetName", "step", "variant"]:
+            for info in self.__genericCrawlerInfo:
                 if info in pathCrawler.varNames():
                     self.addInfo(info, pathCrawler.var(info))
 
             # creating the version directory
             self.__versionPath = self.filePath(pathCrawler)
-            os.makedirs(self.__versionPath)
-
             self.__dataPath = os.path.join(self.__versionPath, "data")
             self.__configPath = pathCrawler.var('configPath')
 
