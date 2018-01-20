@@ -80,13 +80,13 @@ class Path(Crawler):
 
         return json.dumps(crawlerContents)
 
-    def glob(self, filterTypes=[]):
+    def glob(self, filterTypes=[], useCache=True):
         """
         Return a list of all crawlers found recursively under this path.
 
         Filter result list by exact crawler type (str) or class type (includes derived classes).
         """
-        if self.__globCache is None:
+        if self.__globCache is None or not useCache:
             # Recursively collect all crawlers for this path
             self.__globCache = Path.__collectCrawlers(self)
 
