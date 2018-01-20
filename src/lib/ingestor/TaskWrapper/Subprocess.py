@@ -56,8 +56,8 @@ class Subprocess(TaskWrapper):
         with open(serializedTaskFile, 'w') as f:
             f.write(task.toJson())
 
-        # we need to make this temporary file R/W for anyone, since it is going to be manipulated by
-        # a subprocess that can use a different user/permissions.
+        # we need to make this temporary file R&W for anyone, since it may be manipulated by
+        # a subprocess that uses a different user/permissions.
         os.chmod(serializedTaskFile, 0o777)
 
         # building full command executed as subprocess
@@ -119,7 +119,7 @@ class Subprocess(TaskWrapper):
         with open(serializedTaskFilePath) as jsonFile:
             serializedJsonTaskContent = jsonFile.read()
 
-        # recreating the task from the json contents
+        # re-creating the task from the json contents
         task = Task.createFromJson(serializedJsonTaskContent)
 
         # running task and serializing the output as json.
