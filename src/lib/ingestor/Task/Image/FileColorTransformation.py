@@ -46,7 +46,7 @@ class FileColorTransformation(Task):
                  ocio.FileTransform(
                     lut,
                     interpolation=ocio.Constants.INTERP_LINEAR
-                )
+                 )
             )
 
             # source image

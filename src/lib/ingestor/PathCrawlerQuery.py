@@ -1,6 +1,3 @@
-import os
-import shutil
-import sys
 from .Template import Template
 from .PathCrawlerMatcher import PathCrawlerMatcher
 from collections import OrderedDict

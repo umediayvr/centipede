@@ -78,7 +78,7 @@ class PathCrawlerMatcher(object):
 
     def __setMatchTypes(self, matchTypes):
         """
-        Sets a list of crawler types used to match.
+        Set a list of crawler types used to match.
 
         The types can be defined using glob syntax.
         """

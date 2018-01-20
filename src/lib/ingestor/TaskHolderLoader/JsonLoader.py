@@ -174,8 +174,8 @@ class JsonLoader(TaskHolderLoader):
 
                 # getting path crawler matcher
                 pathCrawlerMatcher = PathCrawlerMatcher(
-                    taskHolderInfo['matchTypes'],
-                    taskHolderInfo['matchVars']
+                    taskHolderInfo.get('matchTypes', ['*']),
+                    taskHolderInfo.get('matchVars', [])
                 )
 
                 # creating a task holder
@@ -185,17 +185,7 @@ class JsonLoader(TaskHolderLoader):
                     pathCrawlerMatcher
                 )
 
-                # task wrapper
-                if 'taskWrapper' in taskHolderInfo:
-                    taskWrapper = TaskWrapper.create(taskHolderInfo['taskWrapper'])
-
-                    # looking for task wrapper options
-                    if 'taskWrapperOptions' in taskHolderInfo:
-                        for optionName, optionValue in taskHolderInfo['taskWrapperOptions'].items():
-                            taskWrapper.setOption(optionName, optionValue)
-
-                    # setting task wrapper to the holder
-                    taskHolder.setTaskWrapper(taskWrapper)
+                self.__loadTaskWrapper(taskHolder, taskHolderInfo)
 
                 # adding variables to the task holder
                 for varName, varValue in vars.items():
@@ -211,3 +201,20 @@ class JsonLoader(TaskHolderLoader):
                 # loading sub task holders recursevely
                 if 'taskHolders' in contents:
                     self.__loadTaskHolder(taskHolderInfo, vars, taskHolder)
+
+    @classmethod
+    def __loadTaskWrapper(cls, taskHolder, taskHolderInfo):
+        """
+        Load the task holder information.
+        """
+        # task wrapper
+        if 'taskWrapper' in taskHolderInfo:
+            taskWrapper = TaskWrapper.create(taskHolderInfo['taskWrapper'])
+
+            # looking for task wrapper options
+            if 'taskWrapperOptions' in taskHolderInfo:
+                for optionName, optionValue in taskHolderInfo['taskWrapperOptions'].items():
+                    taskWrapper.setOption(optionName, optionValue)
+
+            # setting task wrapper to the holder
+            taskHolder.setTaskWrapper(taskWrapper)

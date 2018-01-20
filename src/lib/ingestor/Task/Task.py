@@ -183,7 +183,7 @@ class Task(object):
     @staticmethod
     def createFromJson(jsonContents):
         """
-        Factory a task based on the jsonContents (serialized via toJson).
+        Create a task based on the jsonContents (serialized via toJson).
         """
         contents = json.loads(jsonContents)
         taskType = contents["type"]

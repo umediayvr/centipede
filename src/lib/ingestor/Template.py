@@ -67,14 +67,7 @@ class Template(object):
         """
         Return the value of the template based on the input variables.
         """
-        # validating values for the template variables
-        for requiredVarName in self.varNames():
-            if requiredVarName not in vars:
-                raise VariableNotFoundError(
-                    'Could not find a value for the variable {0}'.format(
-                        requiredVarName
-                    )
-                )
+        self.__validateTemplateVariables(vars)
 
         # resolving variables values
         resolvedTemplate = self.inputString()
@@ -133,6 +126,18 @@ class Template(object):
             finalResolvedTemplate = os.sep.join(finalPath)
 
         return finalResolvedTemplate
+
+    def __validateTemplateVariables(self, vars):
+        """
+        Make sure the variables used by template are available, otherwise thown an exception (VariableNotFoundError).
+        """
+        for requiredVarName in self.varNames():
+            if requiredVarName not in vars:
+                raise VariableNotFoundError(
+                    'Could not find a value for the variable {0}'.format(
+                        requiredVarName
+                    )
+                )
 
     def __setVarNames(self):
         """

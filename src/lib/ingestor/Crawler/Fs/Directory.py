@@ -7,6 +7,7 @@ class Directory(Path):
     """
     Directory path crawler.
     """
+
     __resolutionRegex = '^[0-9]+[x|X][0-9]+$'
 
     def __init__(self, *args, **kwargs):
