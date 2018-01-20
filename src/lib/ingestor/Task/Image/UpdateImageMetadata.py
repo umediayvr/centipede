@@ -14,8 +14,6 @@ class UpdateImageMetadata(Task):
         import OpenImageIO as oiio
 
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
-
             targetFilePath = self.filePath(pathCrawler)
 
             # converting image using open image io
@@ -36,6 +34,9 @@ class UpdateImageMetadata(Task):
 
             outImage.copy_image(imageInput)
             outImage.close()
+
+        # default result based on the target filePath
+        return super(UpdateImageMetadata, self)._perform()
 
     @classmethod
     def updateUmediaMetadata(cls, spec, crawler, customMetadata={}):

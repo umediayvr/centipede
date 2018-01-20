@@ -25,8 +25,6 @@ class ColorTransformation(Task):
         }
 
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
-
             # open color configuration
             config = ocio.GetCurrentConfig()
 
@@ -73,6 +71,9 @@ class ColorTransformation(Task):
                 targetImage.write_image(writePixels)
             else:
                 raise Exception(oiio.geterror())
+
+        # default result based on the target filePath
+        return super(ColorTransformation, self)._perform()
 
 
 # registering task

@@ -54,10 +54,6 @@ class NukeScript(Task):
                 sourceSequenceFilePath[-1]
             )
 
-            # nuke script is about to start
-            for sequenceCrawler in sequenceCrawlers:
-                yield sequenceCrawler
-
             # generating a temporary file that is going to contain the options
             # that should be used by nuke script
             tempJsonOptionsFile = tempfile.NamedTemporaryFile(
@@ -119,6 +115,9 @@ class NukeScript(Task):
             # in case of any erros
             if error:
                 raise Exception(error)
+
+        # default result based on the target filePath
+        return super(NukeScript, self)._perform()
 
 
 # registering task

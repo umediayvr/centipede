@@ -1,10 +1,8 @@
-import os
-import shutil
 import hashlib
 from ..Task import Task
 
 class ChecksumMatchError(Exception):
-    "Checksum match error"
+    """Checksum match error."""
 
 class Checksum(Task):
     """
@@ -18,7 +16,6 @@ class Checksum(Task):
         Perform the task.
         """
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
 
             # copying the file to the new target
             sourceFilePath = pathCrawler.var('filePath')
@@ -34,6 +31,9 @@ class Checksum(Task):
                         targetFileHash
                     )
                 )
+
+        # default result based on the target filePath
+        return super(Checksum, self)._perform()
 
 
 # registering task

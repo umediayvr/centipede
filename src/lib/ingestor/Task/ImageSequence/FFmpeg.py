@@ -11,6 +11,7 @@ class FFmpeg(Task):
         - optional: scale (float), videoCoded, pixelFormat and bitRate
         - required: sourceColorSpace, targetColorSpace and frameRate (float)
     """
+
     __defaultScale = 1.0
     __defaultVideoCodec = "libx264"
     __defaultPixelFormat = "yuvj420p"
@@ -46,22 +47,21 @@ class FFmpeg(Task):
             sequenceCrawlers = movFiles[movFile]
             pathCrawler = sequenceCrawlers[0]
 
-            # mov generation is about to start
-            yield pathCrawler
-
             # executing ffmpeg
             self.__executeFFmpeg(
                 sequenceCrawlers,
                 movFile
             )
 
+        # default result based on the target filePath
+        return super(FFmpeg, self)._perform()
+
     def __executeFFmpeg(self, sequenceCrawlers, outputFilePath):
         """
-        Executes ffmpeg.
+        Execute ffmpeg.
         """
         crawler = sequenceCrawlers[0]
         startFrame = crawler.var('frame')
-        padding = crawler.var('padding')
 
         # building an image sequence name that ffmpeg undertands that is a file
         # sequence (aka foo.%04d.ext)

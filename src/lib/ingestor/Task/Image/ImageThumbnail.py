@@ -24,6 +24,7 @@ class ImageThumbnail(Task):
         width = self.option('width')
         height = self.option('height')
 
+        result = []
         for pathCrawler in self.pathCrawlers():
             targetFilePath = self.filePath(pathCrawler)
 
@@ -55,8 +56,9 @@ class ImageThumbnail(Task):
             )
 
             # running task
-            for runningCrawler in resizeImageTask.run():
-                yield runningCrawler
+            result += resizeImageTask.output()
+
+        return result
 
 
 # registering task

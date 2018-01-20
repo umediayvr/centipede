@@ -27,8 +27,6 @@ class FileColorTransformation(Task):
         config = ocio.GetCurrentConfig()
 
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
-
             # resolving the lut path
             lut = Template(self.option('lut')).valueFromCrawler(
                 pathCrawler
@@ -95,6 +93,9 @@ class FileColorTransformation(Task):
                 targetImage.write_image(writePixels)
             else:
                 raise Exception(oiio.geterror())
+
+        # default result based on the target filePath
+        return super(FileColorTransformation, self)._perform()
 
 
 # registering task

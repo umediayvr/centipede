@@ -60,7 +60,6 @@ class SGPlatePublish(Task):
                 )
             )
 
-            yield sourceCrawler
             output = {
                 'job': sourceCrawler.var('job'),
                 'name': sourceCrawler.var('plateName'),
@@ -117,6 +116,9 @@ class SGPlatePublish(Task):
             # in case of any erros
             if error:
                 print(error)
+
+        # this task does not return any crawlers as result
+        return []
 
 
 # registering task

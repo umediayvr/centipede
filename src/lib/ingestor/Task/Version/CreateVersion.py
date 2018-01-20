@@ -174,7 +174,7 @@ class CreateVersion(Task):
         # the task is going to be executed right away (since tasks can be serialized).
         self.__loadPublishData()
 
-    def run(self):
+    def output(self):
         """
         Run the task.
 
@@ -183,7 +183,7 @@ class CreateVersion(Task):
         """
         os.makedirs(self.versionPath())
 
-        return super(CreateVersion, self).run()
+        return super(CreateVersion, self).output()
 
     def _perform(self):
         """
@@ -194,8 +194,7 @@ class CreateVersion(Task):
         self.__writeData()
         self.__copyIngestorConfig()
 
-        for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
+        return super(CreateVersion, self)._perform()
 
     def __copyIngestorConfig(self):
         """
