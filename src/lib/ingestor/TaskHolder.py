@@ -189,12 +189,12 @@ class TaskHolder(object):
                 sys.stdout.write('Running task: {0}\n'.format(currentTaskName))
 
             # executing task through the wrapper
-            for pathCrawler in taskHolder.taskWrapper().run(clonedTask):
+            resultCrawlers = taskHolder.taskWrapper().run(clonedTask)
+            for pathCrawler in resultCrawlers:
                 if verbose:
-                    sys.stdout.write('  - {0}: {1} -> {2}\n'.format(
+                    sys.stdout.write('  - {0}: {1}\n'.format(
                             currentTaskName,
-                            os.path.basename(pathCrawler.var('filePath')),
-                            clonedCrawlers[pathCrawler]
+                            pathCrawler.var('filePath'),
                         )
                     )
                     sys.stdout.flush()
@@ -202,10 +202,7 @@ class TaskHolder(object):
 
             if taskHolder.subTaskHolders():
                 newCrawlers = []
-                for templateGeneratedFile in set(clonedCrawlers.values()):
-                    childCrawler = Path.create(
-                        PathHolder(templateGeneratedFile)
-                    )
+                for childCrawler in resultCrawlers:
 
                     # setting the task holder custom variables to this crawler.
                     # This basically transfer the global variables declared in
