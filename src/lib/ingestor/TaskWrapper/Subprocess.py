@@ -1,9 +1,11 @@
 import os
 import sys
+import json
 import tempfile
 import subprocess
 from .TaskWrapper import TaskWrapper
 from ..Task import Task
+from ..Crawler.Fs import Path
 
 class SubprocessFailedError(Exception):
     """Subprocess failed Error."""
@@ -13,7 +15,7 @@ class Subprocess(TaskWrapper):
     Executes a task inside of a subprocess.
     """
 
-    __serializedTaskEnv = "UMEDIA_SUBPROCESS_SERIALIZED_TASK"
+    __serializedTaskEnv = "TASKWRAPPER_SUBPROCESS_FILE"
 
     def __init__(self):
         """
@@ -54,6 +56,10 @@ class Subprocess(TaskWrapper):
         with open(serializedTaskFile, 'w') as f:
             f.write(task.toJson())
 
+        # we need to make this temporary file R/W for anyone, since it is going to be manipulated by
+        # a subprocess that can use a different user/permissions.
+        os.chmod(serializedTaskFile, 0o777)
+
         # building full command executed as subprocess
         command = self._command()
         if self._commandPrefix():
@@ -92,23 +98,39 @@ class Subprocess(TaskWrapper):
                 )
             )
 
-        # yielding crawler
-        for pathCrawler in task.pathCrawlers():
-            yield pathCrawler
+        # the task passes the result by serializing it as json, we need to load the json file
+        # and re-create the crawlers.
+        result = []
+        with open(serializedTaskFile) as jsonFile:
+            for serializedJsonCrawler in json.load(jsonFile):
+                result.append(
+                    Path.createFromJson(serializedJsonCrawler)
+                )
+
+        return result
 
     @staticmethod
     def runSerializedTask():
         """
         Run a serialized task defined in the environment during Subprocess._perform.
         """
+        serializedTaskFilePath = os.environ[Subprocess.__serializedTaskEnv]
         serializedJsonTaskContent = None
-        with open(os.environ[Subprocess.__serializedTaskEnv]) as jsonFile:
+        with open(serializedTaskFilePath) as jsonFile:
             serializedJsonTaskContent = jsonFile.read()
 
+        # recreating the task from the json contents
         task = Task.createFromJson(serializedJsonTaskContent)
 
-        # running task
-        for pathCrawler in task.run(): pass
+        # running task and serializing the output as json.
+        serializedCrawlers = []
+        for crawler in task.output():
+            serializedCrawlers.append(crawler.toJson())
+
+        # we use the environment to tell where the result has been serialized
+        # so it can be resulted back by the parent process.
+        with open(serializedTaskFilePath, 'w') as f:
+            f.write(json.dumps(serializedCrawlers))
 
 
 # registering task wrapper

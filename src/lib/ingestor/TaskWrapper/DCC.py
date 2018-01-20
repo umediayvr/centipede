@@ -49,7 +49,7 @@ class DCC(Subprocess):
 
         # otheriwse we can execute the task right away
         else:
-            return task.run()
+            return task.output()
 
     def _command(self):
         """
