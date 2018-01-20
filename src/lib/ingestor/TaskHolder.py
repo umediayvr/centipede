@@ -1,10 +1,7 @@
-import os
 import sys
 from .Task import Task
 from .TaskWrapper import TaskWrapper
 from .Template import Template
-from .Crawler.Fs.Path import Path
-from .PathHolder import PathHolder
 from .PathCrawlerMatcher import PathCrawlerMatcher
 from .PathCrawlerQuery import PathCrawlerQuery
 
@@ -174,6 +171,11 @@ class TaskHolder(object):
                 # cloning crawler so we can modify it safely
                 clonedCrawler = matchedCrawler.clone()
                 clonedCrawlers[clonedCrawler] = targetFilePath
+
+                # passing custom variables from the task holder to the crawlers.
+                # This basically transfer the global variables declared in
+                # the json configuration to the crawler, so subtasks can use
+                # them to resolve templates (when necessary).
                 for customVarName in taskHolder.customVarNames():
                     clonedCrawler.setVar(
                         customVarName,
@@ -200,24 +202,6 @@ class TaskHolder(object):
                     sys.stdout.flush()
                     sys.stderr.flush()
 
-            if taskHolder.subTaskHolders():
-                newCrawlers = []
-                for childCrawler in resultCrawlers:
-
-                    # setting the task holder custom variables to this crawler.
-                    # This basically transfer the global variables declared in
-                    # the json configuration to the crawler, so subtasks can use
-                    # them to resolve templates (when necessary).
-                    for customVarName in taskHolder.customVarNames():
-                        childCrawler.setVar(
-                            customVarName,
-                            taskHolder.customVar(customVarName)
-                        )
-
-                    # appending the new crawler
-                    newCrawlers.append(
-                        childCrawler
-                    )
-
-                for subTaskHolder in taskHolder.subTaskHolders():
-                    cls.__recursiveTaskRunner(newCrawlers, subTaskHolder, verbose)
+            # calling subtask holders
+            for subTaskHolder in taskHolder.subTaskHolders():
+                cls.__recursiveTaskRunner(resultCrawlers, subTaskHolder, verbose)
