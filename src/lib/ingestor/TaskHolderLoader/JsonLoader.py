@@ -170,7 +170,7 @@ class JsonLoader(TaskHolderLoader):
                         task.setOption(taskOptionName, taskOptionValue)
 
                 # getting the target template
-                targetTemplate = Template(taskHolderInfo['targetTemplate'])
+                targetTemplate = Template(taskHolderInfo.get('targetTemplate', ''))
 
                 # getting path crawler matcher
                 pathCrawlerMatcher = PathCrawlerMatcher(
