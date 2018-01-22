@@ -162,46 +162,48 @@ class TaskHolder(object):
         Perform the task runner recursively.
         """
         matchedCrawlers = taskHolder.query(crawlers)
-        if matchedCrawlers:
-            # cloning task so we can modify it safely
-            clonedTask = taskHolder.task().clone()
-            clonedCrawlers = {}
-            for matchedCrawler, targetFilePath in matchedCrawlers.items():
+        if not matchedCrawlers:
+            return
 
-                # cloning crawler so we can modify it safely
-                clonedCrawler = matchedCrawler.clone()
-                clonedCrawlers[clonedCrawler] = targetFilePath
+        # cloning task so we can modify it safely
+        clonedTask = taskHolder.task().clone()
+        clonedCrawlers = {}
+        for matchedCrawler, targetFilePath in matchedCrawlers.items():
 
-                # passing custom variables from the task holder to the crawlers.
-                # This basically transfer the global variables declared in
-                # the json configuration to the crawler, so subtasks can use
-                # them to resolve templates (when necessary).
-                for customVarName in taskHolder.customVarNames():
-                    clonedCrawler.setVar(
-                        customVarName,
-                        taskHolder.customVar(customVarName)
-                    )
+            # cloning crawler so we can modify it safely
+            clonedCrawler = matchedCrawler.clone()
+            clonedCrawlers[clonedCrawler] = targetFilePath
 
-                clonedTask.add(clonedCrawler, targetFilePath)
+            # passing custom variables from the task holder to the crawlers.
+            # This basically transfer the global variables declared in
+            # the json configuration to the crawler, so subtasks can use
+            # them to resolve templates (when necessary).
+            for customVarName in taskHolder.customVarNames():
+                clonedCrawler.setVar(
+                    customVarName,
+                    taskHolder.customVar(customVarName)
+                )
 
-            # performing task
-            currentTaskName = type(clonedTask).__name__
+            clonedTask.add(clonedCrawler, targetFilePath)
 
+        # performing task
+        currentTaskName = type(clonedTask).__name__
+
+        if verbose:
+            sys.stdout.write('Running task: {0}\n'.format(currentTaskName))
+
+        # executing task through the wrapper
+        resultCrawlers = taskHolder.taskWrapper().run(clonedTask)
+        for pathCrawler in resultCrawlers:
             if verbose:
-                sys.stdout.write('Running task: {0}\n'.format(currentTaskName))
-
-            # executing task through the wrapper
-            resultCrawlers = taskHolder.taskWrapper().run(clonedTask)
-            for pathCrawler in resultCrawlers:
-                if verbose:
-                    sys.stdout.write('  - {0}: {1}\n'.format(
-                            currentTaskName,
-                            pathCrawler.var('filePath'),
-                        )
+                sys.stdout.write('  - {0}: {1}\n'.format(
+                        currentTaskName,
+                        pathCrawler.var('filePath'),
                     )
-                    sys.stdout.flush()
-                    sys.stderr.flush()
+                )
+                sys.stdout.flush()
+                sys.stderr.flush()
 
-            # calling subtask holders
-            for subTaskHolder in taskHolder.subTaskHolders():
-                cls.__recursiveTaskRunner(resultCrawlers, subTaskHolder, verbose)
+        # calling subtask holders
+        for subTaskHolder in taskHolder.subTaskHolders():
+            cls.__recursiveTaskRunner(resultCrawlers, subTaskHolder, verbose)
