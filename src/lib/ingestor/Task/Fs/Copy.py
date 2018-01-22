@@ -12,7 +12,6 @@ class Copy(Task):
         Perform the task.
         """
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
             filePath = self.filePath(pathCrawler)
 
             # trying to create the directory automatically in case it does not exist
@@ -30,6 +29,9 @@ class Copy(Task):
                 sourceFilePath,
                 targetFilePath
             )
+
+        # default result based on the target filePath
+        return super(Copy, self)._perform()
 
 
 # registering task

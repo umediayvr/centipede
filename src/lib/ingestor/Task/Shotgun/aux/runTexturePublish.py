@@ -2,6 +2,9 @@ import json
 import sys
 
 def publish(content):
+    """
+    Run the shotgun publish.
+    """
     # create an authenticator object. This is the main object which
     # handles all authentication
     sa = sgtk.authentication.ShotgunAuthenticator()

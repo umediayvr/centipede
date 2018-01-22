@@ -83,7 +83,7 @@ class Task(object):
         """
         return list(self.__pathCrawlers.keys())
 
-    def add(self, pathCrawler, filePath):
+    def add(self, pathCrawler, filePath=''):
         """
         Add a file path associate with a path crawler to the Task.
         """
@@ -95,17 +95,11 @@ class Task(object):
 
         self.__pathCrawlers[pathCrawler] = filePath
 
-    def run(self):
+    def output(self):
         """
-        Run the task.
+        Perform and result a list of crawlers created by task.
         """
-        for pathCrawler in self._perform():
-
-            # making sure the task implementations are yielding properly.
-            assert (pathCrawler in self.pathCrawlers()), \
-                'Invalid path crawler!'
-
-            yield pathCrawler
+        return self._perform()
 
     def clone(self):
         """
@@ -189,7 +183,7 @@ class Task(object):
     @staticmethod
     def createFromJson(jsonContents):
         """
-        Factory a task based on the jsonContents (serialized via toJson).
+        Create a task based on the jsonContents (serialized via toJson).
         """
         contents = json.loads(jsonContents)
         taskType = contents["type"]
@@ -220,8 +214,15 @@ class Task(object):
 
     def _perform(self):
         """
-        For re-implementation: should implement the task.
+        For re-implementation: should implement the computation of the task and return a list of crawlers as output.
 
-        It should be implemented as generator that yields the filePath.
+        The default implementation return a list of crawlers based on the target filePath (The filePath is provided by
+        by the template). In case none file path has not been specified then returns an empty list of crawlers.
         """
-        raise NotImplemented
+        filePaths = set()
+        for crawler in self.pathCrawlers():
+            filePath = self.filePath(crawler)
+            if filePath:
+                filePaths.add(filePath)
+
+        return list(map(Path.createFromPath, filePaths))

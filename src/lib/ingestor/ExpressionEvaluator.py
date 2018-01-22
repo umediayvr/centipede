@@ -37,7 +37,7 @@ class ExpressionEvaluator(object):
                 )
             )
 
-        #executing expression
+        # executing expression
         return str(ExpressionEvaluator.__registered[expressionName](*args))
 
     @staticmethod

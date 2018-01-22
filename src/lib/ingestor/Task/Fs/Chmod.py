@@ -17,7 +17,6 @@ class Chmod(Task):
         fileMode = int(str(self.option('fileMode')), 8)
 
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
             filePath = self.filePath(pathCrawler)
 
             if filePath in alreadyDone:
@@ -37,6 +36,9 @@ class Chmod(Task):
                     os.chmod(collectedFile, directoryMode)
                 else:
                     os.chmod(collectedFile, fileMode)
+
+        # default result based on the target filePath
+        return super(Chmod, self)._perform()
 
     @classmethod
     def __collectAllFiles(cls, path):

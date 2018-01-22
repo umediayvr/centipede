@@ -1,4 +1,3 @@
-import os
 import tempfile
 from ..ExpressionEvaluator import ExpressionEvaluator
 
@@ -10,7 +9,7 @@ class _System(object):
     @staticmethod
     def tmpdir():
         """
-        Return a temporary directory path (under the OS temp location)
+        Return a temporary directory path (under the OS temp location).
         """
         return tempfile.mkdtemp()
 

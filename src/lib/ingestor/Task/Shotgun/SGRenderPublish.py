@@ -39,7 +39,6 @@ class SGRenderPublish(Task):
         variant = info["variant"]
         version = info["version"]
 
-        yield sourceCrawler
         # get version, assetName, variant from json contents under info
         output = {
             'job': sourceCrawler.var('job'),
@@ -92,6 +91,9 @@ class SGRenderPublish(Task):
         # in case of any erros
         if error:
             raise Exception(error)
+
+        # this task does not return any crawlers as result
+        return []
 
 
 # registering task

@@ -14,7 +14,6 @@ class ConvertImage(Task):
         import OpenImageIO as oiio
 
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
 
             targetFilePath = self.filePath(pathCrawler)
 
@@ -41,6 +40,10 @@ class ConvertImage(Task):
 
             outImage.copy_image(imageInput)
             outImage.close()
+
+        # default result based on the target filePath
+        return super(ConvertImage, self)._perform()
+
 
 # registering task
 Task.register(

@@ -61,7 +61,7 @@ class TaskWrapper(object):
         For re-implementation: should implement the execution of the task.
         """
         # executing task
-        return task.run()
+        return task.output()
 
     @staticmethod
     def register(name, taskClass):

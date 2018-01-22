@@ -20,8 +20,6 @@ class ResizeImage(Task):
         import OpenImageIO as oiio
 
         for pathCrawler in self.pathCrawlers():
-            yield pathCrawler
-
             width = self.option('width')
             height = self.option('height')
 
@@ -70,6 +68,9 @@ class ResizeImage(Task):
 
             # saving target resized image
             resizedImageBuf.write(targetFilePath)
+
+        # default result based on the target filePath
+        return super(ResizeImage, self)._perform()
 
 
 # registering task

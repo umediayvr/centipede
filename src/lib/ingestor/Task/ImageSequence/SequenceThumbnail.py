@@ -31,6 +31,7 @@ class SequenceThumbnail(Task):
 
             targetThumbnails[targetFilePath].append(pathCrawler)
 
+        result = []
         # generating a thumbnail for the sequence
         for targetThumbnail, thumbnailCrawlers in targetThumbnails.items():
             thumbnailCrawler = thumbnailCrawlers[int(len(thumbnailCrawlers) / 2)]
@@ -42,8 +43,9 @@ class SequenceThumbnail(Task):
             imageThumbnailTask.setOption('width', self.option('width'))
             imageThumbnailTask.setOption('height', self.option('height'))
 
-            for crawler in imageThumbnailTask.run():
-                yield crawler
+            result += imageThumbnailTask.output()
+
+        return result
 
 
 # registering task

@@ -150,64 +150,74 @@ class JsonLoader(TaskHolderLoader):
         Load a task holder contents.
         """
         # loading task holders
-        if 'taskHolders' in contents:
+        if 'taskHolders' not in contents:
+            return
 
-            # task holders checking
-            if not isinstance(contents['taskHolders'], list):
-                raise UnexpectedContentError('Expecting a list of task holders!')
+        # task holders checking
+        if not isinstance(contents['taskHolders'], list):
+            raise UnexpectedContentError('Expecting a list of task holders!')
 
-            for taskHolderInfo in contents['taskHolders']:
+        for taskHolderInfo in contents['taskHolders']:
 
-                # task holder info checking
-                if not isinstance(taskHolderInfo, dict):
-                    raise UnexpectedContentError('Expecting an object to describe the task holder!')
+            # task holder info checking
+            if not isinstance(taskHolderInfo, dict):
+                raise UnexpectedContentError('Expecting an object to describe the task holder!')
 
-                task = Task.create(taskHolderInfo['task'])
+            task = Task.create(taskHolderInfo['task'])
 
-                # setting task options
-                if 'taskOptions' in taskHolderInfo:
-                    for taskOptionName, taskOptionValue in taskHolderInfo['taskOptions'].items():
-                        task.setOption(taskOptionName, taskOptionValue)
+            # setting task options
+            if 'taskOptions' in taskHolderInfo:
+                for taskOptionName, taskOptionValue in taskHolderInfo['taskOptions'].items():
+                    task.setOption(taskOptionName, taskOptionValue)
 
-                # getting the target template
-                targetTemplate = Template(taskHolderInfo['targetTemplate'])
+            # getting the target template
+            targetTemplate = Template(taskHolderInfo.get('targetTemplate', ''))
 
-                # getting path crawler matcher
-                pathCrawlerMatcher = PathCrawlerMatcher(
-                    taskHolderInfo['matchTypes'],
-                    taskHolderInfo['matchVars']
+            # getting path crawler matcher
+            pathCrawlerMatcher = PathCrawlerMatcher(
+                taskHolderInfo.get('matchTypes', ['*']),
+                taskHolderInfo.get('matchVars', [])
+            )
+
+            # creating a task holder
+            taskHolder = TaskHolder(
+                task,
+                targetTemplate,
+                pathCrawlerMatcher
+            )
+
+            self.__loadTaskWrapper(taskHolder, taskHolderInfo)
+
+            # adding variables to the task holder
+            for varName, varValue in vars.items():
+                taskHolder.addCustomVar(varName, varValue)
+
+            if parentTaskHolder:
+                parentTaskHolder.addSubTaskHolder(
+                    taskHolder
                 )
+            else:
+                self.addTaskHolder(taskHolder)
 
-                # creating a task holder
-                taskHolder = TaskHolder(
-                    task,
-                    targetTemplate,
-                    pathCrawlerMatcher
-                )
+            # loading sub task holders recursevely
+            if 'taskHolders' in contents:
+                self.__loadTaskHolder(taskHolderInfo, vars, taskHolder)
 
-                # task wrapper
-                if 'taskWrapper' in taskHolderInfo:
-                    taskWrapper = TaskWrapper.create(taskHolderInfo['taskWrapper'])
+    @classmethod
+    def __loadTaskWrapper(cls, taskHolder, taskHolderInfo):
+        """
+        Load the task holder information.
+        """
+        # task wrapper
+        if 'taskWrapper' not in taskHolderInfo:
+            return
 
-                    # looking for task wrapper options
-                    if 'taskWrapperOptions' in taskHolderInfo:
-                        for optionName, optionValue in taskHolderInfo['taskWrapperOptions'].items():
-                            taskWrapper.setOption(optionName, optionValue)
+        taskWrapper = TaskWrapper.create(taskHolderInfo['taskWrapper'])
 
-                    # setting task wrapper to the holder
-                    taskHolder.setTaskWrapper(taskWrapper)
+        # looking for task wrapper options
+        if 'taskWrapperOptions' in taskHolderInfo:
+            for optionName, optionValue in taskHolderInfo['taskWrapperOptions'].items():
+                taskWrapper.setOption(optionName, optionValue)
 
-                # adding variables to the task holder
-                for varName, varValue in vars.items():
-                    taskHolder.addCustomVar(varName, varValue)
-
-                if parentTaskHolder:
-                    parentTaskHolder.addSubTaskHolder(
-                        taskHolder
-                    )
-                else:
-                    self.addTaskHolder(taskHolder)
-
-                # loading sub task holders recursevely
-                if 'taskHolders' in contents:
-                    self.__loadTaskHolder(taskHolderInfo, vars, taskHolder)
+        # setting task wrapper to the holder
+        taskHolder.setTaskWrapper(taskWrapper)

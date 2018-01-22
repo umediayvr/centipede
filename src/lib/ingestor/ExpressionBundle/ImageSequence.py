@@ -12,7 +12,6 @@ class _ImageSequence(object):
         """
         return str(int(frame)).zfill(int(size))
 
-
     @staticmethod
     def retimePadding(frame, retime, size):
         """

@@ -47,6 +47,9 @@ def dailyVersion(tk, ctx, sgPublishes, content):
     return sgVersion
 
 def publish(content):
+    """
+    Run the shotgun publish.
+    """
     # create an authenticator object. This is the main object which
     # handles all authentication
     sa = sgtk.authentication.ShotgunAuthenticator()
@@ -65,7 +68,7 @@ def publish(content):
 
     tk = sgtk.sgtk_from_path(content['sequenceNameFormated'])
     ctx = tk.context_from_path(content['sequenceNameFormated'])
-    engine = sgtk.platform.start_engine('tk-shell', tk, ctx)
+    sgtk.platform.start_engine('tk-shell', tk, ctx)
     sgtk.platform.change_context(ctx)
 
     sgPublish = sgtk.util.register_publish(
