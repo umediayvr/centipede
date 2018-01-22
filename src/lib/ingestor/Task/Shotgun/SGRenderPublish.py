@@ -30,7 +30,7 @@ class SGRenderPublish(Task):
         currentFolder = os.path.dirname(os.path.realpath(__file__))
 
         sourceCrawler = tuple(self.pathCrawlers())[0]
-        versionFolder = sourceCrawler.var("filePath")
+        versionFolder = sourceCrawler.var("versionPath")
 
         # metadata information about the version
         info = json.load(open(os.path.join(versionFolder, "info.json")))

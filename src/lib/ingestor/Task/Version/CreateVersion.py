@@ -3,6 +3,7 @@ import json
 import time
 import shutil
 from ..Task import Task
+from ...Crawler.Fs import Path
 
 class FileNotUnderDataDirectoryError(Exception):
     """File Not Under Data Directory Error."""
@@ -194,7 +195,16 @@ class CreateVersion(Task):
         self.__writeData()
         self.__copyIngestorConfig()
 
-        return super(CreateVersion, self)._perform()
+        # Find all the crawlers for data that was created for this version
+        pathCrawler = Path.createFromPath(self.dataPath())
+        dataCrawlers = pathCrawler.glob()
+        # Add context variables so subsequent tasks get them
+        for crawler in dataCrawlers:
+            for var in self.__genericCrawlerInfo:
+                crawler.setVar(var, self.info(var), True)
+            crawler.setVar("versionPath", self.versionPath(), True)
+
+        return dataCrawlers
 
     def __copyIngestorConfig(self):
         """
