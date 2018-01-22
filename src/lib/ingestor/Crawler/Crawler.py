@@ -16,6 +16,7 @@ class Crawler(object):
         Create a crawler.
         """
         self.__vars = {}
+        self.__contextVarNames = set()
         self.__tags = {}
         self.__hasComputedSelf = False
 
@@ -25,7 +26,8 @@ class Crawler(object):
                 "Invalid crawler type!"
 
             for varName in parentCrawler.varNames():
-                self.setVar(varName, parentCrawler.var(varName))
+                isContextVar = (varName in parentCrawler.contextVarNames())
+                self.setVar(varName, parentCrawler.var(varName), isContextVar)
 
             self.setVar(
                 'path',
@@ -64,10 +66,18 @@ class Crawler(object):
         """
         return self.__vars.keys()
 
-    def setVar(self, name, value):
+    def contextVarNames(self):
+        """
+        Return a list of variable names that are defined as context variables.
+        """
+        return list(self.__contextVarNames)
+
+    def setVar(self, name, value, isContextVar=False):
         """
         Set a value for a variable.
         """
+        if isContextVar:
+            self.__contextVarNames.add(name)
         self.__vars[name] = value
 
     def var(self, name):
@@ -114,7 +124,7 @@ class Crawler(object):
         for varName in self.varNames():
             newInstance.setVar(varName, self.var(varName))
 
-        # clonning tags
+        # cloning tags
         for tagName in self.tagNames():
             newInstance.setTag(tagName, self.tag(tagName))
 

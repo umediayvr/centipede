@@ -20,7 +20,7 @@ class PathHolder(object):
 
     def isDirectory(self):
         """
-        Return a bollean telling if the path is a directory.
+        Return a boolean telling if the path is a directory.
         """
         if self.__isDirectory is None:
             self.__isDirectory = os.path.isdir(self.path())

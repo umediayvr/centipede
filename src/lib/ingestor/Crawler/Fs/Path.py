@@ -69,11 +69,15 @@ class Path(Crawler):
         """
         crawlerContents = {
             "vars": {},
+            "contextVarNames": [],
             "tags": {}
         }
 
         for varName in self.varNames():
             crawlerContents['vars'][varName] = self.var(varName)
+
+        for varName in self.contextVarNames():
+            crawlerContents['contextVarNames'].append(varName)
 
         for tagName in self.tagNames():
             crawlerContents['tags'][tagName] = self.tag(tagName)
@@ -187,7 +191,8 @@ class Path(Crawler):
 
         # setting vars
         for varName, varValue in contents["vars"].items():
-            crawler.setVar(varName, varValue)
+            isContextVar = (varName in contents["contextVarNames"])
+            crawler.setVar(varName, varValue, isContextVar)
 
         # setting tags
         for tagName, tagValue in contents["tags"].items():
