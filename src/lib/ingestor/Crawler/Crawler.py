@@ -122,7 +122,8 @@ class Crawler(object):
 
         # cloning variables
         for varName in self.varNames():
-            newInstance.setVar(varName, self.var(varName))
+            isContextVar = (varName in self.contextVarNames())
+            newInstance.setVar(varName, self.var(varName), isContextVar)
 
         # cloning tags
         for tagName in self.tagNames():
