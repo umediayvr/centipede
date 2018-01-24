@@ -103,7 +103,7 @@ class Task(object):
         for crawler in self.pathCrawlers():
             for ctxVarName in crawler.contextVarNames():
                 if ctxVarName not in contextVars:
-                    contextVars[ctxVarName] = crawler.var()
+                    contextVars[ctxVarName] = crawler.var(ctxVarName)
 
         outputCrawlers = self._perform()
 
