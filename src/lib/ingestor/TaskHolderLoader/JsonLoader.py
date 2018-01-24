@@ -175,8 +175,8 @@ class JsonLoader(TaskHolderLoader):
 
             # getting path crawler matcher
             pathCrawlerMatcher = PathCrawlerMatcher(
-                taskHolderInfo.get('matchTypes', ['*']),
-                taskHolderInfo.get('matchVars', [])
+                taskHolderInfo.get('matchTypes', []),
+                taskHolderInfo.get('matchVars', {})
             )
 
             # creating a task holder
