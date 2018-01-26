@@ -19,14 +19,14 @@ class ExrTexture(Exr):
         self.setVar("udim", self.__parseUDIM(self.pathHolder()))
         self.setVar("variant", "default")
 
-    def setVar(self, name, value):
+    def setVar(self, name, value, *args, **kwargs):
         """
         Override setVar to be able to hook when mapType is assigned.
         """
         if name == "mapType":
             value = value.upper()
 
-        super(ExrTexture, self).setVar(name, value)
+        super(ExrTexture, self).setVar(name, value, *args, **kwargs)
 
         # we need to update the group tag name after a change in the
         # assetName or variant
