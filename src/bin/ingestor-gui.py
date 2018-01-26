@@ -812,16 +812,6 @@ class Application(QtWidgets.QApplication):
 
                 self.__createSubtasks(taskChild, childTaskHolder)
 
-    def __collectCrawlers(self, crawler):
-        result = []
-        result.append(crawler)
-
-        if not crawler.isLeaf():
-            for childCrawler in crawler.children():
-                result += self.__collectCrawlers(childCrawler)
-
-        return result
-
     def __sourceOverridesConfig(self):
         return os.path.join(self.__configurationDirectory, "overrides", "source.json")
 
@@ -843,12 +833,31 @@ class Application(QtWidgets.QApplication):
         if not path:
             return
 
-        ph = ingestor.PathHolder(path)
-        crawler = ingestor.Crawler.Fs.Path.create(ph)
-        crawlerList = self.__collectCrawlers(crawler)
+        crawler = ingestor.Crawler.Fs.Path.createFromPath(path)
 
+        # we want to list in the interface only the crawler types used by the main tasks
+        filterTypes = []
+        for taskHolder in self.__taskHolders:
+            matchTypes = taskHolder.pathCrawlerMatcher().matchTypes()
+
+            # if there is a task holder that does not have any type specified to it, then we display all crawlers by
+            # passing an empty list to the filter
+            if len(matchTypes) == 0:
+                filterTypes = []
+                break
+
+            filterTypes += taskHolder.pathCrawlerMatcher().matchTypes()
+
+        # globbing crawlers
+        crawlerList = crawler.glob(filterTypes)
+
+        # in the ingestor interface we don't care about directory crawlers
+        # TODO: we need to have a better way to get rid of directory crawlers
         crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), crawlerList))
+
+        # sorting result by name
         crawlerList.sort(key=lambda x: x.var('path').lower())
+
         crawlerTypes = set()
         crawlerTags = {}
 
