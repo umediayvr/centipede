@@ -99,7 +99,20 @@ class Task(object):
         """
         Perform and result a list of crawlers created by task.
         """
-        return self._perform()
+        contextVars = {}
+        for crawler in self.pathCrawlers():
+            for ctxVarName in crawler.contextVarNames():
+                if ctxVarName not in contextVars:
+                    contextVars[ctxVarName] = crawler.var(ctxVarName)
+
+        outputCrawlers = self._perform()
+
+        # Copy all context variables to output crawlers
+        for outputCrawler in outputCrawlers:
+            for ctxVarName in contextVars:
+                outputCrawler.setVar(ctxVarName, contextVars[ctxVarName], True)
+
+        return outputCrawlers
 
     def clone(self):
         """
