@@ -4,7 +4,7 @@
   ],
   "vars": {
     "prefix": "/data/job",
-    "job": "999_r_d",
+    "job": "RND",
     "__uiHintSourceColumns": [
       "assetName",
       "mapType",
