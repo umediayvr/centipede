@@ -8,7 +8,7 @@ class FileColorTransformation(Task):
     """
     Applies a color transformation to an image using open color io and open image io.
 
-    Optional Option: "ocioConfig"
+    Optional Options: "ocioConfig"
     Required Options: "sourceColorSpace", "targetColorSpace" and "lut"
     """
 
