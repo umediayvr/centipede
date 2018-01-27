@@ -44,7 +44,7 @@ class _Datetime(object):
     @staticmethod
     def minute():
         """
-        Return the hour formated by 2 digits.
+        Return the minutes formated by 2 digits.
         """
         return datetime.datetime.now().strftime("%d")
 
