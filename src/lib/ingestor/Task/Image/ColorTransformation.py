@@ -7,8 +7,19 @@ class ColorTransformation(Task):
     """
     Applies a color transformation to an image using open color io and open image io.
 
+    Optional Option: "ocioConfig"
     Required Options: "sourceColorSpace" and "targetColorSpace".
     """
+
+    __ocioConfigDefault = ""
+
+    def __init__(self, *args, **kwargs):
+        """
+        Create a color transformation task.
+        """
+        super(ColorTransformation, self).__init__(*args, **kwargs)
+
+        self.setOption("ocioConfig", self.__ocioConfigDefault)
 
     def _perform(self):
         """
@@ -16,6 +27,12 @@ class ColorTransformation(Task):
         """
         import OpenImageIO as oiio
         import PyOpenColorIO as ocio
+
+        # open color io configuration
+        if self.option('ocioConfig'):
+            config = ocio.Config.CreateFromFile(self.option('ocioConfig'))
+        else:
+            config = ocio.GetCurrentConfig()
 
         sourceColorSpace = self.option('sourceColorSpace')
         targetColorSpace = self.option('targetColorSpace')
@@ -25,9 +42,6 @@ class ColorTransformation(Task):
         }
 
         for pathCrawler in self.pathCrawlers():
-            # open color configuration
-            config = ocio.GetCurrentConfig()
-
             # source image
             sourceImage = oiio.ImageInput.open(pathCrawler.var('filePath'))
             spec = sourceImage.spec()
