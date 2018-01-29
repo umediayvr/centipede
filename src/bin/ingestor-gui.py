@@ -414,7 +414,7 @@ class Application(QtWidgets.QApplication):
                         "-executable",
                         "python",
                         "-arguments",
-                        '\\"{0} -env {1} upython {2} -configPath {3} -files {4}\\"'.format(
+                        '"{0} -env {1} upython {2} -configPath {3} -files {4}"'.format(
                             os.path.join(os.path.dirname(os.path.realpath(__file__)), "ingestor-env.py"),
                             outputEnvironment,
                             os.path.join(os.path.dirname(os.path.realpath(__file__)), "ingestor-farm.py"),
@@ -422,7 +422,7 @@ class Application(QtWidgets.QApplication):
                             outputFileLocation
                         ),
                         "-name",
-                        '\\"Ingestor: {0}\\"'.format(fileGroupName),
+                        '"Ingestor: {0}"'.format(fileGroupName),
                         "-group",
                         "desktop"
                     ])
