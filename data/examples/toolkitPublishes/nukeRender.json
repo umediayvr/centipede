@@ -1,0 +1,63 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/data/job",
+    "job": "RND"
+  },
+  "taskHolders": [
+    {
+      "task": "copy",
+      "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/publish/elements/{renderName}/{output}/{version}/{width}x{height}/{baseName}",
+      "matchTypes": [
+        "nukeRender"
+      ],
+      "matchVars": {
+        "imageType": [
+          "sequence"
+        ]
+      },
+      "taskHolders": [
+        {
+          "task": "ffmpeg",
+          "taskOptions": {
+            "frameRate": 23.976,
+            "sourceColorSpace": "bt709",
+            "targetColorSpace": "smpte170m"
+          },
+          "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/{name}.mov",
+          "matchTypes": [
+            "nukeRender"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          }
+        }
+        ]
+      },
+      {
+        "task": "sequenceThumbnail",
+        "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/.thumbnail/{name}.jpg",
+        "matchTypes": [
+          "nukeRender"
+        ],
+        "matchVars": {
+          "imageType": [
+            "sequence"
+          ]
+        },
+        "taskWrapper": "subprocess"
+      },
+      {
+        "task": "sgImageSeqPublish",
+        "taskOptions": {
+          "publishedFileType": "Rendered Image",
+          "movieFile": "{prefix}/{job}/sequences/{seq}/{shot}/comp/review/{name}.mov",
+          "thumbnailFile": "{prefix}/{job}/sequences/{seq}/{shot}/comp/review/.thumbnail/{name}.jpg"
+        }
+      }
+  ]
+}
