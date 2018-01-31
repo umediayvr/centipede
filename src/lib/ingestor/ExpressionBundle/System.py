@@ -17,9 +17,21 @@ class _System(object):
         os.rmdir(path)
         return path
 
+    @staticmethod
+    def env(name, defaultValue=''):
+        """
+        Return the value of an environment variable.
+        """
+        return os.environ.get(name, defaultValue)
 
-# tmp dir
+
+# registering expressions
 ExpressionEvaluator.register(
     'tmpdir',
     _System.tmpdir
+)
+
+ExpressionEvaluator.register(
+    'env',
+    _System.env
 )
