@@ -2,7 +2,7 @@ from .ExrRender import ExrRender
 
 class TkRender(ExrRender):
     """
-    Custom crawler to parse information from a toolkit render (used by shotgun's write node).
+    Custom crawler to parse information from a toolkit render.
     """
 
     def __init__(self, *args, **kwargs):
@@ -18,9 +18,6 @@ class TkRender(ExrRender):
         # self.setVar('job', locationParts[0])
         self.setVar('seq', locationParts[1])
         self.setVar('shot', '-'.join(locationParts))
-
-        self.setVar('step', parts[-4])
-        self.setVar('output', parts[-3])
         self.setVar('versionName', parts[-2])
         self.setVar('version', int(parts[-2][1:]))
 
