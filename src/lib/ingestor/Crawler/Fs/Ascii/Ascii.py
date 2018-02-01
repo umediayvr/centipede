@@ -12,6 +12,8 @@ class Ascii(File):
         super(File, self).__init__(*args, **kwargs)
         self.__parsedContents = None
 
+        self.setVar('category', 'ascii')
+
     def _runParser(self):
         """
         For re-implementation: Needs to return the parsed data.

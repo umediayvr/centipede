@@ -12,6 +12,9 @@ class ExrTexture(Exr):
         Create a Texture object.
         """
         super(ExrTexture, self).__init__(*args, **kwargs)
+
+        self.setVar('category', 'texture')
+
         parts = self.var("name").split("_")
 
         self.setVar("assetName", parts[0])
