@@ -13,7 +13,7 @@ class Cube(Lut):
         if not super(Cube, cls).test(pathHolder, parentCrawler):
             return False
 
-        return pathHolder.ext() in ['cube', 'ccc', 'cc']
+        return pathHolder.ext() in ['cube', 'ccc', 'cc', 'cdl']
 
 
 # registration
