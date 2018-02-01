@@ -39,7 +39,7 @@ class Application(QtWidgets.QApplication):
 
         # getting source files directory from the args
         if len(argv) > 2:
-            self.__sourcePath.setText(argv[2])
+            self.__sourcePath.setText(';'.join(argv[2:]))
 
     def updateConfiguration(self):
         taskHolders = []
@@ -833,8 +833,6 @@ class Application(QtWidgets.QApplication):
         if not path:
             return
 
-        crawler = ingestor.Crawler.Fs.Path.createFromPath(path)
-
         # we want to list in the interface only the crawler types used by the main tasks
         filterTypes = []
         for taskHolder in self.__taskHolders:
@@ -849,14 +847,19 @@ class Application(QtWidgets.QApplication):
             filterTypes += taskHolder.pathCrawlerMatcher().matchTypes()
 
         # globbing crawlers
-        crawlerList = crawler.glob(filterTypes)
+        crawlerList = []
+        for pathItem in path.split(';'):
+            crawler = ingestor.Crawler.Fs.Path.createFromPath(pathItem)
+
+            # globbing crawlers
+            crawlerList += crawler.glob(filterTypes)
 
         # in the ingestor interface we don't care about directory crawlers
         # TODO: we need to have a better way to get rid of directory crawlers
         crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), crawlerList))
 
         # sorting result by name
-        crawlerList.sort(key=lambda x: x.var('path').lower())
+        crawlerList.sort(key=lambda x: x.var('name').lower())
 
         crawlerTypes = set()
         crawlerTags = {}
@@ -985,7 +988,7 @@ class Application(QtWidgets.QApplication):
         child = QtWidgets.QTreeWidgetItem(parent)
 
         # visible data
-        child.setData(0, QtCore.Qt.EditRole, crawler.var('path')[1:] + '   ')
+        child.setData(0, QtCore.Qt.EditRole, crawler.var('baseName') + '   ')
         self.__addColumnInformation(crawler, child)
 
         crawlerTypes.add(crawler.var('type'))
@@ -1004,7 +1007,7 @@ class Application(QtWidgets.QApplication):
         )
         for varName in sorted(crawler.varNames()):
 
-            if varName in ['filePath', 'path']:
+            if varName in ['path']:
                 continue
 
             variablesChild = QtWidgets.QTreeWidgetItem(variables)
