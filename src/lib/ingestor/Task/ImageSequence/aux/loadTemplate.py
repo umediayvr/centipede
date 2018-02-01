@@ -16,4 +16,9 @@ nuke.root()['last_frame'].setValue(endFrame)
 
 # executing the write node
 for writeNode in nuke.allNodes('Write'):
+
+    # skipping disabled write nodes
+    if writeNode['disable'].value():
+        continue
+
     nuke.execute(writeNode, int(writeNode['first'].value()), int(writeNode['last'].value()))
