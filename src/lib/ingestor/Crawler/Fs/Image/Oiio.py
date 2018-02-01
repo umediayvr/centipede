@@ -7,6 +7,9 @@ except ImportError:
 else:
     hasOpenImageIO = True
 
+class OiioReadFileError(Exception):
+    """Oiio Read File Error."""
+
 class Oiio(Image):
     """
     Open image io crawler.
@@ -22,6 +25,15 @@ class Oiio(Image):
             # at "Directory" crawler.
             if hasOpenImageIO:
                 imageInput = OpenImageIO.ImageInput.open(self.pathHolder().path())
+
+                # making sure the image has been successfully loaded
+                if imageInput is None:
+                    raise OiioReadFileError(
+                        "Can't read information from file:\n{}".format(
+                                self.pathHolder().path()
+                            )
+                        )
+
                 spec = imageInput.spec()
                 self.setVar('width', spec.width)
                 self.setVar('height', spec.height)
