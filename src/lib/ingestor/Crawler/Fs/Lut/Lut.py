@@ -11,6 +11,8 @@ class Lut(File):
         """
         super(Lut, self).__init__(*args, **kwargs)
 
+        self.setVar('category', 'lut')
+
         # setting a lut tag
         self.setTag(
             'lut',

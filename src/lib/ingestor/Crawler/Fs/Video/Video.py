@@ -11,6 +11,8 @@ class Video(File):
         """
         super(Video, self).__init__(*args, **kwargs)
 
+        self.setVar('category', 'video')
+
         # setting a video tag
         self.setTag(
             'video',

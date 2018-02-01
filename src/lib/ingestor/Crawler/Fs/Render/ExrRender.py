@@ -10,6 +10,8 @@ class ExrRender(Exr):
         Create a Render object.
         """
         super(ExrRender, self).__init__(*args, **kwargs)
-        parts = self.var("name").split("_")
 
+        self.setVar('category', 'render')
+
+        parts = self.var("name").split("_")
         self.setVar('renderType', parts[-1])
