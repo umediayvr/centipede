@@ -20,15 +20,21 @@
       },
       "taskHolders": [
         {
-          "task": "ffmpeg",
+          "task": "nukeTemplate",
           "taskOptions": {
-            "frameRate": 23.976,
-            "sourceColorSpace": "bt709",
-            "targetColorSpace": "smpte170m"
+            "job": "{job}",
+            "vendor": "",
+            "shot": "{shot}",
+            "logo": "{prefix}/{job}/reference/logo.png",
+            "date": "(yyyy)(mm)(dd)",
+            "notes": "{comment}",
+            "videocodec": "",
+            "name": "{renderName}, {version}",
+            "template": "{configPath}/templates/vidoutTemplate.nk"
           },
           "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/{name}.mov",
           "matchTypes": [
-            "nukeRender"
+            "tkNukeRender"
           ],
           "matchVars": {
             "imageType": [
