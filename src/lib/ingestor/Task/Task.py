@@ -49,7 +49,7 @@ class Task(object):
         """
         Return the metadata.
 
-        The metadata is represented as dictonary. You can query the entire
+        The metadata is represented as dictionary. You can query the entire
         metadata by passing an empty string as scope (default). Otherwise,
         you can pass a scope string separating each level by '.' (for instance:
         fisrt.second.third).
