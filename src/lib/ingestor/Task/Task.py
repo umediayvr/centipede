@@ -80,9 +80,11 @@ class Task(object):
         """
         assert scope, "scope cannot be empty"
 
-        levels = scope.split('.')
+        # we want to store an immutable value under the metadata
+        safeValue = json.loads(json.dumps(value))
 
         # creating auxiliary levels
+        levels = scope.split('.')
         currentLevel = self.__metadata
         for level in levels[:-1]:
             if level not in currentLevel:
@@ -90,7 +92,7 @@ class Task(object):
 
             currentLevel = currentLevel[level]
 
-        currentLevel[levels[-1]] = value
+        currentLevel[levels[-1]] = safeValue
 
     def metadataNames(self):
         """
