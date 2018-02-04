@@ -18,6 +18,9 @@ class InvalidPathCrawlerError(Exception):
 class TaskInvalidOptionError(Exception):
     """Task invalid option error."""
 
+class TaskInvalidMetadataError(Exception):
+    """Task invalid metadata error."""
+
 class Task(object):
     """
     Abstract Task.
@@ -33,6 +36,7 @@ class Task(object):
         """
         self.__pathCrawlers = OrderedDict()
         self.__options = {}
+        self.__metadata = {}
         self.__taskType = taskType
 
     def type(self):
@@ -40,6 +44,82 @@ class Task(object):
         Return the task type.
         """
         return self.__taskType
+
+    def metadata(self, scope=''):
+        """
+        Return the metadata.
+
+        The metadata is represented as dictonary. You can query the entire
+        metadata by passing an empty string as scope (default). Otherwise,
+        you can pass a scope string separating each level by '.' (for instance:
+        fisrt.second.third).
+        """
+        if not scope:
+            return self.__metadata
+
+        currentLevel = self.__metadata
+        for level in scope.split('.'):
+            if not level in currentLevel:
+                raise TaskInvalidMetadataError(
+                    'Invalid metadata "{}"'.format(scope)
+                )
+
+            currentLevel = currentLevel[level]
+
+        return currentLevel
+
+    def setMetadata(self, scope, value):
+        """
+        Set an arbitrary metadata.
+
+        In case you want to set a multi-dimension value under the metadata,
+        you can you the scope for it by passing the levels separated by "."
+        (The levels are created automatically as new dictonaries in case they
+        don't exist yet). Make sure the data being set inside of the metadata
+        can be serialized through json.
+        """
+        assert scope, "scope cannot be empty"
+
+        levels = scope.split('.')
+
+        # creating auxiliary levels
+        currentLevel = self.__metadata
+        for level in levels[:-1]:
+            if level not in currentLevel:
+                currentLevel[level] = {}
+
+            currentLevel = currentLevel[level]
+
+        currentLevel[levels[-1]] = value
+
+    def metadataNames(self):
+        """
+        Return a list with the names of the root levels under the metadata.
+        """
+        return list(self.__metadata.keys())
+
+    def hasMetadata(self, scope):
+        """
+        Return a boolean telling if the input scope is under the metadata.
+
+        In case the scope is empty, then the result is done based if there's
+        any information under the metadata.
+        """
+        if not scope:
+            return bool(len(self.__metadata))
+
+        levels = scope.split('.')
+        currentLevel = self.__metadata
+        found = True
+        for level in levels[:-1]:
+            if level not in currentLevel:
+                found = False
+                break
+
+        if found and levels[-1] in currentLevel:
+            return True
+
+        return False
 
     def option(self, name):
         """
@@ -124,6 +204,10 @@ class Task(object):
         for optionName in self.optionNames():
             clone.setOption(optionName, self.option(optionName))
 
+        # copying metadata
+        for metadataName in self.metadataNames():
+            clone.setMetadata(metadataName, self.metadata(metadataName))
+
         # copying path crawlers
         for pathCrawler in self.pathCrawlers():
             clone.add(pathCrawler, self.filePath(pathCrawler))
@@ -137,6 +221,7 @@ class Task(object):
         contents = {
             "type": self.type(),
             "options": {},
+            "metadata": self.metadata(),
             "jsonConfigPath": "",
             "configName": "",
             "pathCrawlerData": []
@@ -201,6 +286,7 @@ class Task(object):
         contents = json.loads(jsonContents)
         taskType = contents["type"]
         taskOptions = contents["options"]
+        taskMetadata = contents["metadata"]
         pathCrawlerData = contents["pathCrawlerData"]
         jsonConfigPath = contents["jsonConfigPath"]
 
@@ -214,6 +300,10 @@ class Task(object):
         # setting task options
         for optionName, optionValue in taskOptions.items():
             task.setOption(optionName, optionValue)
+
+        # setting task metadata
+        for metadataName in metadataValue in taskMetadata.items():
+            task.setMetadata(metadataName, metadataValue)
 
         # adding crawlers
         for pathCrawlerDataItem in pathCrawlerData:
