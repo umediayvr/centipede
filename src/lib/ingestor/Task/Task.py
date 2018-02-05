@@ -304,7 +304,7 @@ class Task(object):
             task.setOption(optionName, optionValue)
 
         # setting task metadata
-        for metadataName in metadataValue in taskMetadata.items():
+        for metadataName, metadataValue in taskMetadata.items():
             task.setMetadata(metadataName, metadataValue)
 
         # adding crawlers
