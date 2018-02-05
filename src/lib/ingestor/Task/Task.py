@@ -1,4 +1,3 @@
-import os
 import json
 from ..Crawler.Fs import Path
 from collections import OrderedDict
@@ -59,7 +58,7 @@ class Task(object):
 
         currentLevel = self.__metadata
         for level in scope.split('.'):
-            if not level in currentLevel:
+            if level not in currentLevel:
                 raise TaskInvalidMetadataError(
                     'Invalid metadata "{}"'.format(scope)
                 )
@@ -221,34 +220,48 @@ class Task(object):
         Serialize a task to json (it can be loaded later through createFromJson).
         """
         contents = {
-            "type": self.type(),
-            "options": {},
-            "metadata": self.metadata(),
-            "jsonConfigPath": "",
-            "configName": "",
-            "pathCrawlerData": []
+            "type": self.type()
         }
 
+        # current metadata
+        metadata = self.metadata()
+
         # current options
+        options = {}
         for optionName in self.optionNames():
-            contents["options"][optionName] = self.option(optionName)
+            options[optionName] = self.option(optionName)
 
+        # crawler data
+        crawlerData = []
+        dependencies = set()
         for pathCrawler in self.pathCrawlers():
+            if 'configPath' in pathCrawler.varNames():
+                dependencies.add(pathCrawler.var("configPath"))
 
-            # we can expect all crawlers in the task to have the same configPath
-            # and configName (when defined)
-            if not contents['jsonConfigPath'] and 'configName' in pathCrawler.varNames():
-                contents['jsonConfigPath'] = os.path.join(
-                    pathCrawler.var("configPath"),
-                    pathCrawler.var("configName")
-                )
-
-            contents['pathCrawlerData'].append({
+            crawlerData.append({
                 'filePath': self.filePath(pathCrawler),
-                'serializedPathCrawler': pathCrawler.toJson()
+                'serializedCrawler': pathCrawler.toJson()
             })
 
-        return json.dumps(contents)
+        # only including them as result if they are not empty
+        if len(metadata):
+            contents['metadata'] = metadata
+
+        if len(options):
+            options['options'] = options
+
+        if len(crawlerData):
+            contents['crawlerData'] = crawlerData
+
+        if len(dependencies):
+            contents['dependencies'] = list(dependencies)
+
+        return json.dumps(
+            contents,
+            sort_keys=True,
+            indent=4,
+            separators=(',', ': ')
+        )
 
     @staticmethod
     def register(name, taskClass):
@@ -287,16 +300,16 @@ class Task(object):
         """
         contents = json.loads(jsonContents)
         taskType = contents["type"]
-        taskOptions = contents["options"]
-        taskMetadata = contents["metadata"]
-        pathCrawlerData = contents["pathCrawlerData"]
-        jsonConfigPath = contents["jsonConfigPath"]
+        taskOptions = contents.get("options", {})
+        taskMetadata = contents.get("metadata", {})
+        dependencies = contents.get("dependencies", [])
+        crawlerData = contents.get("crawlerData", [])
 
-        # loading json config which may load custom crawlers, expressions etc...
-        if jsonConfigPath:
-            from ..TaskHolderLoader import JsonLoader
-            JsonLoader().addFromJsonFile(jsonConfigPath)
+        # loading dependencies which may load custom crawlers, tasks, expressions, etc...
+        for dependency in dependencies:
+            Path.loadDependency(dependency)
 
+        # with all dependencies loaded we can load the task
         task = Task.create(taskType)
 
         # setting task options
@@ -308,10 +321,10 @@ class Task(object):
             task.setMetadata(metadataName, metadataValue)
 
         # adding crawlers
-        for pathCrawlerDataItem in pathCrawlerData:
-            filePath = pathCrawlerDataItem['filePath']
+        for crawlerDataItem in crawlerData:
+            filePath = crawlerDataItem['filePath']
             crawler = Path.createFromJson(
-                pathCrawlerDataItem['serializedPathCrawler']
+                crawlerDataItem['serializedPathCrawler']
             )
             task.add(crawler, filePath)
 

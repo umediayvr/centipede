@@ -1,10 +1,15 @@
 import os
+import sys
+import glob
 
 class InvalidVarError(Exception):
     """Invalid Var Error."""
 
 class InvalidTagError(Exception):
     """Invalid Tag Error."""
+
+class InvalidDependencyError(Exception):
+    """Invalid dependency Error."""
 
 class Crawler(object):
     """
@@ -130,3 +135,23 @@ class Crawler(object):
             newInstance.setTag(tagName, self.tag(tagName))
 
         return newInstance
+
+    @staticmethod
+    def loadDependency(filePath):
+        """
+        Load a dependency python file to the runtime.
+        """
+        if not os.path.exists(filePath):
+            raise InvalidDependencyError(
+                'Invalid dependency "{0}"!'.format(filePath)
+            )
+
+        # loading python dependency
+        try:
+            exec(open(filePath).read(), globals())
+        except Exception as err:
+            sys.stderr.write('Error on loading dependency: "{0}"\n'.format(
+                filePath
+            ))
+
+            raise err
