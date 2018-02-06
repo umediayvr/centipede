@@ -22,6 +22,12 @@ class Video(File):
             self.pathHolder().baseName()
         )
 
+        self.__getWidthHeight()
+
+    def __getWidthHeight(self):
+        """
+        Query width and height using ffprobe and set them as crawler variables.
+        """
         # Get width and height from movie using ffprobe
         cmd = 'ffprobe -v quiet -print_format json -show_entries stream=height,width {}'.format(self.var('filePath'))
 
