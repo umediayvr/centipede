@@ -26,15 +26,13 @@
       "taskWrapperOptions": {
         "user": "$UMEDIA_VERSION_PUBLISHER_USER"
       },
-      "targetTemplate": "{prefix}/{job}/publish/assets/!{assetName}/texture/{variant}/(newVersion <parentPath>)",
+      "targetTemplate": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newVersion <parentPath>)",
       "taskHolders": [
         {
           "task": "sgTexturePublish",
           "matchTypes": [
             "json"
           ],
-          "matchVars": {
-          },
           "taskOptions": {
             "comment": "texture publish"
           },
