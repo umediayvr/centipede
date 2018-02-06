@@ -100,6 +100,10 @@ class CreateVersion(CreateData):
             crawler.setVar("versionPath", self.versionPath(), True)
             crawler.setVar("dataPath", self.dataPath(), True)
 
+        # Add json files
+        for jsonFile in ["info.json", "data.json", "env.json"]:
+            dataCrawlers.append(Path.createFromPath(os.path.join(self.versionPath(), jsonFile)))
+
         return dataCrawlers
 
     def updateInfo(self):
