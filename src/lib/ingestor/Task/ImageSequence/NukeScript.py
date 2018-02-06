@@ -95,11 +95,11 @@ class NukeScript(Task):
             )
 
             # calling nuke
-            customEvn = dict(os.environ)
+            customEnv = dict(os.environ)
 
             # delete variable due to a crash with nuke configuration
-            if 'OCIO' in customEvn:
-                del customEvn['OCIO']
+            if 'OCIO' in customEnv:
+                del customEnv['OCIO']
 
             process = subprocess.Popen(
                 'nuke -x -t "{scriptLoader}" --ingestor-options "{optionsFile}" --log-level error'.format(
@@ -108,7 +108,7 @@ class NukeScript(Task):
                 ),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                env=customEvn,
+                env=customEnv,
                 shell=True
             )
 
