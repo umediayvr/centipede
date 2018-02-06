@@ -97,7 +97,7 @@ class NukeScript(Task):
             # calling nuke
             customEvn = dict(os.environ)
 
-            # delete variable due to a crashing with nuke configuration
+            # delete variable due to a crash with nuke configuration
             if 'OCIO' in customEvn:
                 del customEvn['OCIO']
 
