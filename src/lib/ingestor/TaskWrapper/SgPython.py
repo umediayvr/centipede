@@ -15,7 +15,7 @@ class SgPython(Subprocess):
                 os.path.realpath(__file__)
             ),
             'aux',
-            'runShotgunSerializedTask.py'
+            'runSerializedTask.py'
         )
 
         return 'shotgunpython {}'.format(scriptLoaderPath)
