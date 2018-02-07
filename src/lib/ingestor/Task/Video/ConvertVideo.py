@@ -4,7 +4,7 @@ import subprocess
 
 class ConvertVideo(Task):
     """
-    Convert a video using ffmepg.
+    Convert a video using ffmpeg.
     """
 
     __defaultVcodec = "h264"
@@ -16,14 +16,14 @@ class ConvertVideo(Task):
         """
         super(ConvertVideo, self).__init__(*args, **kwargs)
 
-        self.setOption('vcoded', self.__defaultVcodec)
+        self.setOption('vcodec', self.__defaultVcodec)
         self.setOption('acodec', self.__defaultAcodec)
 
     def _perform(self):
         """
         Perform the task.
         """
-        vcoded = self.option('vcoded')
+        vcodec = self.option('vcodec')
         acodec = self.option('acodec')
 
         for pathCrawler in self.pathCrawlers():
@@ -33,7 +33,7 @@ class ConvertVideo(Task):
             ffmpegCommand = 'ffmpeg -loglevel error -i {input} -vcodec {vcodec} -acodec {acodec} {output}'.format(
                 input=pathCrawler.var('filePath'),
                 output=targetFilePath,
-                vcodec=vcoded,
+                vcodec=vcodec,
                 acodec=acodec
             )
 
@@ -47,11 +47,11 @@ class ConvertVideo(Task):
             )
 
             # capturing the output
-            output, error = process.communicate()
+            output, errors = process.communicate()
 
             # in case of any erros
-            if error:
-                raise Exception(error)
+            if errors:
+                raise Exception(errors)
 
         return super(ConvertVideo, self)._perform()
 
