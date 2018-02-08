@@ -43,5 +43,6 @@ class Video(File):
         # capturing the output
         output, error = process.communicate()
         result = json.loads(output.decode("utf-8"))
-        self.setVar('width', result['streams'][0]['width'])
-        self.setVar('height', result['streams'][0]['height'])
+        if "streams" in result:
+            self.setVar('width', result['streams'][0]['width'])
+            self.setVar('height', result['streams'][0]['height'])
