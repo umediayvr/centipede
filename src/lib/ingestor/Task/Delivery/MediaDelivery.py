@@ -39,8 +39,12 @@ class MediaDelivery(NukeTemplate):
         with open(mediaInfoJson, 'w') as outfile:
             json.dump(mediaInfo, outfile, indent=4)
 
-        # updating the json file
-        return [targetCrawler.createFromPath(mediaInfoJson)]
+        result = [targetCrawler.createFromPath(mediaInfoJson)]
+
+        if os.path.exists(targetFilePath):
+            result.append(targetCrawler.createFromPath(targetFilePath))
+
+        return result
 
 # registering task
 Task.register(
