@@ -1,4 +1,7 @@
 from .Image import Image
+import subprocess
+import os
+import json
 
 try:
     import OpenImageIO
@@ -38,5 +41,29 @@ class Oiio(Image):
                 self.setVar('width', spec.width)
                 self.setVar('height', spec.height)
                 imageInput.close()
+            else:
+                self.__getWidthHeight()
 
         return super(Oiio, self).var(name)
+
+    def __getWidthHeight(self):
+        """
+        Query width and height using ffprobe and set them as crawler variables.
+        """
+        # Get width and height from movie using ffprobe
+        cmd = 'ffprobe -v quiet -print_format json -show_entries stream=height,width {}'.format(self.var('filePath'))
+
+        # calling ffmpeg
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=os.environ,
+            shell=True
+        )
+
+        # capturing the output
+        output, error = process.communicate()
+        result = json.loads(output.decode("utf-8"))
+        self.setVar('width', result['streams'][0]['width'])
+        self.setVar('height', result['streams'][0]['height'])
