@@ -35,7 +35,7 @@ class ConvertVideo(Task):
                 os.makedirs(parentDirectory)
 
             # ffmpeg command
-            ffmpegCommand = 'ffmpeg -loglevel error -i {input} -vcodec {vcodec} -acodec {acodec} {output}'.format(
+            ffmpegCommand = 'ffmpeg -loglevel error -i {input} -vcodec {vcodec} -acodec {acodec} -y {output}'.format(
                 input=pathCrawler.var('filePath'),
                 output=targetFilePath,
                 vcodec=vcodec,
