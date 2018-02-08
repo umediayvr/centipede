@@ -26,7 +26,8 @@ class Application(QtWidgets.QApplication):
         self.__appplyStyleSheet()
         self.__uiHintSourceColumns = []
 
-        self.__buildWidgets()
+        showUI = False if 'INGESTOR_NOGUI' in os.environ else True
+        self.__buildWidgets(showUI)
 
         # getting configuration directory from the args
         if len(argv) > 1:
@@ -40,6 +41,12 @@ class Application(QtWidgets.QApplication):
         # getting source files directory from the args
         if len(argv) > 2:
             self.__sourcePath.setText(';'.join(argv[2:]))
+
+        # executing interface
+        if not showUI:
+            self.updateTarget()
+            self.__onPerformTasks(False)
+            sys.exit()
 
     def updateConfiguration(self):
         taskHolders = []
@@ -143,7 +150,7 @@ class Application(QtWidgets.QApplication):
                 if not visible:
                     item.setCheckState(0, QtCore.Qt.Unchecked)
 
-    def __buildWidgets(self):
+    def __buildWidgets(self, showUI=True):
         self.__main = QtWidgets.QMainWindow()
         self.__main.setWindowTitle('Ingestor')
         self.__main.resize(1080, 720)
@@ -279,7 +286,8 @@ class Application(QtWidgets.QApplication):
         buttonLayout.addWidget(self.__nextButton)
         buttonLayout.addWidget(self.__runButton)
 
-        self.__main.show()
+        if showUI:
+            self.__main.show()
 
         # updating view mode
         self.__viewModeActionGroup = QtWidgets.QActionGroup(self)
@@ -310,7 +318,7 @@ class Application(QtWidgets.QApplication):
             self.__checkedViewMode = self.__viewModeActionGroup.checkedAction().text()
             self.__onRefreshSourceDir()
 
-    def __onPerformTasks(self):
+    def __onPerformTasks(self, showConfirmation=True):
         """
         Execute the tasks.
         """
@@ -460,16 +468,17 @@ class Application(QtWidgets.QApplication):
             raise err
 
         else:
-            message = "Ingestion completed successfully!"
-            if self.__runOnTheFarmCheckbox.checkState() == QtCore.Qt.Checked:
-                message = "Ingestion submitted to the farm!"
+            if showConfirmation:
+                message = "Ingestion completed successfully!"
+                if self.__runOnTheFarmCheckbox.checkState() == QtCore.Qt.Checked:
+                    message = "Ingestion submitted to the farm!"
 
-            QtWidgets.QMessageBox.information(
-                self.__main,
-                "Ingestor",
-                message,
-                QtWidgets.QMessageBox.Ok
-            )
+                QtWidgets.QMessageBox.information(
+                    self.__main,
+                    "Ingestor",
+                    message,
+                    QtWidgets.QMessageBox.Ok
+                )
 
     def __onSourceTreeContextMenu(self, point):
         self.__sourceTree.resizeColumnToContents(0)
