@@ -26,7 +26,6 @@
           ["Notes", "sg_client_note"]
         ],
         "date": "(yyyy)-(mm)-(dd)",
-        "clientShot": "clientShot",
         "deliveryMethod": "Aspera",
         "resolution": "{width}x{height}",
         "clientStatus": "(clientStatus {sg_status_list})",
