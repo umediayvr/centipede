@@ -42,7 +42,7 @@ class Application(QtWidgets.QApplication):
         if len(argv) > 2:
             self.__sourcePath.setText(';'.join(argv[2:]))
 
-        # executing interface
+        # executing without showing the UI
         if not showUI:
             self.updateTarget()
             self.__onPerformTasks(False)
