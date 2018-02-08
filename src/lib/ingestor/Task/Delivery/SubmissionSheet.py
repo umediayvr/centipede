@@ -34,12 +34,12 @@ class SubmissionSheet(Task):
         self.__clientDeliveryPath = os.path.join(internalDeliveryFolder, jsonCrawler.var('name'))
         pathCrawler = Path.createFromPath(self.__clientDeliveryPath)
         # Add rows for all images found first, so the resolution and other info is added in priority
-        for pathCrawler in pathCrawler.glob(filterTypes=[Image]):
-            self.__setRow(pathCrawler)
+        for crawler in pathCrawler.glob(filterTypes=[Image]):
+            self.__setRow(crawler)
         # Add rows for all videos next, so if images were already written, it'll just update the extensions, otherwise
         # it'll add the full video info
-        for pathCrawler in pathCrawler.glob(filterTypes=[Video]):
-            self.__setRow(pathCrawler)
+        for crawler in pathCrawler.glob(filterTypes=[Video]):
+            self.__setRow(crawler)
 
         self.__writeSpreadsheet()
         if self.option("includeLogFile"):
