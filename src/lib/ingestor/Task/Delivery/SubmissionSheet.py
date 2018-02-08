@@ -112,7 +112,7 @@ class SubmissionSheet(Task):
     def __writeLogFile(self):
         name = os.path.basename(self.__clientDeliveryPath)
         logFile = os.path.join(self.__clientDeliveryPath, "{}_log.txt".format(name))
-        os.system("ls -1R {} > {}".format(self.__clientDeliveryPath, logFile))
+        os.system("cd {0};ls -1R > {1}".format(self.__clientDeliveryPath, logFile))
 
 
 # registering task
