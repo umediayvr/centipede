@@ -29,6 +29,11 @@ class ConvertVideo(Task):
         for pathCrawler in self.pathCrawlers():
             targetFilePath = self.filePath(pathCrawler)
 
+            # creating any necessary directories
+            parentDirectory = os.path.dirname(targetFilePath)
+            if not os.path.exists(parentDirectory):
+                os.makedirs(parentDirectory)
+
             # ffmpeg command
             ffmpegCommand = 'ffmpeg -loglevel error -i {input} -vcodec {vcodec} -acodec {acodec} {output}'.format(
                 input=pathCrawler.var('filePath'),

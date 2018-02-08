@@ -19,6 +19,8 @@ class MediaDelivery(NukeTemplate):
         super(MediaDelivery, self)._perform()
 
         targetCrawler = self.pathCrawlers()[0]
+        filePaths = map(lambda x: self.filePath(x), self.pathCrawlers())
+
         mediaInfoJson = Template(self.option('mediaInfo')).valueFromCrawler(targetCrawler)
         clientShot = Template(self.option('clientShot')).valueFromCrawler(targetCrawler)
         targetFilePath = self.filePath(targetCrawler)
@@ -39,8 +41,12 @@ class MediaDelivery(NukeTemplate):
         with open(mediaInfoJson, 'w') as outfile:
             json.dump(mediaInfo, outfile, indent=4)
 
-        # updating the json file
-        return [targetCrawler.createFromPath(mediaInfoJson)]
+        result = [targetCrawler.createFromPath(mediaInfoJson)]
+
+        if os.path.exists(targetFilePath):
+            result.append(targetCrawler.createFromPath(targetFilePath))
+
+        return result
 
 # registering task
 Task.register(
