@@ -7,8 +7,8 @@ class ConvertVideo(Task):
     Convert a video using ffmpeg.
     """
 
-    __defaultVcodec = "h264"
-    __defaultAcodec = "acc"
+    __defaultVideoArgs = "-vcodec h264"
+    __defaultAudioArgs = "-f lavfi -t 1 -i anullsrc=r=48000:cl=stereo -acodec aac"
 
     def __init__(self, *args, **kwargs):
         """
@@ -16,15 +16,15 @@ class ConvertVideo(Task):
         """
         super(ConvertVideo, self).__init__(*args, **kwargs)
 
-        self.setOption('vcodec', self.__defaultVcodec)
-        self.setOption('acodec', self.__defaultAcodec)
+        self.setOption('videoArgs', self.__defaultVideoArgs)
+        self.setOption('audioArgs', self.__defaultAudioArgs)
 
     def _perform(self):
         """
         Perform the task.
         """
-        vcodec = self.option('vcodec')
-        acodec = self.option('acodec')
+        videoArgs = self.option('videoArgs')
+        audioArgs = self.option('audioArgs')
 
         for pathCrawler in self.pathCrawlers():
             targetFilePath = self.filePath(pathCrawler)
@@ -35,11 +35,11 @@ class ConvertVideo(Task):
                 os.makedirs(parentDirectory)
 
             # ffmpeg command
-            ffmpegCommand = 'ffmpeg -loglevel error -i {input} -vcodec {vcodec} -acodec {acodec} -y {output}'.format(
+            ffmpegCommand = 'ffmpeg -loglevel error -i {input} {videoArgs} {audioArgs} -y {output}'.format(
                 input=pathCrawler.var('filePath'),
                 output=targetFilePath,
-                vcodec=vcodec,
-                acodec=acodec
+                videoArgs=videoArgs,
+                audioArgs=audioArgs
             )
 
             # calling ffmpeg
