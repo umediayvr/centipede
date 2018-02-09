@@ -11,6 +11,7 @@
   "taskHolders": [
     {
       "task": "submissionSheet",
+      "matchTypes": ["json"],
       "taskOptions": {
         "_columns": [
           ["Date","date"],
