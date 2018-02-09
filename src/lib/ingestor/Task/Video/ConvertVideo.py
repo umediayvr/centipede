@@ -7,8 +7,9 @@ class ConvertVideo(Task):
     Convert a video using ffmpeg.
     """
 
-    __defaultVideoArgs = "-vcodec h264"
+    __defaultVideoArgs = "-vcodec h264 -pix_fmt yuvj420p"
     __defaultAudioArgs = "-f lavfi -t 1 -i anullsrc=r=48000:cl=stereo -acodec aac"
+    __defaultBitRate = 115
 
     def __init__(self, *args, **kwargs):
         """
@@ -18,6 +19,7 @@ class ConvertVideo(Task):
 
         self.setOption('videoArgs', self.__defaultVideoArgs)
         self.setOption('audioArgs', self.__defaultAudioArgs)
+        self.setOption('bitRate', self.__defaultBitRate)
 
     def _perform(self):
         """
@@ -25,6 +27,7 @@ class ConvertVideo(Task):
         """
         videoArgs = self.option('videoArgs')
         audioArgs = self.option('audioArgs')
+        bitRate = self.option('bitRate')
 
         for pathCrawler in self.pathCrawlers():
             targetFilePath = self.filePath(pathCrawler)
@@ -35,10 +38,11 @@ class ConvertVideo(Task):
                 os.makedirs(parentDirectory)
 
             # ffmpeg command
-            ffmpegCommand = 'ffmpeg -loglevel error -i {input} {videoArgs} {audioArgs} -y {output}'.format(
+            ffmpegCommand = 'ffmpeg -loglevel error {audioArgs} -i {input} -b {bitRate}M -minrate {bitRate}M -maxrate {bitRate}M {videoArgs} -y {output}'.format(
                 input=pathCrawler.var('filePath'),
                 output=targetFilePath,
                 videoArgs=videoArgs,
+                bitRate=bitRate,
                 audioArgs=audioArgs
             )
 
