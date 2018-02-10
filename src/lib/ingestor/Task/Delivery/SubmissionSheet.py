@@ -111,7 +111,7 @@ class SubmissionSheet(Task):
         with open(targetPath, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=self.__columnLabels)
             writer.writeheader()
-            for rowName in self.__rows:
+            for rowName in sorted(self.__rows):
                 writer.writerow(self.__rows[rowName])
 
     def __writeLogFile(self):
