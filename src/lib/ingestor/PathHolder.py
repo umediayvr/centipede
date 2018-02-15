@@ -13,6 +13,7 @@ class PathHolder(object):
         self.__basename = None
         self.__pathExists = None
         self.__isDirectory = None
+        self.__size = None
         self.__ext = None
 
         # setting path
@@ -41,6 +42,15 @@ class PathHolder(object):
             self.__ext = os.path.splitext(self.path())[-1][1:].lower()
 
         return self.__ext
+
+    def size(self):
+        """
+        Return the size of the file.
+        """
+        if self.__size is None:
+            self.__size = os.stat(self.path()).st_size
+
+        return self.__size
 
     def baseName(self):
         """
