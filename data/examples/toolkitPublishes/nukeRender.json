@@ -9,9 +9,9 @@
   "taskHolders": [
     {
       "task": "copy",
-      "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/publish/elements/{renderName}/{output}/{version}/{width}x{height}/{baseName}",
+      "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/publish/elements/{renderName}/{output}/{versionName}/{width}x{height}/{baseName}",
       "matchTypes": [
-        "nukeRender"
+        "tkNukeRender"
       ],
       "matchVars": {
         "imageType": [
@@ -22,15 +22,18 @@
         {
           "task": "nukeTemplate",
           "taskOptions": {
-            "job": "{job}",
+            "job": "",
             "vendor": "",
-            "shot": "{shot}",
+            "clientShot": "{shot}",
             "logo": "{prefix}/{job}/reference/logo.png",
             "date": "(yyyy)(mm)(dd)",
-            "notes": "{comment}",
+            "notes": "",
             "videocodec": "",
-            "name": "{renderName}, {version}",
-            "template": "{configPath}/templates/vidoutTemplate.nk"
+            "name": "{renderName}, {versionName}",
+            "template": "/data/job/RND/config/ingestor/mediaDelivery/templates/template.nk",
+            "addSlate": 0,
+            "doColorSpace": 0,
+            "doReformat": 0
           },
           "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/{name}.mov",
           "matchTypes": [
@@ -48,7 +51,7 @@
         "task": "sequenceThumbnail",
         "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/.thumbnail/{name}.jpg",
         "matchTypes": [
-          "nukeRender"
+          "tkNukeRender"
         ],
         "matchVars": {
           "imageType": [
