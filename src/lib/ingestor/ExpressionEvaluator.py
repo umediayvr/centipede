@@ -1,3 +1,9 @@
+# compatibility with python 2/3
+try:
+    basestring
+except NameError:
+    basestring = str
+
 class ExpressionNotFoundError(Exception):
     """Expression not found error."""
 
@@ -54,7 +60,7 @@ class ExpressionEvaluator(object):
         The arguments are always parsed as string, and they should be
         handled per expression callable bases.
         """
-        assert isinstance(expression, str), \
+        assert isinstance(expression, basestring), \
             "Invalid expression type!"
 
         cleanedExpressionEvaluator = list(filter(
