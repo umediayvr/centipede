@@ -10,11 +10,11 @@ try:
 except NameError:
     basestring = str
 
-class InvalidPathError(Exception):
-    """Invalid Path Error."""
+class TestCrawlerError(Exception):
+    """Test crawler error."""
 
-class InvalidCrawlerTypeError(Exception):
-    """Invalid Crawler Type Error."""
+class CreateCrawlerError(Exception):
+    """Create crawler error."""
 
 class Path(Crawler):
     """
@@ -165,9 +165,34 @@ class Path(Crawler):
         result = None
         for registeredName in reversed(Path.__registeredTypes.keys()):
             testCrawlerType = Path.__registeredTypes[registeredName]
-            if testCrawlerType.test(pathHolder, parentCrawler):
-                result = testCrawlerType(pathHolder, parentCrawler)
-                result.setVar('type', registeredName)
+            passedTest = False
+
+            # testing crawler
+            try:
+                passedTest = testCrawlerType.test(pathHolder, parentCrawler)
+            except Exception as err:
+                raise TestCrawlerError(
+                    'Error on testing a crawler "{}" for "{}"\n{}'.format(
+                        registeredName,
+                        pathHolder.path(),
+                        str(err)
+                    )
+                )
+
+            # creating crawler
+            if passedTest:
+                try:
+                    result = testCrawlerType(pathHolder, parentCrawler)
+                except Exception as err:
+                    raise CreateCrawlerError(
+                        'Error on creating a crawler "{}" for "{}"\n{}'.format(
+                            registeredName,
+                            pathHolder.path(),
+                            str(err)
+                        )
+                    )
+                else:
+                    result.setVar('type', registeredName)
                 break
 
         assert result, \
