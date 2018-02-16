@@ -227,11 +227,20 @@ class Path(Crawler):
         return crawler
 
     @staticmethod
-    def createFromPath(fullPath, parentCrawler=None):
+    def createFromPath(fullPath, crawlerType=None, parentCrawler=None):
         """
         Create a crawler directly from a path string.
         """
-        return Path.create(PathHolder(fullPath), parentCrawler)
+        if crawlerType:
+            crawlerClass = Path.__registeredTypes.get(crawlerType)
+            assert crawlerClass, "Invalid crawler type {} for {}".format(crawlerType, fullPath)
+
+            result = crawlerClass(PathHolder(fullPath), parentCrawler)
+            result.setVar('type', crawlerType)
+
+            return result
+        else:
+            return Path.create(PathHolder(fullPath), parentCrawler)
 
     def __setPathHolder(self, pathHolder):
         """

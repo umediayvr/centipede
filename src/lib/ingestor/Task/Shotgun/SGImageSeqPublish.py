@@ -6,12 +6,12 @@ from collections import OrderedDict
 from ..Task import Task
 from ...Template import Template
 
-class SGPlatePublish(Task):
+class SGImageSeqPublish(Task):
     """
-    Publish a plate to shotgun.
+    Publish an image sequence to shotgun.
 
     Required Options: movieFile and thumbnailFile.
-    Optional Options: publishedFileType, comment and taskName.
+    Optional Options: publishedFileType, sceneFile, comment and taskName.
     """
 
     __defaultPublishedFileType = "Scan"
@@ -19,9 +19,9 @@ class SGPlatePublish(Task):
 
     def __init__(self, *args, **kwargs):
         """
-        Create a PlatePublish object.
+        Create an ImageSeqPublish object.
         """
-        super(SGPlatePublish, self).__init__(*args, **kwargs)
+        super(SGImageSeqPublish, self).__init__(*args, **kwargs)
 
         self.setOption('publishedFileType', self.__defaultPublishedFileType)
         self.setOption('comment', self.__defaultComment)
@@ -44,8 +44,11 @@ class SGPlatePublish(Task):
             sourceCrawler = sequenceCrawlers[0]
             movieFilePath = Template(self.option('movieFile')).valueFromCrawler(sourceCrawler)
             thumbnailFilePath = Template(self.option('thumbnailFile')).valueFromCrawler(sourceCrawler)
+
+            comment = sourceCrawler.var('comment')
+            sceneFilePath = sourceCrawler.var('filePath')
+            sgTask = sourceCrawler.var('_sgTask')
             publishedFileType = self.option('publishedFileType')
-            comment = self.option('comment')
 
             version = sourceCrawler.var('version')
             firstFrame = sequenceCrawlers[0].var('frame')
@@ -62,20 +65,21 @@ class SGPlatePublish(Task):
 
             output = {
                 'job': sourceCrawler.var('job'),
-                'name': sourceCrawler.var('plateName'),
+                'name': sourceCrawler.var('renderName'),
                 'sequenceNameFormated': sequenceNameFormated,
                 'firstFrame': firstFrame,
                 'lastFrame': lastFrame,
                 'totalFrames': totalFrames,
                 'movieFilePath': movieFilePath,
                 'thumbnailFilePath': thumbnailFilePath,
+                'sceneFilePath': sceneFilePath,
                 'publishedFileType': publishedFileType,
-                'version': version,
-                'comment': comment
+                'version': int(version),
+                'comment': comment,
+                '_sgTask': sgTask
             }
 
-            # generating a temporary file that is going to contain the frames
-            # that should be processed by ffmpeg
+            # generating a temporary file that is going to contain the publish data
             shotgunTempFile = tempfile.NamedTemporaryFile(
                 delete=False,
                 suffix=".json",
@@ -123,13 +127,6 @@ class SGPlatePublish(Task):
 
 # registering task
 Task.register(
-    'sgPlatePublish',
-    SGPlatePublish
-)
-
-# backward compatibility registration
-# TODO: remove this in future releases
-Task.register(
-    'platePublish',
-    SGPlatePublish
+    'sgImageSeqPublish',
+    SGImageSeqPublish
 )

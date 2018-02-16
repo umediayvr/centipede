@@ -6,6 +6,12 @@ from collections import OrderedDict
 from ..Task import Task
 from ...Template import Template
 
+# compatibility with python 2/3
+try:
+    basestring
+except NameError:
+    basestring = str
+
 class NukeScript(Task):
     """
     Abstracted nuke python script task.
@@ -74,7 +80,7 @@ class NukeScript(Task):
                 optionValue = self.option(optionName)
 
                 # resolving template if necessary...
-                if isinstance(optionValue, str):
+                if isinstance(optionValue, basestring):
                     options[optionName] = Template(optionValue).valueFromCrawler(
                         pathCrawler
                     )
@@ -106,21 +112,19 @@ class NukeScript(Task):
                     scriptLoader=scriptLoaderPath,
                     optionsFile=tempJsonOptionsFile.name
                 ),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 env=customEnv,
                 shell=True
             )
 
             # capturing the output
-            output, error = process.communicate()
+            process.communicate()
 
             # removing the temporary file
             os.unlink(tempJsonOptionsFile.name)
 
             # in case of any erros
-            if error:
-                raise Exception(error)
+            if process.returncode:
+                raise Exception('Nuke has returned an error code: {}'.format(process.returncode))
 
         # default result based on the target filePath
         return super(NukeScript, self)._perform()
