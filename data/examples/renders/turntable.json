@@ -1,0 +1,96 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/data/job",
+    "job": "RND",
+    "__uiHintSourceColumns": [
+      "shot",
+      "step",
+      "variant",
+      "pass"
+    ]
+  },
+  "taskHolders":
+  [
+    {
+      "task": "createTurntableVersion",
+      "matchTypes": [
+        "turntable"
+      ],
+      "taskWrapper": "subprocess",
+      "taskWrapperOptions": {
+        "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+      },
+      "targetTemplate": "{prefix}/{job}/assets/{assetName}/publish/{step}/{variant}/(newVersion <parentPath>)",
+      "taskHolders":
+      [
+        {
+          "task": "nukeTemplate",
+          "taskOptions": {
+            "topLeft": "{assetName}-{variant}",
+            "topRight": "(yyyy)(mm)(dd)",
+            "notes": "",
+            "videocodec": "",
+            "bottomLeft": "{pass}, {versionName}",
+            "template": "/data/job/RND/config/ingestor/mediaDelivery/templates/template.nk",
+            "addSlate": 0,
+            "doColorSpace": 0,
+            "doReformat": 0
+          },
+          "targetTemplate": "{dataPath}/{name}.mov",
+          "matchTypes": [
+            "exr"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          },
+          "taskWrapper": "subprocess",
+          "taskWrapperOptions": {
+            "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+          },
+          "taskHolders": [
+            {
+              "task": "appendToVersion",
+              "taskWrapper": "subprocess",
+              "taskWrapperOptions": {
+                "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+              }
+            }
+          ]
+        },
+        {
+          "task": "sequenceThumbnail",
+          "targetTemplate": "/tmp/thumbnail/{name}.jpg",
+          "matchTypes": [
+            "exr"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          }
+        },
+        {
+          "task": "sgImageSeqPublish",
+          "taskOptions": {
+            "publishedFileType": "Rendered Image",
+            "movieFile": "{dataPath}/{name}.mov",
+            "thumbnailFile": "/tmp/thumbnail/{name}.jpg"
+          },
+          "matchTypes": [
+            "exr"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
