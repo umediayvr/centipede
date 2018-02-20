@@ -8,66 +8,93 @@
     "__uiHintSourceColumns": [
       "shot",
       "step",
-      "variant",
+      "pass",
       "type"
     ]
   },
-  "taskHolders": [
-    {
-      "task": "createRenderVersion",
-      "matchTypes": [
-        "shotRender"
-      ],
-      "matchVars": {
-      },
-      "taskOptions": {
-      },
-      "taskWrapper": "subprocess",
-      "taskWrapperOptions": {
-        "user": "$UMEDIA_VERSION_PUBLISHER_USER"
-      },
-      "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{variant}/(newVersion <parentPath>)",
-      "taskHolders": [
+  "taskHolders":
+  [
+  {
+    "task": "createRenderVersion",
+    "matchTypes": [
+      "shotRender"
+    ],
+    "taskWrapper": "subprocess",
+    "taskWrapperOptions": {
+      "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+    },
+    "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{pass}/(newVersion <parentPath>)",
+    "taskHolders":
+    [
       {
-          "task": "ffmpeg",
-          "taskOptions": {
-            "frameRate": 23.976,
-            "sourceColorSpace": "bt709",
-            "targetColorSpace": "smpte170m"
-          },
-          "taskWrapper": "subprocess",
-          "taskWrapperOptions": {
-            "user": "$UMEDIA_VERSION_PUBLISHER_USER"
-          },
-          "targetTemplate": "{dataPath}/{name}.mov",
-          "matchTypes": [
-            "exr"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
-            ]
-          },
-          "taskHolders": [
-          {
-              "task": "appendToVersion",
-              "taskOptions": {
-              },
-              "taskWrapper": "subprocess",
-              "taskWrapperOptions": {
-                "user": "$UMEDIA_VERSION_PUBLISHER_USER"
-              }
-          }
+        "task": "nukeTemplate",
+        "taskOptions": {
+          "topLeft": "{shot}",
+          "topRight": "(yyyy)(mm)(dd)",
+          "notes": "",
+          "videocodec": "",
+          "bottomLeft": "{pass}, {versionName}",
+          "template": "/data/job/RND/config/ingestor/mediaDelivery/templates/template.nk",
+          "addSlate": 0,
+          "doColorSpace": 0,
+          "doReformat": 0
+        },
+        "targetTemplate": "{dataPath}/{name}.mov",
+        "matchTypes": [
+          "exr"
+        ],
+        "matchVars": {
+          "imageType": [
+            "sequence"
           ]
         },
-        {
-          "task": "sgRenderPublish",
-          "taskOptions": {
-            "comment": "render publish"
-          },
-          "targetTemplate": "{filePath}"
+        "taskWrapper": "subprocess",
+        "taskWrapperOptions": {
+          "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+        },
+        "taskHolders": [
+          {
+            "task": "appendToVersion",
+            "taskWrapper": "subprocess",
+            "taskWrapperOptions": {
+              "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+            }
+          }
+        ]
+      },
+      {
+        "task": "sequenceThumbnail",
+        "targetTemplate": "{dataPath}/.thumbnail/{name}.jpg",
+        "matchTypes": [
+          "exr"
+        ],
+        "matchVars": {
+          "imageType": [
+            "sequence"
+          ]
+        },
+        "taskWrapper": "subprocess",
+        "taskWrapperOptions": {
+          "user": "$UMEDIA_VERSION_PUBLISHER_USER"
         }
-      ]
-    }
-  ]
+      },
+      {
+        "task": "sgImageSeqPublish",
+        "taskOptions": {
+          "publishedFileType": "Rendered Image",
+          "movieFile": "{dataPath}/{name}.mov",
+          "thumbnailFile": "{dataPath}/.thumbnail/{name}.jpg"
+        },
+        "matchTypes": [
+          "exr"
+        ],
+        "matchVars": {
+          "imageType": [
+            "sequence"
+          ]
+        }
+      }
+    ]
+  }
+]
 }

@@ -98,6 +98,8 @@ class CreateVersion(CreateData):
             for var in self.__genericCrawlerInfo:
                 crawler.setVar(var, self.info(var), True)
             crawler.setVar("versionPath", self.versionPath(), True)
+            crawler.setVar("version", self.version(), True)
+            crawler.setVar("versionName", self.versionName(), True)
             crawler.setVar("dataPath", self.dataPath(), True)
 
         # Add json files

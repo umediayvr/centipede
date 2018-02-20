@@ -15,10 +15,17 @@ class Turntable(ExrRender):
 
         # Add the job var once job names on disk match job code names in shotgun
         # self.setVar('job', parts[0])
-        self.setVar('assetName', parts[1])
-        self.setVar('step', parts[2])
-        self.setVar('variant', parts[3])
-        self.setVar('pass', parts[4])
+        self.setVar('assetName', parts[1], True)
+        self.setVar('step', parts[2], True)
+        self.setVar('variant', parts[3], True)
+        self.setVar('pass', parts[4], True)
+        self.setVar('renderName', '{}-{}-{}'.format(
+            self.var('assetName'),
+            self.var('variant'),
+            self.var('pass')
+            ),
+            True
+        )
 
     @classmethod
     def test(cls, pathHolder, parentCrawler):
@@ -30,7 +37,7 @@ class Turntable(ExrRender):
 
         renderType = pathHolder.baseName().split(".")[0].split("_")[-1]
 
-        return renderType == "turntable"
+        return renderType == "tt"
 
 
 # registering crawler

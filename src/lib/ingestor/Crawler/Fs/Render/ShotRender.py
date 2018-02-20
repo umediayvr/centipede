@@ -14,11 +14,17 @@ class ShotRender(ExrRender):
         parts = self.var("name").split("_")
 
         # Add the job var once job names on disk match job code names in shotgun
-        # self.setVar('job', parts[0])
+        self.setVar('job', parts[0])
         self.setVar('seq', parts[1])
         self.setVar('shot', parts[2])
         self.setVar('step', parts[3])
-        self.setVar('variant', parts[4])
+        self.setVar('pass', parts[4])
+        self.setVar('renderName', '{}-{}'.format(
+            self.var('step'),
+            self.var('pass')
+            ),
+            True
+        )
 
     @classmethod
     def test(cls, pathHolder, parentCrawler):
@@ -30,7 +36,7 @@ class ShotRender(ExrRender):
 
         renderType = pathHolder.baseName().split(".")[0].split("_")[-1]
 
-        return renderType == "shotRender"
+        return renderType == "sr"
 
 
 # registering crawler

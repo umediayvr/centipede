@@ -11,7 +11,7 @@
       "task": "copy",
       "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/publish/elements/{renderName}/{output}/{versionName}/{width}x{height}/{baseName}",
       "matchTypes": [
-        "tkNukeRender"
+        "nukeRender"
       ],
       "matchVars": {
         "imageType": [
