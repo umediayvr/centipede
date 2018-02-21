@@ -31,7 +31,7 @@ class PathHolder(object):
 
     def isFile(self):
         """
-        Return a bollean telling if the path is a file.
+        Return a boolean telling if the path is a file.
         """
         return not self.isDirectory()
 
