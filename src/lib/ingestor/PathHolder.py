@@ -11,6 +11,7 @@ class PathHolder(object):
         """
         # lazy data
         self.__basename = None
+        self.__name = None
         self.__pathExists = None
         self.__isDirectory = None
         self.__size = None
@@ -64,6 +65,18 @@ class PathHolder(object):
             self.__basename = name
 
         return self.__basename
+
+    def name(self):
+        """
+        Return the base name without the extension about the path.
+        """
+        if self.__name is None:
+            self.__name = self.baseName()
+
+            if self.ext():
+                self.__name = self.__name[:-(len(self.ext()) + 1)]
+
+        return self.__name
 
     def exists(self):
         """
