@@ -68,13 +68,10 @@ class PathHolder(object):
 
     def name(self):
         """
-        Return the base name without the extension about the path.
+        Return the base name without the extension.
         """
         if self.__name is None:
-            self.__name = self.baseName()
-
-            if self.ext():
-                self.__name = self.__name[:-(len(self.ext()) + 1)]
+            self.__name = os.path.splitext(self.baseName())[0]
 
         return self.__name
 
