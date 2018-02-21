@@ -33,9 +33,9 @@ class Oiio(Image):
                 if imageInput is None:
                     raise OiioReadFileError(
                         "Can't read information from file:\n{}".format(
-                                self.pathHolder().path()
-                            )
+                            self.pathHolder().path()
                         )
+                    )
 
                 spec = imageInput.spec()
                 self.setVar('width', spec.width)

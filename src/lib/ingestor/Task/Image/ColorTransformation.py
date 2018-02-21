@@ -1,38 +1,24 @@
 import os
 from array import array
 from .UpdateImageMetadata import UpdateImageMetadata
+from .Ocio import Ocio
 from ..Task import Task
 
-class ColorTransformation(Task):
+class ColorTransformation(Ocio):
     """
     Applies a color transformation to an image using open color io and open image io.
 
-    Optional Options: "ocioConfig"
     Required Options: "sourceColorSpace" and "targetColorSpace".
     """
-
-    __ocioConfigDefault = ""
-
-    def __init__(self, *args, **kwargs):
-        """
-        Create a color transformation task.
-        """
-        super(ColorTransformation, self).__init__(*args, **kwargs)
-
-        self.setOption("ocioConfig", self.__ocioConfigDefault)
 
     def _perform(self):
         """
         Perform the task.
         """
         import OpenImageIO as oiio
-        import PyOpenColorIO as ocio
 
         # open color io configuration
-        if self.option('ocioConfig'):
-            config = ocio.Config.CreateFromFile(self.option('ocioConfig'))
-        else:
-            config = ocio.GetCurrentConfig()
+        config = self.ocioConfig()
 
         sourceColorSpace = self.option('sourceColorSpace')
         targetColorSpace = self.option('targetColorSpace')

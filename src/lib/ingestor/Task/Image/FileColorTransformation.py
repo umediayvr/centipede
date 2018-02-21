@@ -1,26 +1,16 @@
 import os
 from array import array
 from .UpdateImageMetadata import UpdateImageMetadata
+from .Ocio import Ocio
 from ...Template import Template
 from ..Task import Task
 
-class FileColorTransformation(Task):
+class FileColorTransformation(Ocio):
     """
     Applies a color transformation to an image using open color io and open image io.
 
-    Optional Options: "ocioConfig"
     Required Options: "sourceColorSpace", "targetColorSpace" and "lut"
     """
-
-    __ocioConfigDefault = ""
-
-    def __init__(self, *args, **kwargs):
-        """
-        Create a file color transformation task.
-        """
-        super(FileColorTransformation, self).__init__(*args, **kwargs)
-
-        self.setOption("ocioConfig", self.__ocioConfigDefault)
 
     def _perform(self):
         """
@@ -37,10 +27,7 @@ class FileColorTransformation(Task):
         }
 
         # open color io configuration
-        if self.option('ocioConfig'):
-            config = ocio.Config.CreateFromFile(self.option('ocioConfig'))
-        else:
-            config = ocio.GetCurrentConfig()
+        config = self.ocioConfig()
 
         for pathCrawler in self.pathCrawlers():
             # resolving the lut path
