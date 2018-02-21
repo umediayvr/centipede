@@ -88,7 +88,7 @@ class SGPlatePublish(Task):
             shotgunPythonFile = os.path.join(
                 currentFolder,
                 "aux",
-                "runImageSeqPublish.py"
+                "runPlatePublish.py"
             )
 
             env = dict(os.environ)
