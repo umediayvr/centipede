@@ -15,7 +15,7 @@
     {
       "task": "createTextureVersion",
       "matchTypes": [
-        "exrTexture"
+        "texture"
       ],
       "matchVars": {
       },
