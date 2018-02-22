@@ -29,7 +29,7 @@ for writeNode in nuke.allNodes('Write'):
     # multiple files (image sequence)
     currentFile = writeNode['file'].getValue()
     if "%0" in currentFile:
-        for frame in range(writeNode['first'].value(), int(writeNode['last'].value())):
+        for frame in range(int(writeNode['first'].value()), int(writeNode['last'].value() + 1)):
             bufferString = StringIO.StringIO()
             bufferString.write(currentFile % frame)
 
