@@ -3,10 +3,14 @@ from ..Task import Task
 class ImageThumbnail(Task):
     """
     Generates a thumbnail for the input image keeping the spect ratio.
+
+    Options:
+        - Optional: "convertToRGBA"
     """
 
     __defaultWidth = 640
     __defaultHeight = 480
+    __defaultConvertToRGBA = True
 
     def __init__(self, *args, **kwargs):
         """
@@ -16,6 +20,7 @@ class ImageThumbnail(Task):
 
         self.setOption('width', self.__defaultWidth)
         self.setOption('height', self.__defaultHeight)
+        self.setOption("convertToRGBA", self.__defaultConvertToRGBA)
 
     def _perform(self):
         """
@@ -30,6 +35,7 @@ class ImageThumbnail(Task):
 
             # creating a task to resize the thumbnail
             resizeImageTask = Task.create('resizeImage')
+            resizeImageTask.setOption('convertToRGBA', self.option('convertToRGBA'))
             resizeImageTask.add(pathCrawler, targetFilePath)
 
             # Calculate resize ratios for resizing
