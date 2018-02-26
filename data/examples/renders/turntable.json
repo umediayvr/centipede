@@ -6,7 +6,7 @@
     "prefix": "/data/job",
     "job": "RND",
     "__uiHintSourceColumns": [
-      "shot",
+      "assetName",
       "step",
       "variant",
       "pass"
@@ -29,15 +29,16 @@
         {
           "task": "nukeTemplate",
           "taskOptions": {
-            "topLeft": "{assetName}-{variant}",
+            "topLeft": "{assetName}-{variant}-{boop}",
             "topRight": "(yyyy)(mm)(dd)",
             "notes": "",
             "videocodec": "",
             "bottomLeft": "{pass}, {versionName}",
             "template": "/data/job/RND/config/ingestor/mediaDelivery/templates/template.nk",
-            "addSlate": 0,
-            "doColorSpace": 0,
-            "doReformat": 0
+            "enableSlate": 0,
+            "enableColorSpace": 0,
+            "enableReformat": 0,
+            "enableTimecode": 1
           },
           "targetTemplate": "{dataPath}/{name}.mov",
           "matchTypes": [
@@ -63,23 +64,13 @@
           ]
         },
         {
-          "task": "sequenceThumbnail",
-          "targetTemplate": "/tmp/thumbnail/{name}.jpg",
-          "matchTypes": [
-            "exr"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
-            ]
-          }
-        },
-        {
-          "task": "sgImageSeqPublish",
+          "task": "sgPublish",
+          "taskWrapper": "sgPython",
           "taskOptions": {
             "publishedFileType": "Rendered Image",
             "movieFile": "{dataPath}/{name}.mov",
-            "thumbnailFile": "/tmp/thumbnail/{name}.jpg"
+            "comment": "tunrtable publish",
+            "publishName": "{renderName}"
           },
           "matchTypes": [
             "exr"

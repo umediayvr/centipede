@@ -31,9 +31,9 @@
             "videocodec": "",
             "name": "{renderName}, {versionName}",
             "template": "/data/job/RND/config/ingestor/mediaDelivery/templates/template.nk",
-            "addSlate": 0,
-            "doColorSpace": 0,
-            "doReformat": 0
+            "enableSlate": 0,
+            "enableColorSpace": 0,
+            "enableReformat": 0
           },
           "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/{name}.mov",
           "matchTypes": [
