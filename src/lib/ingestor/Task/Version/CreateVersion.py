@@ -96,7 +96,8 @@ class CreateVersion(CreateData):
         # Add context variables so subsequent tasks get them
         for crawler in dataCrawlers:
             for var in self.__genericCrawlerInfo:
-                crawler.setVar(var, self.info(var), True)
+                if var in self.infoNames():
+                    crawler.setVar(var, self.info(var), True)
             crawler.setVar("versionPath", self.versionPath(), True)
             crawler.setVar("version", self.version(), True)
             crawler.setVar("versionName", self.versionName(), True)
