@@ -29,7 +29,7 @@
         {
           "task": "nukeTemplate",
           "taskOptions": {
-            "topLeft": "{assetName}-{variant}-{boop}",
+            "topLeft": "{assetName}-{variant}",
             "topRight": "(yyyy)(mm)(dd)",
             "notes": "",
             "videocodec": "",
@@ -69,7 +69,7 @@
           "taskOptions": {
             "publishedFileType": "Rendered Image",
             "movieFile": "{dataPath}/{name}.mov",
-            "comment": "tunrtable publish",
+            "comment": "turntable publish",
             "publishName": "{renderName}"
           },
           "matchTypes": [
