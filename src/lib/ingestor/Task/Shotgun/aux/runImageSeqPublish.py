@@ -79,7 +79,7 @@ def publish(content):
         thumbnail_path=content['thumbnailFilePath'],
         published_file_type=content['publishedFileType'],
         task=content.get('_sgTask', {}),
-        dependency_paths=content.get('sceneFilePath', ""),
+        dependency_paths=content.get('sceneFilePath', "")
     )
 
     # daily
