@@ -21,6 +21,9 @@ class CopyFileError(Exception):
 class FailedToLockDataError(Exception):
     """Failed To Lock Data Error."""
 
+class InvalidInfoError(Exception):
+    """Invalid Info Error."""
+
 class CreateData(Task):
     """
     ABC for creating data.
@@ -78,13 +81,22 @@ class CreateData(Task):
         """
         self.__info[key] = value
 
-    def info(self, key, defaultValue=None):
+    def info(self, key):
         """
-        Return value of given info if it exists, else defaultValue.
+        Return value of given info.
         """
-        if key in self.__info:
-            return self.__info[key]
-        return defaultValue
+        if key not in self.__info:
+            raise InvalidInfoError(
+                'Info not found "{}"'.format(key)
+            )
+
+        return self.__info[key]
+
+    def infoNames(self):
+        """
+        Return a list of info names that currently exist.
+        """
+        return list(self.__info.keys())
 
     def addFile(self, filePath, metadata=None):
         """
