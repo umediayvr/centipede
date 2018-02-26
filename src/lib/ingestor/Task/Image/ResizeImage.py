@@ -8,10 +8,20 @@ class ResizeImage(Task):
     Image resize task.
 
     Options:
-    - Required: "width" and "height" (both support expressions)
+        - Optional: "convertToRGBA"
+        - Required: "width" and "height" (both support expressions)
 
     TODO: missing to umedia metadata/source image attributes.
     """
+    __defaultConvertToRGBA = False
+
+    def __init__(self, *args, **kwargs):
+        """
+        Create a resize image task.
+        """
+        super(ResizeImage, self).__init__(*args, **kwargs)
+
+        self.setOption("convertToRGBA", self.__defaultConvertToRGBA)
 
     def _perform(self):
         """
@@ -65,6 +75,16 @@ class ResizeImage(Task):
                 inputImageBuf,
                 nthreads=multiprocessing.cpu_count()
             )
+
+            # in case the convertToRGBA is enabled
+            if self.option('convertToRGBA'):
+                temporaryBuffer = oiio.ImageBuf()
+                oiio.ImageBufAlgo.channels(
+                    temporaryBuffer,
+                    resizedImageBuf,
+                    ("R", "G", "B", "A")
+                )
+                resizedImageBuf = temporaryBuffer
 
             # saving target resized image
             resizedImageBuf.write(targetFilePath)
