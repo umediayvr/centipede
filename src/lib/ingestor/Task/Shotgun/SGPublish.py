@@ -121,7 +121,7 @@ class SGPublish(Task):
                 mode='w'
             )
             thumbnailFilePath = tempFile.name
-            # Remove file so ffmpeg doesn't ask to overwrite it
+            # Remove file so the thumbnail task doesn't ask to overwrite it
             os.unlink(thumbnailFilePath)
 
             thumbnailTask = Task.create('imageThumbnail')
