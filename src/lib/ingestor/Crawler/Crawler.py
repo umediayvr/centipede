@@ -138,7 +138,9 @@ class Crawler(object):
         Return the crawlers grouped by the input tag.
 
         The result is a 2D array where each group of the result is a list of crawlers
-        that contain the same tag value.
+        that contain the same tag value. The crawlers inside of the group are
+        sorted alphabetically using the path by default. If you want to do a custom
+        sorting, take a look at: Crawler.sortGroup
         """
         groupedCrawlers = OrderedDict()
         uniqueCrawlers = []
@@ -151,4 +153,20 @@ class Crawler(object):
             else:
                 uniqueCrawlers.append([crawler])
 
-        return list(groupedCrawlers.values()) + uniqueCrawlers
+        # sorting crawlers
+        groupedSorted = Crawler.sortGroup(
+            groupedCrawlers.values(),
+            key=lambda x: x.var('path')
+        )
+
+        return groupedSorted + uniqueCrawlers
+
+    @staticmethod
+    def sortGroup(crawlers, key=None, reverse=False):
+        """
+        Return a list of grouped crawlers sorted by the input key.
+        """
+        result = []
+        for group in crawlers:
+            result.append(list(sorted(group, key=key, reverse=reverse)))
+        return result
