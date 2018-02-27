@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict
 
 class InvalidVarError(Exception):
     """Invalid Var Error."""
@@ -130,3 +131,24 @@ class Crawler(object):
             newInstance.setTag(tagName, self.tag(tagName))
 
         return newInstance
+
+    @staticmethod
+    def group(crawlers, tag='group'):
+        """
+        Return the crawlers grouped by the input tag.
+
+        The result is a 2D array where each group of the result is a list of crawlers
+        that contain the same tag value.
+        """
+        groupedCrawlers = OrderedDict()
+        uniqueCrawlers = []
+        for crawler in crawlers:
+            if tag in crawler.tagNames():
+                groupName = crawler.tag(tag)
+                if groupName not in groupedCrawlers:
+                    groupedCrawlers[groupName] = []
+                groupedCrawlers[groupName].append(crawler)
+            else:
+                uniqueCrawlers.append([crawler])
+
+        return list(groupedCrawlers.values()) + uniqueCrawlers
