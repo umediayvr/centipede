@@ -73,13 +73,8 @@
             "publishName": "{renderName}"
           },
           "matchTypes": [
-            "exr"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
-            ]
-          }
+            "json"
+          ]
         }
       ]
     }

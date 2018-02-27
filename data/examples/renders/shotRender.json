@@ -37,7 +37,8 @@
           "template": "/data/job/RND/config/ingestor/mediaDelivery/templates/template.nk",
           "enableSlate": 0,
           "enableColorSpace": 0,
-          "enableReformat": 0
+          "enableReformat": 0,
+          "enableTimecode": 1
         },
         "targetTemplate": "{dataPath}/{name}.mov",
         "matchTypes": [
@@ -63,36 +64,16 @@
         ]
       },
       {
-        "task": "sequenceThumbnail",
-        "targetTemplate": "{dataPath}/.thumbnail/{name}.jpg",
-        "matchTypes": [
-          "exr"
-        ],
-        "matchVars": {
-          "imageType": [
-            "sequence"
-          ]
-        },
-        "taskWrapper": "subprocess",
-        "taskWrapperOptions": {
-          "user": "$UMEDIA_VERSION_PUBLISHER_USER"
-        }
-      },
-      {
-        "task": "sgImageSeqPublish",
+        "task": "sgPublish",
+        "taskWrapper": "sgPython",
         "taskOptions": {
           "publishedFileType": "Rendered Image",
-          "movieFile": "{dataPath}/{name}.mov",
-          "thumbnailFile": "{dataPath}/.thumbnail/{name}.jpg"
+          "comment": "render publish",
+          "publishName": "{renderName}"
         },
         "matchTypes": [
-          "exr"
-        ],
-        "matchVars": {
-          "imageType": [
-            "sequence"
-          ]
-        }
+          "json"
+        ]
       }
     ]
   }

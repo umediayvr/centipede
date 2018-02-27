@@ -1,54 +1,13 @@
 import os
-from ...Crawler.Fs import Path
-from ...Crawler.Fs.Scene import Scene
 from ..Task import Task
-from .CreateIncrementalVersion import CreateIncrementalVersion
+from .CreateRenderVersion import CreateRenderVersion
 
-class CreateTurntableVersion(CreateIncrementalVersion):
+class CreateTurntableVersion(CreateRenderVersion):
     """
     Create turntable version task.
     """
 
-    def __init__(self, *args, **kwargs):
-        """
-        Create a turntable version.
-        """
-        super(CreateTurntableVersion, self).__init__(*args, **kwargs)
-
-    def _perform(self):
-        """
-        Perform the task.
-        """
-        sourceScenes = set()
-
-        for pathCrawler in self.pathCrawlers():
-
-            targetFile = self.__computeRenderTargetLocation(pathCrawler)
-            # copying the render file
-            self.copyFile(pathCrawler.var('filePath'), targetFile)
-            self.addFile(targetFile)
-
-            # Crawl from source directory for scenes to save along with data
-            pathCrawler = Path.createFromPath(pathCrawler.var('sourceDirectory'))
-            sceneCrawlers = pathCrawler.glob([Scene])
-            for sceneCrawler in sceneCrawlers:
-                sourceScenes.add(sceneCrawler.var('filePath'))
-
-        # Copy source scenes
-        for sourceScene in sourceScenes:
-            targetScene = os.path.join(self.dataPath(), os.path.basename(sourceScene))
-            self.copyFile(sourceScene, targetScene)
-            self.addFile(targetScene)
-
-        # Exclude all work scenes and movies from incremental versioning
-        exclude = set()
-        for sceneClasses in Path.registeredSubclasses(Scene):
-            exclude.update(sceneClasses.extensions())
-        exclude.update("mov")
-
-        return super(CreateTurntableVersion, self)._perform(incrementalExcludeTypes=list(exclude))
-
-    def __computeRenderTargetLocation(self, crawler):
+    def _computeRenderTargetLocation(self, crawler):
         """
         Compute the target file path for a render.
         """
