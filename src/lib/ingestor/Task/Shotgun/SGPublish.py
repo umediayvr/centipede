@@ -2,6 +2,7 @@ import os
 import tempfile
 from ..Task import Task
 from ...Template import Template
+from ...Crawler import Crawler
 from ...Crawler.Fs.Path import Path
 from ...Crawler.Fs.Image import Image
 
@@ -30,16 +31,6 @@ class SGPublish(Task):
         sourceCrawler = self.pathCrawlers()[0]
 
         filePath = sourceCrawler.var('filePath')
-        # if sourceCrawler.isSequence():
-        #     filePath = os.path.join(
-        #         os.path.dirname(filePath),
-        #         '{0}.%0{1}d.{2}'.format(
-        #             sourceCrawler.var('name'),
-        #             sourceCrawler.var('padding'),
-        #             sourceCrawler.var('ext')
-        #             )
-        #         )
-
         self.__publishData["path"] = {"local_path": filePath}
 
         self.__publishData["description"] = self.option('comment')
@@ -151,7 +142,7 @@ class SGPublish(Task):
         sourceCrawler = self.pathCrawlers()[0]
         if 'movieFile' not in self.optionNames():
             # No movie provided, glob for a mov
-            movCrawlers = sourceCrawler.glob(fileTypes=["mov"])
+            movCrawlers = sourceCrawler.globFromParent(filterTypes=["mov"])
             if not movCrawlers:
                 return
             movieFilePath = movCrawlers[0].var("filePath")
@@ -170,15 +161,27 @@ class SGPublish(Task):
 
         firstFrame = None
         lastFrame = None
+        imageSeqPath = None
         movCrawler = Path.createFromPath(movieFilePath)
         if firstFrame in movCrawler.varNames():
             firstFrame = movCrawler.var('firstFrame')
             lastFrame = movCrawler.var('lastFrame')
-        # else:
-        #     imageCrawlers = sourceCrawler.glob(filterTypes=["Image"])
-        #     if imageCrawlers and imageCrawlers[0].isSequence():
-        #         firstFrame = self.pathCrawlers()[0].var('frame')
-        #         lastFrame = self.pathCrawlers()[-1].var('frame')
+
+        imageCrawlers = sourceCrawler.globFromParent(filterTypes=[Image])
+        groups = Crawler.group(filter(lambda x: x.isSequence(), imageCrawlers))
+        if groups:
+            seqGroup = groups[0]
+            imageSeqPath = os.path.join(
+                os.path.dirname(seqGroup[0].var("filePath")),
+                '{0}.%0{1}d.{2}'.format(
+                    seqGroup[0].var('name'),
+                    seqGroup[0].var('padding'),
+                    seqGroup[0].var('ext')
+                    )
+                )
+            if firstFrame is None:
+                firstFrame = seqGroup[0].var('frame')
+                lastFrame = seqGroup[-1].var('frame')
 
         # Create the version in Shotgun
         data = {
@@ -188,7 +191,6 @@ class SGPublish(Task):
             "created_by": self.__publishData['created_by'],
             "user": self.__publishData['created_by'],
             "description": self.__publishData['description'],
-            "sg_path_to_frames": self.__publishData["path"]["local_path"],
             "project": self.__publishData['project']
         }
 
@@ -197,6 +199,8 @@ class SGPublish(Task):
             data["sg_last_frame"] = lastFrame
             data["frame_count"] = (lastFrame - firstFrame + 1)
             data["frame_range"] = "%s-%s" % (firstFrame, lastFrame)
+        if imageSeqPath:
+            data["sg_path_to_frames"] = imageSeqPath
 
         data["published_files"] = [sgPublishFile]
         data["sg_path_to_movie"] = movieFilePath

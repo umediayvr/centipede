@@ -44,7 +44,7 @@ class CreateRenderVersion(CreateIncrementalVersion):
         exclude = set()
         for sceneClasses in Path.registeredSubclasses(Scene):
             exclude.update(sceneClasses.extensions())
-        exclude.update("mov")
+        exclude.add("mov")
 
         return super(CreateRenderVersion, self)._perform(incrementalExcludeTypes=list(exclude))
 
