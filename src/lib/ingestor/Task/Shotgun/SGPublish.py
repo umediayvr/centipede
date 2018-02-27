@@ -111,9 +111,10 @@ class SGPublish(Task):
             if not imageCrawlers:
                 return
             groups = Crawler.group(filter(lambda x: x.isSequence(), imageCrawlers))
-            if not groups:
-                return
-            targetCrawler = imageCrawlers[int(len(groups[0]) / 2)]
+            if groups:
+                targetCrawler = groups[0][int(len(groups[0]) / 2)]
+            else:
+                targetCrawler = imageCrawlers[0]
 
             tempFile = tempfile.NamedTemporaryFile(
                 delete=False,
