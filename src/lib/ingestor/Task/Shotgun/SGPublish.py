@@ -1,6 +1,7 @@
 import os
 import tempfile
 from ..Task import Task
+from ...TaskWrapper import TaskWrapper
 from ...Template import Template
 from ...Crawler import Crawler
 from ...Crawler.Fs.Path import Path
@@ -104,11 +105,15 @@ class SGPublish(Task):
         if "thumbnailFile" in self.optionNames():
             thumbnailFilePath = Template(self.option('thumbnailFile')).valueFromCrawler(sourceCrawler)
         else:
+            # Look for an image sequence to create a thumbnail. If multiple sequences found, using the first one.
             createThumbnail = True
-            imageCrawlers = sourceCrawler.glob(filterTypes=[Image])
+            imageCrawlers = sourceCrawler.globFromParent(filterTypes=[Image])
             if not imageCrawlers:
                 return
-            targetCrawler = imageCrawlers[int(len(self.pathCrawlers()) / 2)]
+            groups = Crawler.group(filter(lambda x: x.isSequence(), imageCrawlers))
+            if not groups:
+                return
+            targetCrawler = imageCrawlers[int(len(groups[0]) / 2)]
 
             tempFile = tempfile.NamedTemporaryFile(
                 delete=False,
@@ -119,14 +124,10 @@ class SGPublish(Task):
             # Remove file so ffmpeg doesn't ask to overwrite it
             os.unlink(thumbnailFilePath)
 
-            # thumbnailTask = Task.create('imageThumbnail')
-            # thumbnailTask.add(targetCrawler, thumbnailFilePath)
-            # thumbnailTask.output()
-            cmd = 'ffmpeg -v quiet -loglevel error -i {} -vf scale=640:-1 {}'.format(
-                    targetCrawler.var("filePath"),
-                    thumbnailFilePath
-                    )
-            os.system(cmd)
+            thumbnailTask = Task.create('imageThumbnail')
+            thumbnailTask.add(targetCrawler, thumbnailFilePath)
+            # Using upython taskWrapper because the imageThumbnail task uses OIIO
+            TaskWrapper.create('upython').run(thumbnailTask)
 
         if os.path.exists(thumbnailFilePath):
             sg.upload_thumbnail("PublishedFile", sgPublishFile["id"], thumbnailFilePath)
