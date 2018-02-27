@@ -11,8 +11,10 @@ class PathHolder(object):
         """
         # lazy data
         self.__basename = None
+        self.__name = None
         self.__pathExists = None
         self.__isDirectory = None
+        self.__size = None
         self.__ext = None
 
         # setting path
@@ -29,7 +31,7 @@ class PathHolder(object):
 
     def isFile(self):
         """
-        Return a bollean telling if the path is a file.
+        Return a boolean telling if the path is a file.
         """
         return not self.isDirectory()
 
@@ -41,6 +43,15 @@ class PathHolder(object):
             self.__ext = os.path.splitext(self.path())[-1][1:].lower()
 
         return self.__ext
+
+    def size(self):
+        """
+        Return the size of the file.
+        """
+        if self.__size is None:
+            self.__size = os.stat(self.path()).st_size
+
+        return self.__size
 
     def baseName(self):
         """
@@ -54,6 +65,15 @@ class PathHolder(object):
             self.__basename = name
 
         return self.__basename
+
+    def name(self):
+        """
+        Return the base name without the extension.
+        """
+        if self.__name is None:
+            self.__name = os.path.splitext(self.baseName())[0]
+
+        return self.__name
 
     def exists(self):
         """

@@ -1,6 +1,6 @@
-from ..Image import Exr
+from ..Image import Image
 
-class ExrTexture(Exr):
+class Texture(Image):
     """
     Custom crawler used to detect textures.
     """
@@ -11,7 +11,7 @@ class ExrTexture(Exr):
         """
         Create a Texture object.
         """
-        super(ExrTexture, self).__init__(*args, **kwargs)
+        super(Texture, self).__init__(*args, **kwargs)
 
         self.setVar('category', 'texture')
 
@@ -29,7 +29,7 @@ class ExrTexture(Exr):
         if name == "mapType":
             value = value.upper()
 
-        super(ExrTexture, self).setVar(name, value, *args, **kwargs)
+        super(Texture, self).setVar(name, value, *args, **kwargs)
 
         # we need to update the group tag name after a change in the
         # assetName or variant
@@ -39,9 +39,12 @@ class ExrTexture(Exr):
     @classmethod
     def test(cls, pathHolder, parentCrawler):
         """
-        Test if the path holder contains an texture  exr file.
+        Test if the path holder contains a texture exr or tif file.
         """
-        if not super(ExrTexture, cls).test(pathHolder, parentCrawler):
+        if not super(Texture, cls).test(pathHolder, parentCrawler):
+            return False
+
+        if pathHolder.ext() not in ['exr', 'tif']:
             return False
 
         return (cls.__parseUDIM(pathHolder) is not None)
@@ -87,7 +90,7 @@ class ExrTexture(Exr):
 
 
 # registering crawler
-ExrTexture.register(
-    'exrTexture',
-    ExrTexture
+Texture.register(
+    'texture',
+    Texture
 )

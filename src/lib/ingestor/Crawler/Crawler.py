@@ -1,6 +1,5 @@
 import os
-import sys
-import glob
+from collections import OrderedDict
 
 class InvalidVarError(Exception):
     """Invalid Var Error."""
@@ -137,21 +136,40 @@ class Crawler(object):
         return newInstance
 
     @staticmethod
-    def loadDependency(filePath):
+    def group(crawlers, tag='group'):
         """
-        Load a dependency python file to the runtime.
+        Return the crawlers grouped by the input tag.
+
+        The result is a 2D array where each group of the result is a list of crawlers
+        that contain the same tag value. The crawlers inside of the group are
+        sorted alphabetically using the path by default. If you want to do a custom
+        sorting, take a look at: Crawler.sortGroup
         """
-        if not os.path.exists(filePath):
-            raise InvalidDependencyError(
-                'Invalid dependency "{0}"!'.format(filePath)
-            )
+        groupedCrawlers = OrderedDict()
+        uniqueCrawlers = []
+        for crawler in crawlers:
+            if tag in crawler.tagNames():
+                groupName = crawler.tag(tag)
+                if groupName not in groupedCrawlers:
+                    groupedCrawlers[groupName] = []
+                groupedCrawlers[groupName].append(crawler)
+            else:
+                uniqueCrawlers.append([crawler])
 
-        # loading python dependency
-        try:
-            exec(open(filePath).read(), globals())
-        except Exception as err:
-            sys.stderr.write('Error on loading dependency: "{0}"\n'.format(
-                filePath
-            ))
+        # sorting crawlers
+        groupedSorted = Crawler.sortGroup(
+            groupedCrawlers.values(),
+            key=lambda x: x.var('path')
+        )
 
-            raise err
+        return groupedSorted + uniqueCrawlers
+
+    @staticmethod
+    def sortGroup(crawlers, key=None, reverse=False):
+        """
+        Return a list of grouped crawlers sorted by the input key.
+        """
+        result = []
+        for group in crawlers:
+            result.append(list(sorted(group, key=key, reverse=reverse)))
+        return result

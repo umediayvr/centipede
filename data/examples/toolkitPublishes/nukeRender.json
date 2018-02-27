@@ -1,0 +1,72 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/data/job",
+    "job": "RND"
+  },
+  "taskHolders": [
+    {
+      "task": "copy",
+      "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/publish/elements/{renderName}/{output}/{versionName}/{width}x{height}/{baseName}",
+      "matchTypes": [
+        "tkNukeRender"
+      ],
+      "matchVars": {
+        "imageType": [
+          "sequence"
+        ]
+      },
+      "taskHolders": [
+        {
+          "task": "nukeTemplate",
+          "taskOptions": {
+            "job": "",
+            "vendor": "",
+            "clientShot": "{shot}",
+            "logo": "{prefix}/{job}/reference/logo.png",
+            "date": "(yyyy)(mm)(dd)",
+            "notes": "",
+            "videocodec": "",
+            "name": "{renderName}, {versionName}",
+            "template": "/data/job/RND/config/ingestor/mediaDelivery/templates/template.nk",
+            "addSlate": 0,
+            "doColorSpace": 0,
+            "doReformat": 0
+          },
+          "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/{name}.mov",
+          "matchTypes": [
+            "tkNukeRender"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          }
+        }
+        ]
+      },
+      {
+        "task": "sequenceThumbnail",
+        "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/.thumbnail/{name}.jpg",
+        "matchTypes": [
+          "tkNukeRender"
+        ],
+        "matchVars": {
+          "imageType": [
+            "sequence"
+          ]
+        },
+        "taskWrapper": "subprocess"
+      },
+      {
+        "task": "sgImageSeqPublish",
+        "taskOptions": {
+          "publishedFileType": "Rendered Image",
+          "movieFile": "{prefix}/{job}/sequences/{seq}/{shot}/comp/review/{name}.mov",
+          "thumbnailFile": "{prefix}/{job}/sequences/{seq}/{shot}/comp/review/.thumbnail/{name}.jpg"
+        }
+      }
+  ]
+}

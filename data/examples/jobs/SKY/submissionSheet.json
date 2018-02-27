@@ -1,0 +1,39 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/data/job",
+    "job": "SKY",
+    "__uiHintSourceColumns": [
+    ]
+  },
+  "taskHolders": [
+    {
+      "task": "submissionSheet",
+      "matchTypes": ["json"],
+      "taskOptions": {
+        "_columns": [
+          ["Date","date"],
+          ["VFX Name", "clientShot"],
+          ["File Name", "name"],
+          ["Version Type", "step"],
+          ["Version", "sg_client_version"],
+          ["Delivery Method", "deliveryMethod"],
+          ["File Type", "clientFileType"],
+          ["Resolution", "resolution"],
+          ["Duration", "frame_count"],
+          ["Intended Status", "clientStatus"],
+          ["Notes", "sg_client_note"]
+        ],
+        "date": "(yyyy)-(mm)-(dd)",
+        "deliveryMethod": "Aspera",
+        "resolution": "{width}x{height}",
+        "clientStatus": "(clientStatus {sg_status_list})",
+        "clientFileType": "(clientFileType {filePath})",
+        "includeProxies": true,
+        "includeLogFile": true
+      }
+    }
+  ]
+}

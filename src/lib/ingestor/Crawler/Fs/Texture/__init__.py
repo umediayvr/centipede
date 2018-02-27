@@ -1,1 +1,1 @@
-from .ExrTexture import ExrTexture
+from .Texture import Texture
