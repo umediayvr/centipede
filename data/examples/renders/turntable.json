@@ -68,7 +68,6 @@
           "taskWrapper": "sgPython",
           "taskOptions": {
             "publishedFileType": "Rendered Image",
-            "movieFile": "{dataPath}/{name}.mov",
             "comment": "turntable publish",
             "publishName": "{renderName}"
           },

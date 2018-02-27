@@ -109,6 +109,7 @@ class SGPublish(Task):
             createThumbnail = True
             imageCrawlers = sourceCrawler.globFromParent(filterTypes=[Image])
             if not imageCrawlers:
+                # No images anywhere in the publish, nothing to use as a thumbnail
                 return
             groups = Crawler.group(filter(lambda x: x.isSequence(), imageCrawlers))
             if groups:
