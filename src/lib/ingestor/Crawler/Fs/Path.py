@@ -108,6 +108,15 @@ class Path(Crawler):
                 filteredCrawlers.update(filter(lambda x: isinstance(x, filterType), self.__globCache))
         return list(filteredCrawlers)
 
+    def globFromParent(self, filterTypes=[], useCache=True):
+        """
+        Return a list of all crawlers found recursively under the parent directory of the given path.
+
+        Filter result list by exact crawler type (str) or class type (includes derived classes).
+        """
+        parentDir = os.path.dirname(self.var("filePath"))
+        return Path.createFromPath(parentDir).glob(filterTypes, useCache)
+
     @classmethod
     def test(cls, parentCrawler, pathInfo):
         """

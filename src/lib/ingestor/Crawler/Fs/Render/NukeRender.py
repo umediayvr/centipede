@@ -1,15 +1,15 @@
 from .ExrRender import ExrRender
 
-class TkRender(ExrRender):
+class NukeRender(ExrRender):
     """
-    Custom crawler to parse information from a toolkit render.
+    Custom crawler to parse information from a Nuke render.
     """
 
     def __init__(self, *args, **kwargs):
         """
-        Create a TkRender object.
+        Create a NukeRender object.
         """
-        super(TkRender, self).__init__(*args, **kwargs)
+        super(NukeRender, self).__init__(*args, **kwargs)
 
         parts = self.var("name").split("_")
         locationParts = parts[0].split("-")
@@ -18,6 +18,9 @@ class TkRender(ExrRender):
         # self.setVar('job', locationParts[0])
         self.setVar('seq', locationParts[1])
         self.setVar('shot', '-'.join(locationParts))
+        self.setVar('step', parts[-5])
+        self.setVar('renderName', parts[-4])
+        self.setVar('output', parts[-3])
         self.setVar('versionName', parts[-2])
         self.setVar('version', int(parts[-2][1:]))
 
@@ -26,7 +29,7 @@ class TkRender(ExrRender):
         """
         Test if the path holder contains a shotgun nuke render.
         """
-        if not super(TkRender, cls).test(pathHolder, parentCrawler):
+        if not super(NukeRender, cls).test(pathHolder, parentCrawler):
             return False
 
         renderType = pathHolder.baseName().split(".")[0].split("_")[-1]
@@ -34,8 +37,14 @@ class TkRender(ExrRender):
         return renderType == "tk"
 
 
+# registering crawler (backwards compatibility)
+NukeRender.register(
+    'tkNukeRender',
+    NukeRender
+)
+
 # registering crawler
-TkRender.register(
-    'tkRender',
-    TkRender
+NukeRender.register(
+    'nukeRender',
+    NukeRender
 )

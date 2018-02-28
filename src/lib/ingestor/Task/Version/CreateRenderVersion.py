@@ -23,7 +23,7 @@ class CreateRenderVersion(CreateIncrementalVersion):
 
         for pathCrawler in self.pathCrawlers():
 
-            targetFile = self.__computeRenderTargetLocation(pathCrawler)
+            targetFile = self._computeRenderTargetLocation(pathCrawler)
             # copying the render file
             self.copyFile(pathCrawler.var('filePath'), targetFile)
             self.addFile(targetFile)
@@ -40,26 +40,25 @@ class CreateRenderVersion(CreateIncrementalVersion):
             self.copyFile(sourceScene, targetScene)
             self.addFile(targetScene)
 
-        # Exclude all work scenes from incremental versioning
+        # Exclude all work scenes and movies from incremental versioning
         exclude = set()
         for sceneClasses in Path.registeredSubclasses(Scene):
             exclude.update(sceneClasses.extensions())
+        exclude.add("mov")
 
         return super(CreateRenderVersion, self)._perform(incrementalExcludeTypes=list(exclude))
 
-    def __computeRenderTargetLocation(self, crawler):
+    def _computeRenderTargetLocation(self, crawler):
         """
         Compute the target file path for a render.
         """
         return os.path.join(
             self.dataPath(),
             "renders",
-            "{}_{}_{}_{}_{}.{}.{}".format(
-                crawler.var('job'),
-                crawler.var('seq'),
+            "{}_{}_{}.{}.{}".format(
                 crawler.var('shot'),
                 crawler.var('step'),
-                crawler.var('variant'),
+                crawler.var('pass'),
                 str(crawler.var('frame')).zfill(crawler.var('padding')),
                 crawler.var('ext')
             )

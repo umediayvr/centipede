@@ -93,16 +93,20 @@ class CreateVersion(CreateData):
         # Find all the crawlers for data that was created for this version
         pathCrawler = Path.createFromPath(self.dataPath())
         dataCrawlers = pathCrawler.glob()
-        # Add context variables so subsequent tasks get them
-        for crawler in dataCrawlers:
-            for var in self.__genericCrawlerInfo:
-                crawler.setVar(var, self.info(var), True)
-            crawler.setVar("versionPath", self.versionPath(), True)
-            crawler.setVar("dataPath", self.dataPath(), True)
 
         # Add json files
         for jsonFile in ["info.json", "data.json", "env.json"]:
             dataCrawlers.append(Path.createFromPath(os.path.join(self.versionPath(), jsonFile)))
+
+        # Add context variables so subsequent tasks get them
+        for crawler in dataCrawlers:
+            for var in self.__genericCrawlerInfo:
+                if var in self.infoNames():
+                    crawler.setVar(var, self.info(var), True)
+            crawler.setVar("versionPath", self.versionPath(), True)
+            crawler.setVar("version", self.version(), True)
+            crawler.setVar("versionName", self.versionName(), True)
+            crawler.setVar("dataPath", self.dataPath(), True)
 
         return dataCrawlers
 

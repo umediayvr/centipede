@@ -65,7 +65,7 @@ class Crawler(object):
         """
         Return a list of variable names assigned to the crawler.
         """
-        return self.__vars.keys()
+        return list(self.__vars.keys())
 
     def contextVarNames(self):
         """

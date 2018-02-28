@@ -14,8 +14,8 @@ class SGImageSeqPublish(Task):
     Optional Options: publishedFileType, sceneFile, comment and taskName.
     """
 
-    __defaultPublishedFileType = "Scan"
-    __defaultComment = "plate publish"
+    __defaultPublishedFileType = "Rendered Image"
+    __defaultComment = "sequence publish"
 
     def __init__(self, *args, **kwargs):
         """
@@ -45,9 +45,9 @@ class SGImageSeqPublish(Task):
             movieFilePath = Template(self.option('movieFile')).valueFromCrawler(sourceCrawler)
             thumbnailFilePath = Template(self.option('thumbnailFile')).valueFromCrawler(sourceCrawler)
 
-            comment = sourceCrawler.var('comment')
+            comment = sourceCrawler.var('comment') if 'comment' in sourceCrawler.varNames() else self.option('comment')
             sceneFilePath = sourceCrawler.var('filePath')
-            sgTask = sourceCrawler.var('_sgTask')
+            sgTask = sourceCrawler.var('_sgTask') if '_sgTask' in sourceCrawler.varNames() else {}
             publishedFileType = self.option('publishedFileType')
 
             version = sourceCrawler.var('version')

@@ -1,0 +1,81 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "prefix": "/data/job",
+    "job": "RND",
+    "__uiHintSourceColumns": [
+      "assetName",
+      "step",
+      "variant",
+      "pass"
+    ]
+  },
+  "taskHolders":
+  [
+    {
+      "task": "createTurntableVersion",
+      "matchTypes": [
+        "turntable"
+      ],
+      "taskWrapper": "subprocess",
+      "taskWrapperOptions": {
+        "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+      },
+      "targetTemplate": "{prefix}/{job}/assets/{assetName}/publish/{step}/{variant}/(newVersion <parentPath>)",
+      "taskHolders":
+      [
+        {
+          "task": "nukeTemplate",
+          "taskOptions": {
+            "topLeft": "{assetName}-{variant}",
+            "topRight": "(yyyy)(mm)(dd)",
+            "notes": "",
+            "videocodec": "",
+            "bottomLeft": "{pass}, {versionName}",
+            "template": "{prefix}/{job}/config/ingestor/mediaDelivery/templates/template.nk",
+            "enableSlate": 0,
+            "enableColorSpace": 0,
+            "enableReformat": 0,
+            "enableTimecode": 1
+          },
+          "targetTemplate": "{dataPath}/{name}.mov",
+          "matchTypes": [
+            "exr"
+          ],
+          "matchVars": {
+            "imageType": [
+              "sequence"
+            ]
+          },
+          "taskWrapper": "subprocess",
+          "taskWrapperOptions": {
+            "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+          },
+          "taskHolders": [
+            {
+              "task": "appendToVersion",
+              "taskWrapper": "subprocess",
+              "taskWrapperOptions": {
+                "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+              }
+            }
+          ]
+        },
+        {
+          "task": "sgPublish",
+          "taskWrapper": "sgPython",
+          "taskOptions": {
+            "publishedFileType": "Rendered Image",
+            "comment": "turntable publish",
+            "publishName": "{renderName}"
+          },
+          "matchTypes": [
+            "json"
+          ]
+        }
+      ]
+    }
+  ]
+}
