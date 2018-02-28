@@ -7,9 +7,6 @@ class InvalidVarError(Exception):
 class InvalidTagError(Exception):
     """Invalid Tag Error."""
 
-class InvalidDependencyError(Exception):
-    """Invalid dependency Error."""
-
 class Crawler(object):
     """
     Abstracted Crawler.
