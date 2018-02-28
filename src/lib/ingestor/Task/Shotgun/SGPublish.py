@@ -85,6 +85,9 @@ class SGPublish(Task):
             self.__publishData['entity'] = project
 
     def __sgFileType(self, sg):
+        """
+        Find the shotgun file type for the publish. Create it in Shotgun if it does not already exist.
+        """
         publishedFileType = self.option('publishedFileType')
         sgFileType = sg.find_one('PublishedFileType', filters=[["code", "is", publishedFileType]])
         if not sgFileType:
@@ -93,6 +96,9 @@ class SGPublish(Task):
         self.__publishData["published_file_type"] = sgFileType
 
     def __sgUser(self, sg):
+        """
+        Find the shotgun user information for the publish.
+        """
         fields = ["id", "type", "email", "login", "name", "image"]
         user = os.environ.get('USERNAME', '')
         self.__publishData["created_by"] = sg.find_one("HumanUser", filters=[["login", "is", user]], fields=fields)
