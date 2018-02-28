@@ -9,8 +9,7 @@ from ...Crawler.Fs.Image import Image
 
 class SGPublish(Task):
     """
-    Publish data to shotgun.
-
+    Generic Shotgun publish task for data created by the CreateVersion task.
     """
 
     def __init__(self, *args, **kwargs):
@@ -99,7 +98,9 @@ class SGPublish(Task):
         self.__publishData["created_by"] = sg.find_one("HumanUser", filters=[["login", "is", user]], fields=fields)
 
     def __makeThumbnail(self, sgPublishFile, sg):
-
+        """
+        Create a temporary thumbnail using images found in data to load as publish thumbnail in shotgun.
+        """
         createThumbnail = False
         sourceCrawler = self.pathCrawlers()[0]
         if "thumbnailFile" in self.optionNames():
