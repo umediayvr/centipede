@@ -116,6 +116,7 @@ class Task(object):
             if level not in currentLevel:
                 found = False
                 break
+            currentLevel = currentLevel[level]
 
         if found and levels[-1] in currentLevel:
             return True
@@ -233,11 +234,7 @@ class Task(object):
 
         # crawler data
         crawlerData = []
-        dependencies = set()
         for pathCrawler in self.pathCrawlers():
-            if 'configPath' in pathCrawler.varNames():
-                dependencies.add(pathCrawler.var("configPath"))
-
             crawlerData.append({
                 'filePath': self.filePath(pathCrawler),
                 'serializedCrawler': pathCrawler.toJson()
@@ -248,13 +245,10 @@ class Task(object):
             contents['metadata'] = metadata
 
         if len(options):
-            options['options'] = options
+            contents['options'] = options
 
         if len(crawlerData):
             contents['crawlerData'] = crawlerData
-
-        if len(dependencies):
-            contents['dependencies'] = list(dependencies)
 
         return json.dumps(
             contents,
@@ -302,14 +296,9 @@ class Task(object):
         taskType = contents["type"]
         taskOptions = contents.get("options", {})
         taskMetadata = contents.get("metadata", {})
-        dependencies = contents.get("dependencies", [])
         crawlerData = contents.get("crawlerData", [])
 
-        # loading dependencies which may load custom crawlers, tasks, expressions, etc...
-        for dependency in dependencies:
-            Path.loadDependency(dependency)
-
-        # with all dependencies loaded we can load the task
+        # loading task
         task = Task.create(taskType)
 
         # setting task options
@@ -324,7 +313,7 @@ class Task(object):
         for crawlerDataItem in crawlerData:
             filePath = crawlerDataItem['filePath']
             crawler = Path.createFromJson(
-                crawlerDataItem['serializedPathCrawler']
+                crawlerDataItem['serializedCrawler']
             )
             task.add(crawler, filePath)
 
