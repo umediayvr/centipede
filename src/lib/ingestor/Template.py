@@ -1,4 +1,5 @@
 import os
+import uuid
 from .ExpressionEvaluator import ExpressionEvaluator
 
 # compatibility with python 2/3
@@ -29,6 +30,8 @@ class Template(object):
     to an expression. Keep in mind this is only supported by expressions.
         '{prefix}/testing/(computeVersion <parentPath>)/{name}.(pad {frame} 10).{ext}'
     """
+
+    __safeTokenId = uuid.uuid1()
 
     def __init__(self, inputString):
         """
@@ -74,7 +77,7 @@ class Template(object):
         for varName, varValue in vars.items():
             resolvedTemplate = resolvedTemplate.replace(
                 ('{' + varName + '}'),
-                str(varValue)
+                self.__escapeTemplateTokens(varValue)
             )
 
         # resolving function values
@@ -95,7 +98,11 @@ class Template(object):
 
                 # this is a special token that allows to pass the parent path
                 # to an expression, replacing it with the parent path at this point.
-                rawExpression = rawExpression.replace("<parentPath>", finalResolvedTemplate.replace("!", ""))
+                rawExpression = rawExpression.replace(
+                    "<parentPath>",
+                    self.__escapeTemplateTokens(finalResolvedTemplate.replace("/!", ""), 0)
+                )
+
                 if rawExpression not in self.__expressionValueCache:
                     self.__expressionValueCache[rawExpression] = ExpressionEvaluator.parseRun(
                         rawExpression
@@ -107,9 +114,9 @@ class Template(object):
                 finalResolvedTemplate += templatePart
 
         # resolving required path levels
-        if "!" in finalResolvedTemplate:
+        if "/!" in finalResolvedTemplate:
             finalPath = []
-            for pathLevel in finalResolvedTemplate.split(os.sep):
+            for pathLevel in self.__escapeTemplateTokens(finalResolvedTemplate, 0).split(os.sep):
                 if pathLevel.startswith("!"):
                     finalPath.append(pathLevel[1:])
                     resolvedPath = os.sep.join(finalPath)
@@ -124,6 +131,9 @@ class Template(object):
                 else:
                     finalPath.append(pathLevel)
             finalResolvedTemplate = os.sep.join(finalPath)
+
+        # restoring all the espaped tokens to the original value
+        finalResolvedTemplate = self.__escapeTemplateTokens(finalResolvedTemplate, 0)
 
         return finalResolvedTemplate
 
@@ -163,3 +173,34 @@ class Template(object):
             "Invalid template string!"
 
         self.__inputString = inputString
+
+    @classmethod
+    def __escapeTemplateTokens(cls, value, direction=1):
+        """
+        Escape special template tokens from the input string.
+        """
+        safeFunctionStart = '<{}>'.format(cls.__safeTokenId)
+        safeFunctionEnd = '</{}>'.format(cls.__safeTokenId)
+        safeLevelExist = '[{}]'.format(cls.__safeTokenId)
+        safeParentPath = '[[{}]]'.format(cls.__safeTokenId)
+
+        if direction:
+            return str(value).replace(
+                "(", safeFunctionStart
+            ).replace(
+                ")", safeFunctionEnd
+            ).replace(
+                "/!", safeLevelExist
+            ).replace(
+                "<parentPath>", safeParentPath
+            )
+
+        return str(value).replace(
+            safeFunctionStart, "("
+        ).replace(
+            safeFunctionEnd, ")"
+        ).replace(
+            safeLevelExist, "/!"
+        ).replace(
+            safeParentPath, "<parentPath>"
+        )
