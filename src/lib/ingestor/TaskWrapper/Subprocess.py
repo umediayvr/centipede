@@ -3,6 +3,7 @@ import sys
 import json
 import tempfile
 import subprocess
+from ulauncher import EnvModifier
 from .TaskWrapper import TaskWrapper
 from ..Task import Task
 from ..Crawler.Fs import Path
@@ -23,7 +24,20 @@ class Subprocess(TaskWrapper):
         """
         super(Subprocess, self).__init__()
 
+        # options for tweaking the environment that is going to be used by
+        # the process
+        self.setOption('envPrepend', {})
+        self.setOption('envAppend', {})
+        self.setOption('envOverride', {})
+        self.setOption('envUnset', [])
+
+        # tells which user is going to run the process (leave empty to use
+        # the current user)
         self.setOption('user', '')
+
+        # this flag can be used to ignore the exit code of the process (
+        # be careful with this flag)
+        self.setOption('ignoreExitCode', False)
 
     def _commandPrefix(self):
         """
@@ -68,15 +82,20 @@ class Subprocess(TaskWrapper):
                 command.replace('\\', '\\\\').replace('"', '\\"')
             )
 
-        env = dict(os.environ)
-        env[self.__serializedTaskEnv] = serializedTaskFile
+        envModifier = self.__envModifier()
+
+        # adding the serializedTaskFile information
+        envModifier.setOverrideVar(
+            self.__serializedTaskEnv,
+            serializedTaskFile
+        )
 
         # calling task as subprocess
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=env,
+            stderr=subprocess.STDOUT,
+            env=envModifier.generate(),
             shell=True
         )
 
@@ -91,7 +110,7 @@ class Subprocess(TaskWrapper):
             sys.stderr.flush()
 
         # checking if process has failed based on the return code
-        if process.returncode:
+        if process.returncode and not self.option('ignoreExitCode'):
             raise SubprocessFailedError(
                 'Error during the execution of the process, return code {}'.format(
                     process.returncode
@@ -131,6 +150,43 @@ class Subprocess(TaskWrapper):
         # so it can be resulted back by the parent process.
         with open(serializedTaskFilePath, 'w') as f:
             f.write(json.dumps(serializedCrawlers))
+
+    def __envModifier(self):
+        """
+        Return an Env Modifier instance.
+
+        This instance is based on the current environment and
+        populated with the options related with the environment tweaks.
+        """
+        # creating an env modifier object
+        envModifier = EnvModifier(os.environ)
+
+        # prepend
+        for varName, varValue in self.option('envPrepend').items():
+            envModifier.addPrependVar(
+                varName,
+                varValue
+            )
+
+        # append
+        for varName, varValue in self.option('envAppend').items():
+            envModifier.addAppendVar(
+                varName,
+                varValue
+            )
+
+        # override
+        for varName, varValue in self.option('envOverride').items():
+            envModifier.setOverrideVar(
+                varName,
+                varValue
+            )
+
+        # unset
+        for varName in self.option('envUnset'):
+            envModifier.addUnsetVar(varName)
+
+        return envModifier
 
 
 # registering task wrapper
