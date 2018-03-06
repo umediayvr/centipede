@@ -1,4 +1,5 @@
 import json
+from ..Resource import Resource
 from ..Crawler.Fs import Path
 from collections import OrderedDict
 
@@ -240,6 +241,9 @@ class Task(object):
                 'serializedCrawler': pathCrawler.toJson()
             })
 
+        # custom resources
+        loadedResources = Resource.get().loaded(ignoreFromEnvironment=True)
+
         # only including them as result if they are not empty
         if len(metadata):
             contents['metadata'] = metadata
@@ -249,6 +253,9 @@ class Task(object):
 
         if len(crawlerData):
             contents['crawlerData'] = crawlerData
+
+        if len(loadedResources):
+            contents['resources'] = loadedResources
 
         return json.dumps(
             contents,
@@ -297,6 +304,11 @@ class Task(object):
         taskOptions = contents.get("options", {})
         taskMetadata = contents.get("metadata", {})
         crawlerData = contents.get("crawlerData", [])
+        loadResources = contents.get("resources", [])
+
+        # loading resources
+        for loadResource in loadResources:
+            Resource.get().load(loadResource)
 
         # loading task
         task = Task.create(taskType)

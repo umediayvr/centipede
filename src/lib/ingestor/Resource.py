@@ -4,7 +4,10 @@ from glob import glob
 from collections import OrderedDict
 
 class InvalidResourceError(Exception):
-    """Invalid dependency Error."""
+    """Invalid Dependency Error."""
+
+class ResourceLoadError(Exception):
+    """Resource Load Error."""
 
 class Resource(object):
     """
@@ -74,12 +77,12 @@ class Resource(object):
         try:
             exec(open(filePath).read(), globals())
         except Exception as err:
-            sys.stderr.write('Error on loading dependency: "{0}"\n'.format(
-                filePath
-            ))
-            sys.stderr.flush()
-
-            raise err
+            raise ResourceLoadError(
+                'Error on loading resource: "{0}"\n{}\n'.format(
+                    filePath,
+                    str(err)
+                )
+            )
         else:
             # removing any previous occurrence of the same file
             # we don't want to show duplicated resources
@@ -97,7 +100,15 @@ class Resource(object):
         # loading any python file under the resources path
         for resourcePath in filter(os.path.exists, resourcePaths):
             for pythonFile in glob(os.path.join(resourcePath, '*.py')):
-                self.__loadToRuntime(pythonFile, 'environment')
+                try:
+                    self.__loadToRuntime(pythonFile, 'environment')
+                except ResourceLoadError as err:
+
+                    # we don't want to compromise the whole run-time because of
+                    # resource script that is under the dependency path. Instead, we want
+                    # to show an error message.
+                    sys.stderr.write(str(err))
+                    sys.stderr.flush()
 
 
 # loading resources by triggering the singleton

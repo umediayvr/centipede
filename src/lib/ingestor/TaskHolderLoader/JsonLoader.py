@@ -1,5 +1,4 @@
 import json
-import sys
 import os
 import glob
 from ..Task import Task
@@ -7,6 +6,7 @@ from ..Template import Template
 from ..PathCrawlerMatcher import PathCrawlerMatcher
 from ..TaskHolder import TaskHolder
 from ..TaskWrapper import TaskWrapper
+from ..Resource import Resource
 from .TaskHolderLoader import TaskHolderLoader
 
 class UnexpectedContentError(Exception):
@@ -123,15 +123,9 @@ class JsonLoader(TaskHolderLoader):
             for script in contents['scripts']:
                 scriptFiles = glob.glob(os.path.join(configPath, script))
 
+                # loading resource
                 for scriptFile in scriptFiles:
-                    try:
-                        exec(open(scriptFile).read(), globals())
-                    except Exception as err:
-                        sys.stderr.write('Error on executing script: "{0}"\n'.format(
-                            scriptFile
-                        ))
-
-                        raise err
+                    Resource.get().load(scriptFile)
 
         vars = {}
         if 'vars' in contents:
