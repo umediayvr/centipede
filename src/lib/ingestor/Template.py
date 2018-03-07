@@ -104,8 +104,11 @@ class Template(object):
                 )
 
                 if rawExpression not in self.__expressionValueCache:
-                    self.__expressionValueCache[rawExpression] = ExpressionEvaluator.parseRun(
-                        rawExpression
+                    # replacing any reserved token from the result of the expression
+                    self.__expressionValueCache[rawExpression] = self.__escapeTemplateTokens(
+                        ExpressionEvaluator.parseRun(
+                            rawExpression
+                        )
                     )
 
                 expressionValue = self.__expressionValueCache[rawExpression]
