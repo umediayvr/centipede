@@ -47,7 +47,7 @@ class SGImageSeqPublish(Task):
 
             comment = sourceCrawler.var('comment') if 'comment' in sourceCrawler.varNames() else self.option('comment')
             sceneFilePath = sourceCrawler.var('filePath')
-            sgTask = sourceCrawler.var('_sgTask') if '_sgTask' in sourceCrawler.varNames() else {}
+            sgTask = sourceCrawler.var('_sgTask') if '_sgTask' in sourceCrawler.varNames() else None
             publishedFileType = self.option('publishedFileType')
 
             version = sourceCrawler.var('version')
