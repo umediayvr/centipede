@@ -10,7 +10,8 @@ class Json(Ascii):
         """
         Parse the json contents.
         """
-        return json.load(open(self.var('filePath')))
+        with open(self.var('filePath')) as f:
+            return json.load(f)
 
     @classmethod
     def test(cls, pathHolder, parentCrawler):
