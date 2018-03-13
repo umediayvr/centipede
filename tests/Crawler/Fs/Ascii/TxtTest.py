@@ -10,9 +10,9 @@ class TxtTest(BaseTestCase):
 
     __txtFile = os.path.join(BaseTestCase.dataDirectory(), "test.txt")
 
-    def testJsonCrawler(self):
+    def testTxtCrawler(self):
         """
-        Test that the Json crawler test works properly.
+        Test that the Txt crawler test works properly.
         """
         crawler = Path.create(PathHolder(self.__txtFile))
         self.assertIsInstance(crawler, Txt)
@@ -21,7 +21,7 @@ class TxtTest(BaseTestCase):
 
     def testContents(self):
         """
-        Test that json files are parsed properly.
+        Test that txt files are parsed properly.
         """
         crawler = Path.create(PathHolder(self.__txtFile))
         testData = "testing txt file\nwith random data\n\n1 2 3\n"
