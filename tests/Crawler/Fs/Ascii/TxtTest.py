@@ -16,10 +16,16 @@ class TxtTest(BaseTestCase):
         """
         crawler = Path.create(PathHolder(self.__txtFile))
         self.assertIsInstance(crawler, Txt)
+
+    def testTxtVariables(self):
+        """
+        Test that variables are set properly.
+        """
+        crawler = Path.create(PathHolder(self.__txtFile))
         self.assertEqual(crawler.var("type"), "txt")
         self.assertEqual(crawler.var("category"), "ascii")
 
-    def testContents(self):
+    def testTxtContents(self):
         """
         Test that txt files are parsed properly.
         """

@@ -16,10 +16,16 @@ class JsonTest(BaseTestCase):
         """
         crawler = Path.create(PathHolder(self.__jsonFile))
         self.assertIsInstance(crawler, Json)
+
+    def testJsonVariables(self):
+        """
+        Test that variables are set properly.
+        """
+        crawler = Path.create(PathHolder(self.__jsonFile))
         self.assertEqual(crawler.var("type"), "json")
         self.assertEqual(crawler.var("category"), "ascii")
 
-    def testContents(self):
+    def testJsonContents(self):
         """
         Test that json files are parsed properly.
         """
