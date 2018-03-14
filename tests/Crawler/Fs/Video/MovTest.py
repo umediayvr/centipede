@@ -9,6 +9,7 @@ class MovTest(BaseTestCase):
     """Test Texture crawler."""
 
     __movFile = os.path.join(BaseTestCase.dataDirectory(), "test.mov")
+    __movNoTimecodeFile = os.path.join(BaseTestCase.dataDirectory(), "testNoTimecode.mov")
 
     def testMovCrawler(self):
         """
@@ -28,6 +29,10 @@ class MovTest(BaseTestCase):
         self.assertEqual(crawler.var("height"), 1080)
         self.assertEqual(crawler.var("firstFrame"), 1)
         self.assertEqual(crawler.var("lastFrame"), 12)
+
+        crawler = Path.create(PathHolder(self.__movNoTimecodeFile))
+        self.assertFalse("firstFrame" in crawler.varNames())
+        self.assertFalse("lastFrame" in crawler.varNames())
 
     def testMovTags(self):
         """
