@@ -100,7 +100,7 @@ class Template(object):
                 # to an expression, replacing it with the parent path at this point.
                 rawExpression = rawExpression.replace(
                     "<parentPath>",
-                    self.__escapeTemplateTokens(finalResolvedTemplate.replace("/!", ""), 0)
+                    self.__escapeTemplateTokens(finalResolvedTemplate.replace("/!", "/"), 0)
                 )
 
                 if rawExpression not in self.__expressionValueCache:
