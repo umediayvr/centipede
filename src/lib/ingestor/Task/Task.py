@@ -1,6 +1,7 @@
 import json
 from ..Resource import Resource
 from ..Crawler.Fs import Path
+from ..Template import Template
 from collections import OrderedDict
 
 # compatibility with python 2/3
@@ -26,6 +27,12 @@ class Task(object):
     Abstract Task.
 
     A task is used to operate over file paths resolved by the template runner.
+
+    Optional options:
+        - filterTemplate: This is used when querying the crawlers from the task (Task.pathCrawlers).
+        It works by filtering out crawlers based on the template defined as value of the option.
+        When the processed template results: "False", "false" or "0" then the crawler is filtered
+        out from the pathCrawlers result.
     """
 
     __registered = {}
@@ -35,9 +42,11 @@ class Task(object):
         Create a task object.
         """
         self.__pathCrawlers = OrderedDict()
-        self.__options = {}
         self.__metadata = {}
         self.__taskType = taskType
+        self.__options = {
+            "filterTemplate": ""
+        }
 
     def type(self):
         """
@@ -160,11 +169,24 @@ class Task(object):
 
         return self.__pathCrawlers[pathCrawler]
 
-    def pathCrawlers(self):
+    def pathCrawlers(self, useFilterTemplateOption=True):
         """
         Return a list of path crawlers associated with the task.
         """
-        return list(self.__pathCrawlers.keys())
+        result = list(self.__pathCrawlers.keys())
+
+        # filtering the pathCrawler result based on the "filterTemplate" option
+        filterTemplate = str(self.option('filterTemplate'))
+        if useFilterTemplateOption and filterTemplate:
+            filteredResult = []
+            for crawler in result:
+                templateResult = Template(filterTemplate).valueFromCrawler(crawler)
+                if str(templateResult).lower() not in ['false', '0']:
+                    filteredResult.append(crawler)
+
+            result = filteredResult
+
+        return result
 
     def add(self, pathCrawler, filePath=''):
         """
@@ -182,6 +204,13 @@ class Task(object):
         """
         Perform and result a list of crawlers created by task.
         """
+        # in case all path crawlers were filtered out, returning right away.
+        # \TODO: we may want to have the behaviour of don't performing the task
+        # when the task does not have any path crawler. Right now, it's only applied
+        # when all crawlers were filtered out by the filter template option.
+        if len(self.pathCrawlers(useFilterTemplateOption=False)) and len(self.pathCrawlers()) == 0:
+            return []
+
         contextVars = {}
         for crawler in self.pathCrawlers():
             for ctxVarName in crawler.contextVarNames():
