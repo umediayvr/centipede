@@ -3,8 +3,10 @@ import glob
 import unittest
 from ...BaseTestCase import BaseTestCase
 from ingestor.Crawler.Fs import Path
+from ingestor.Crawler.Fs import File
 from ingestor.PathHolder import PathHolder
 from ingestor.Crawler.Fs.Render import ExrRender
+from ingestor.Crawler.Fs.Image import Exr
 from ingestor.Crawler.Crawler import InvalidVarError
 from ingestor.Crawler.Crawler import InvalidTagError
 
@@ -72,13 +74,15 @@ class PathTest(BaseTestCase):
         """
         Test that you can register a new Path crawler.
         """
-        class DummyCrawler(Path):
+        class DummyCrawler(File):
             @classmethod
             def test(cls, pathHolder, parentCrawler):
                 return False
 
         Path.register("dummy", DummyCrawler)
         self.assertIn("dummy", Path.registeredNames())
+        self.assertIn(DummyCrawler, Path.registeredSubclasses("generic"))
+        self.assertIn(DummyCrawler, Path.registeredSubclasses(Path))
 
     def testPathClone(self):
         """
@@ -101,6 +105,13 @@ class PathTest(BaseTestCase):
         self.assertCountEqual(crawler.varNames(), crawlerResult.varNames())
         self.assertCountEqual(crawler.contextVarNames(), crawlerResult.contextVarNames())
         self.assertCountEqual(crawler.tagNames(), crawlerResult.tagNames())
+
+    def testPathCreate(self):
+        """
+        Test that you can create a crawler with a specific type.
+        """
+        crawler = Path.createFromPath(self.__turntableFile, "exr")
+        self.assertIsInstance(crawler, Exr)
 
 
 if __name__ == "__main__":
