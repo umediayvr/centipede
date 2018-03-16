@@ -4,6 +4,8 @@ from ....BaseTestCase import BaseTestCase
 from ingestor.Crawler.Fs import Path
 from ingestor.PathHolder import PathHolder
 from ingestor.Crawler.Fs.Scene import MayaScene
+from ingestor.Crawler.Fs.Scene import Scene
+
 
 class MayaSceneTest(BaseTestCase):
     """Test Maya Scene crawler."""
@@ -27,6 +29,13 @@ class MayaSceneTest(BaseTestCase):
         crawler = Path.create(PathHolder(self.__maFile))
         self.assertEqual(crawler.var("type"), "mayaScene")
         self.assertEqual(crawler.var("category"), "scene")
+
+    def testMayaSceneExtensions(self):
+        """
+        Test that the list of extensions matching maya scenes is correct.
+        """
+        self.assertCountEqual(MayaScene.extensions(), ["ma", "mb"])
+        self.assertRaises(NotImplementedError, Scene.extensions)
 
 
 if __name__ == "__main__":

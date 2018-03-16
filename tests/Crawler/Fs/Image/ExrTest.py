@@ -1,5 +1,6 @@
 import os
 import unittest
+import glob
 from ....BaseTestCase import BaseTestCase
 from ingestor.Crawler.Fs import Path
 from ingestor.PathHolder import PathHolder
@@ -65,6 +66,24 @@ class ExrTest(BaseTestCase):
         self.assertEqual(crawler.var("name"), "test")
         self.assertEqual(crawler.var("frame"), 1)
         self.assertEqual(crawler.var("padding"), 4)
+
+    def testImageSequenceGroup(self):
+        """
+        Test that an image sequence is grouped properly.
+        """
+        paths = glob.glob("{}/test.*.exr".format(self.dataDirectory()))
+        crawlers = list(map(lambda x: Path.create(PathHolder(x)), paths))
+        crawlers.append(Path.create(PathHolder(self.__exrFile)))
+        grouped = Exr.group(crawlers)
+        self.assertEqual(len(grouped), 2)
+        self.assertEqual(len(grouped[0]), len(paths))
+        self.assertEqual(len(grouped[1]), 1)
+        groupedPaths = list(map(lambda x: x.var("filePath"), grouped[0]))
+        self.assertEqual(groupedPaths, paths)
+        self.assertEqual(grouped[1][0].var("filePath"), self.__exrFile)
+        reversedGrouped = Exr.sortGroup(grouped, lambda x: x.var('filePath'), True)
+        reversedPaths = list(map(lambda x: x.var("filePath"), reversedGrouped[0]))
+        self.assertEqual(reversedPaths, sorted(paths, reverse=True))
 
 
 if __name__ == "__main__":
