@@ -34,7 +34,7 @@ class Directory(Path):
 
     def isLeaf(self):
         """
-        Return a bollean telling if the crawler is leaf.
+        Return a boolean telling if the crawler is leaf.
         """
         return False
 
@@ -46,7 +46,7 @@ class Directory(Path):
         currentPath = self.pathHolder().path()
         for childFile in os.listdir(currentPath):
 
-            # skipping any file with an ilegal name
+            # skipping any file with an illegal name
             if not re.match(self.__invalidFileNameRegex, childFile):
                 sys.stderr.write(
                     'file ignored: "{}" (invalid characters)\n'.format(
