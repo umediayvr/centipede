@@ -55,11 +55,11 @@ class DCC(Subprocess):
         """
         For re-implementation: should return a string which is executed as subprocess.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     @classmethod
     def _hookName(cls):
         """
         For re-implementation: should return a string containing the name used for the hook registered in basetools.
         """
-        raise NotImplemented
+        raise NotImplementedError

@@ -125,7 +125,7 @@ class Path(Crawler):
         For re-implementation: Should return a boolean telling if the
         crawler implementation can crawler it.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     @staticmethod
     def register(name, crawlerClass):
