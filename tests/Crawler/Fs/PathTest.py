@@ -91,6 +91,17 @@ class PathTest(BaseTestCase):
         self.assertCountEqual(crawler.tagNames(), clone.tagNames())
         self.assertRaises(NotImplementedError, super(Path, crawler).clone)
 
+    def testPathJson(self):
+        """
+        Test that you can convert a Path crawler to json and back.
+        """
+        crawler = Path.create(PathHolder(self.__turntableFile))
+        jsonResult = crawler.toJson()
+        crawlerResult = Path.createFromJson(jsonResult)
+        self.assertCountEqual(crawler.varNames(), crawlerResult.varNames())
+        self.assertCountEqual(crawler.contextVarNames(), crawlerResult.contextVarNames())
+        self.assertCountEqual(crawler.tagNames(), crawlerResult.tagNames())
+
 
 if __name__ == "__main__":
     unittest.main()
