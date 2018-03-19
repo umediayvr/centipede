@@ -231,7 +231,7 @@ class Path(Crawler):
 
         # setting tags
         for tagName, tagValue in contents["tags"].items():
-            crawler.setVar(tagName, tagValue)
+            crawler.setTag(tagName, tagValue)
 
         return crawler
 
