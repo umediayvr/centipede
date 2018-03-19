@@ -22,6 +22,9 @@ class TaskInvalidOptionError(Exception):
 class TaskInvalidMetadataError(Exception):
     """Task invalid metadata error."""
 
+class TaskInvalidOptionValue(Exception):
+    """Task invalid option value error."""
+
 class Task(object):
     """
     Abstract Task.
@@ -33,6 +36,12 @@ class Task(object):
         It works by filtering out crawlers based on the template defined as value of the option.
         When the processed template results: "False", "false" or "0" then the crawler is filtered
         out from the pathCrawlers result.
+
+        - emptyFilterResult: This option should be used in combination with
+        "filterTemplate" and only works when filterTemplate filters out all crawlers.
+        By assigning "taskCrawlers" then the crawlers in the task are returned as result (Similar
+        behaviour about what happens in nuke when a node is disabled). Otherwise, when assigned
+        with "empty" the task results an empty list (default).
     """
 
     __registered = {}
@@ -45,7 +54,8 @@ class Task(object):
         self.__metadata = {}
         self.__taskType = taskType
         self.__options = {
-            "filterTemplate": ""
+            "filterTemplate": "",
+            "emptyFilterResult": "empty"
         }
 
     def type(self):
@@ -208,8 +218,19 @@ class Task(object):
         # \TODO: we may want to have the behaviour of don't performing the task
         # when the task does not have any path crawler. Right now, it's only applied
         # when all crawlers were filtered out by the filter template option.
-        if len(self.pathCrawlers(useFilterTemplateOption=False)) and len(self.pathCrawlers()) == 0:
-            return []
+        unfilteredCrawlers = self.pathCrawlers(useFilterTemplateOption=False)
+        if len(unfilteredCrawlers) and len(self.pathCrawlers()) == 0:
+            if self.option('emptyFilterResult') == 'taskCrawlers':
+                return unfilteredCrawlers
+            elif self.option('emptyFilterResult') == 'empty':
+                return []
+            else:
+                raise TaskInvalidOptionValue(
+                    'Invalid option value "{}" for "{}"'.format(
+                        self.option('emptyFilterResult'),
+                        "emptyFilterResult"
+                    )
+                )
 
         contextVars = {}
         for crawler in self.pathCrawlers():
