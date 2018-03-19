@@ -20,7 +20,7 @@
       "matchVars": {
       },
       "taskOptions": {
-        "maketxArgs": "-v -u --unpremult --oiio"
+        "maketxArgs": "--oiio --colorconvert sRGB linear"
       },
       "taskWrapper": "subprocess",
       "taskWrapperOptions": {
