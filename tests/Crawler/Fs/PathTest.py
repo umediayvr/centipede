@@ -113,6 +113,17 @@ class PathTest(BaseTestCase):
         crawler = Path.createFromPath(self.__turntableFile, "exr")
         self.assertIsInstance(crawler, Exr)
 
+    def testPathHolder(self):
+        """
+        Test PathHolder functions.
+        """
+        pathHolder = PathHolder(self.__turntableFile)
+        self.assertEqual(pathHolder.size(), 5430903)
+        self.assertEqual(pathHolder.name(), "RND_ass_lookdev_default_beauty_tt.1001")
+        self.assertTrue(pathHolder.exists())
+        pathHolder = PathHolder("/")
+        self.assertEqual(pathHolder.baseName(), os.sep)
+
 
 if __name__ == "__main__":
     unittest.main()
