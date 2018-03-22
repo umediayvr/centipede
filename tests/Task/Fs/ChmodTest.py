@@ -18,12 +18,13 @@ class ChmodTest(BaseTestCase):
         chmodTask = Task.create('chmod')
         chmodTask.add(pathCrawler, self.__path)
         for permission in ["644", "444", "744", "664"]:
-            chmodTask.setOption('directoryMode', permission)
-            chmodTask.setOption('fileMode', permission)
-            result = chmodTask.output()
-            self.assertEqual(len(result), 1)
-            crawler = result[0]
-            self.assertEqual(self.__getPermission(crawler.var('filePath')), permission)
+            with self.subTest(permission=permission):
+                chmodTask.setOption('directoryMode', permission)
+                chmodTask.setOption('fileMode', permission)
+                result = chmodTask.output()
+                self.assertEqual(len(result), 1)
+                crawler = result[0]
+                self.assertEqual(self.__getPermission(crawler.var('filePath')), permission)
 
     def testChmodDir(self):
         """
