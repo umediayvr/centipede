@@ -22,8 +22,10 @@ class Checksum(Task):
             targetFilePath = self.filePath(pathCrawler)
 
             # TODO: change md5 for xxHash
-            sourceFileHash = hashlib.md5(open(sourceFilePath, 'rb').read()).hexdigest()
-            targetFileHash = hashlib.md5(open(targetFilePath, 'rb').read()).hexdigest()
+            with open(sourceFilePath, 'rb') as sourceFile:
+                sourceFileHash = hashlib.md5(sourceFile.read()).hexdigest()
+            with open(targetFilePath, 'rb') as targetFile:
+                targetFileHash = hashlib.md5(targetFile.read()).hexdigest()
 
             if sourceFileHash != targetFileHash:
                 raise ChecksumMatchError(
