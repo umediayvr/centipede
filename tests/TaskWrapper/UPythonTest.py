@@ -18,8 +18,7 @@ class UPythonTest(BaseTestCase):
         Test that the UPython subprocess works properly when launching it from another subprocess.
         """
         resource = Resource.get()
-        if self.__taskPath not in resource.loaded():
-            resource.load(self.__taskPath)
+        resource.load(self.__taskPath)
         pathCrawler = Path.createFromPath(self.__sourcePath)
         dummyTask = Task.create('uPythonTestTask')
         dummyTask.add(pathCrawler)
@@ -35,8 +34,7 @@ class UPythonTest(BaseTestCase):
         Test that the UPython subprocess works properly.
         """
         resource = Resource.get()
-        if self.__taskPath not in resource.loaded():
-            resource.load(self.__taskPath)
+        resource.load(self.__taskPath)
         pathCrawler = Path.createFromPath(self.__sourcePath)
         dummyTask = Task.create('uPythonTestTask')
         dummyTask.add(pathCrawler)
