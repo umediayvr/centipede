@@ -2,6 +2,13 @@ import os
 import shutil
 from ..Task import Task
 
+
+class CopyTargetDirectoryError(Exception):
+    """Copy Target Directory Error."""
+
+    pass
+
+
 class Copy(Task):
     """
     Copies a file to the filePath.
@@ -23,6 +30,14 @@ class Copy(Task):
             # copying the file to the new target
             sourceFilePath = pathCrawler.var('filePath')
             targetFilePath = filePath
+
+            # Check if the target path already exists, if it is file remove it else raise an exception
+            if os.path.isfile(targetFilePath):
+                os.remove(targetFilePath)
+            elif os.path.isdir(targetFilePath):
+                raise CopyTargetDirectoryError(
+                    'Target directory already exists {}'.format(targetFilePath)
+                )
 
             # doing the copy
             shutil.copy2(
