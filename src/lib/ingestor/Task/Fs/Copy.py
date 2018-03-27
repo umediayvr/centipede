@@ -31,11 +31,12 @@ class Copy(Task):
             sourceFilePath = pathCrawler.var('filePath')
             targetFilePath = filePath
 
-            # Check if the target path already exists, if it is file remove it else raise an execption
+            # Check if the target path already exists, if it is file remove it else raise an exception
             if os.path.isfile(targetFilePath):
                 os.remove(targetFilePath)
             elif os.path.isdir(targetFilePath):
-                raise CopyTargetDirectoryError
+                raise CopyTargetDirectoryError('Target directory already exist '
+                                               '{targetFilePath}'.format(targetFilePath=targetFilePath))
 
             # doing the copy
             shutil.copy2(
