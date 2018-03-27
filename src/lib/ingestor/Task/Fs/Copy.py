@@ -35,8 +35,9 @@ class Copy(Task):
             if os.path.isfile(targetFilePath):
                 os.remove(targetFilePath)
             elif os.path.isdir(targetFilePath):
-                raise CopyTargetDirectoryError('Target directory already exist '
-                                               '{targetFilePath}'.format(targetFilePath=targetFilePath))
+                raise CopyTargetDirectoryError(
+                    'Target directory already exists {}'.format(targetFilePath)
+                )
 
             # doing the copy
             shutil.copy2(
