@@ -42,7 +42,7 @@ class _Math(object):
     @staticmethod
     def divideInt(*args):
         """
-        Divide (cast to integeselfr).
+        Divide (cast to integer).
         """
         intArgs = _Math.__castToInt(*args)
         return int(operator.truediv(
