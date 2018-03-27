@@ -31,10 +31,10 @@ class Copy(Task):
             sourceFilePath = pathCrawler.var('filePath')
             targetFilePath = filePath
 
-            # Check if the target path already exist, if is file removed else raise and execption
-            if os.path.exists(targetFilePath) and os.path.isfile(targetFilePath):
+            # Check if the target path already exists, if it is file removed it else raise and execption
+            if os.path.isfile(targetFilePath):
                 os.remove(targetFilePath)
-            elif os.path.exists(targetFilePath) and not os.path.isfile(targetFilePath):
+            elif os.path.isdir(targetFilePath):
                 raise CopyTargetDirectoryError
 
             # doing the copy
