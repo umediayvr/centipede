@@ -51,6 +51,28 @@ class _Math(object):
         ))
 
     @staticmethod
+    def minimumInt(*args):
+        """
+        Minimum (cast to integer).
+        """
+        intArgs = _Math.__castToInt(*args)
+        return int(min(
+            intArgs[0],
+            intArgs[1]
+        ))
+
+    @staticmethod
+    def maximumInt(*args):
+        """
+        Maximum (cast to integer).
+        """
+        intArgs = _Math.__castToInt(*args)
+        return int(max(
+            intArgs[0],
+            intArgs[1]
+        ))
+
+    @staticmethod
     def __castToInt(*args):
         """
         Cast the input args to int.
@@ -80,4 +102,16 @@ ExpressionEvaluator.register(
 ExpressionEvaluator.register(
     'div',
     _Math.divideInt
+)
+
+# minimum
+ExpressionEvaluator.register(
+    'min',
+    _Math.minimumInt
+)
+
+# maximum
+ExpressionEvaluator.register(
+    'max',
+    _Math.maximumInt
 )
