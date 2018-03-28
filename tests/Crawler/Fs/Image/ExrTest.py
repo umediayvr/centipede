@@ -10,7 +10,7 @@ class ExrTest(BaseTestCase):
     """Test Exr crawler."""
 
     __exrFile = os.path.join(BaseTestCase.dataDirectory(), "test.exr")
-    __exrSeq = os.path.join(BaseTestCase.dataDirectory(), "test.0001.exr")
+    __exrSeq = os.path.join(BaseTestCase.dataDirectory(), "testSeq.0001.exr")
     __exrAmbiguousSeq = os.path.join(BaseTestCase.dataDirectory(), "test_0001.exr")
 
     def testExrCrawler(self):
@@ -58,7 +58,7 @@ class ExrTest(BaseTestCase):
         """
         crawler = Path.create(PathHolder(self.__exrSeq))
         self.assertEqual(crawler.var("imageType"), "sequence")
-        self.assertEqual(crawler.var("name"), "test")
+        self.assertEqual(crawler.var("name"), "testSeq")
         self.assertEqual(crawler.var("frame"), 1)
         self.assertEqual(crawler.var("padding"), 4)
         crawler = Path.create(PathHolder(self.__exrAmbiguousSeq))
@@ -71,7 +71,7 @@ class ExrTest(BaseTestCase):
         """
         Test that an image sequence is grouped properly.
         """
-        paths = glob.glob("{}/test.*.exr".format(self.dataDirectory()))
+        paths = glob.glob("{}/testSeq.*.exr".format(self.dataDirectory()))
         crawlers = list(map(lambda x: Path.create(PathHolder(x)), paths))
         crawlers.append(Path.create(PathHolder(self.__exrFile)))
         grouped = Exr.group(crawlers)

@@ -7,7 +7,7 @@ from ingestor.Crawler.Fs import Path
 class ResizeImageTest(BaseTestCase):
     """Test ResizeImage task."""
 
-    __sourcePath = os.path.join(BaseTestCase.dataDirectory(), "test.0001.exr")
+    __sourcePath = os.path.join(BaseTestCase.dataDirectory(), "testSeq.0001.exr")
     __testPath = os.path.join(BaseTestCase.dataDirectory(), "resizeImage.jpg")
     __targetPath = os.path.join(BaseTestCase.dataDirectory(), "testToDelete.jpg")
 

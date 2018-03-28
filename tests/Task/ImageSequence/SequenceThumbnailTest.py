@@ -8,7 +8,7 @@ from ingestor.Crawler.Fs import Path
 class SequenceThumbnailTest(BaseTestCase):
     """Test SequenceThumbnail task."""
 
-    __sourcePath = os.path.join(BaseTestCase.dataDirectory(), "test.*.exr")
+    __sourcePath = os.path.join(BaseTestCase.dataDirectory(), "testSeq.*.exr")
     __testPath = os.path.join(BaseTestCase.dataDirectory(), "thumbnailSequence.jpg")
     __targetPath = os.path.join(BaseTestCase.dataDirectory(), "testToDelete.jpg")
 
