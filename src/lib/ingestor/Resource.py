@@ -75,7 +75,8 @@ class Resource(object):
         Execute a python resource.
         """
         try:
-            exec(open(filePath).read(), globals())
+            with open(filePath) as f:
+                exec(f.read(), globals())
         except Exception as err:
             raise ResourceLoadError(
                 'Error on loading resource: "{0}"\n{}\n'.format(
