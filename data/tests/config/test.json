@@ -22,15 +22,19 @@
           "testCrawler"
         ],
         "matchVars": {
-        "imageType": [
-          "sequence"
-        ],
-        "testVariable": true
+          "imageType": [
+            "sequence"
+          ],
+          "testVariable": true
         },
         "taskWrapper": "subprocess",
         "taskWrapperOptions": {
         "user": "$UMEDIA_VERSION_PUBLISHER_USER"
         }
+      },
+      {
+        "task": "remove",
+        "targetTemplate": "{filePath}"
       }
       ]
     }
