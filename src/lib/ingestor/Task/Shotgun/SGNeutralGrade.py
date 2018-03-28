@@ -1,20 +1,18 @@
 import os
 import xml.etree.ElementTree as ElementTree
-from collections import OrderedDict
 from ..Task import Task
 from xml.dom import minidom
 
 
 class SGNeutralGrade(Task):
     """
-    Get the values from neutral grades and update that information in shotgun
+    Get the values from neutral grades and update that information in shotgun.
     """
 
     def _perform(self):
         """
         Perform the task.
         """
-        sourceSequenceCrawlers = OrderedDict()
         for pathCrawler in self.pathCrawlers():
             targetFilePath = self.filePath(pathCrawler)
 
@@ -22,21 +20,24 @@ class SGNeutralGrade(Task):
             if not os.path.exists(baseDir):
                 os.makedirs(baseDir)
 
-            project = pathCrawler.var("job")
-            shot = pathCrawler.var("shot")
-            seq = pathCrawler.var("seq")
-
-            # writting a xml ccc file
+            # writing a xml cc file
             self.__writeXMLFile(pathCrawler, targetFilePath)
 
             # Publish file in sg
-            self.__publishFileInSG(project, shot, targetFilePath)
+
+            sgTask = Task.create('sgPublish')
+            sgTask.add(pathCrawler, targetFilePath)
+            sgTask.setOption('comment', 'Neutral CDL')
+            sgTask.setOption('version', 0)
+            sgTask.setOption('publishedFileType', 'CC')
+            sgTask.setOption('publishName', os.path.basename(targetFilePath))
+            sgTask.output()
 
         return super(SGNeutralGrade, self)._perform()
 
     def __writeXMLFile(self, pathCrawler, targetFilePath):
         """
-        Creates a xml file with the same structure as the ccc file.
+        Create a xml file with the same structure as the cc file.
 
         <ColorCorrection>
            <SOPNode>
@@ -49,9 +50,9 @@ class SGNeutralGrade(Task):
            </SatNode>
         </ColorCorrection>
 
-        :param pathCrawler: The crawler that have all the informatioon need it to write the xml file
+        :param pathCrawler: The crawler that has the information needed to write the xml file
         :type pathCrawler: list
-        :param targetFilePath: The path of the file that will be publish it
+        :param targetFilePath: The path of the file that will be published
         :type targetFilePath: str
         """
         root = ElementTree.Element("ColorCorrection")
@@ -84,47 +85,6 @@ class SGNeutralGrade(Task):
         xmlstr = minidom.parseString(ElementTree.tostring(root)).toprettyxml(indent="   ")
         with open(targetFilePath, "w") as f:
             f.write(xmlstr)
-
-    def __publishFileInSG(self, project, shot, targetFilePath):
-        """
-        Publish a file linked to a specific shot and project
-
-        :param project: The name of the project
-        :type project: str
-        :param shot: The name of the shot
-        :type shot: str
-        :param targetFilePath: The path of the file that will be publish it
-        :type targetFilePath: str
-        """
-        from ushotgun import Session
-        sg = Session.get()
-
-        sgProject = sg.find_one(
-            'Project',
-            [['name', 'is', project]],
-            []
-        )
-
-        filters = [['code', 'is', shot], ['project', 'is', sgProject]]
-        # Shotgun operations
-        sgShot = sg.find_one(
-            'Shot',
-            filters,
-            []
-        )
-
-        sgFileType = sg.find_one('PublishedFileType', filters=[["code", "is", "CCC"]])
-
-        data = {
-            'entity': sgShot,
-            'path': {'local_path': targetFilePath},
-            'published_file_type': sgFileType,
-            'name': os.path.basename(targetFilePath),
-            'code': os.path.basename(targetFilePath),
-            'project': sgProject
-
-        }
-        sg.create('PublishedFile', data)
 
 
 # registering task
