@@ -104,7 +104,7 @@ class Path(Crawler):
             filteredCrawlers.update(
                     filter(lambda x: isinstance(x, subClasses), self.__globCache)
                     )
-            return list(filteredCrawlers)
+        return list(filteredCrawlers)
 
     def globFromParent(self, filterTypes=[], useCache=True):
         """
