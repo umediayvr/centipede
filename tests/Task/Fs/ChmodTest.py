@@ -31,8 +31,10 @@ class ChmodTest(BaseTestCase):
         Test that the chmod task works properly on a directory.
         """
         pathCrawler = Path.createFromPath(self.__dir)
+        filePathCrawler = Path.createFromPath(self.__path)
         chmodTask = Task.create('chmod')
         chmodTask.add(pathCrawler, self.__dir)
+        chmodTask.add(filePathCrawler, self.__dir)
         dirPerm = "775"
         filePerm = "664"
         chmodTask.setOption('directoryMode', dirPerm)
@@ -41,6 +43,29 @@ class ChmodTest(BaseTestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(self.__getPermission(self.__dir), dirPerm)
         self.assertEqual(self.__getPermission(self.__path), filePerm)
+
+    def testSymlink(self):
+        """
+        Test that hardlinks are skipped when running the chmod task.
+        """
+        link = os.path.join(self.dataDirectory(), 'symlink.exr')
+        os.symlink(self.__path, link)
+        self.assertEqual(self.__getPermission(link), '664')
+        self.assertTrue(os.path.islink(link))
+        pathCrawler = Path.createFromPath(link)
+        chmodTask = Task.create('chmod')
+        chmodTask.add(pathCrawler, link)
+        chmodTask.setOption('directoryMode', '775')
+        chmodTask.setOption('fileMode', '775')
+        chmodTask.output()
+        self.assertEqual(self.__getPermission(link), '664')
+        self.addCleanup(self.cleanup, link)
+
+    def cleanup(self, fileToDelete):
+        """
+        Remove file created during test.
+        """
+        os.remove(fileToDelete)
 
     @staticmethod
     def __getPermission(filePath):

@@ -35,6 +35,13 @@
       {
         "task": "remove",
         "targetTemplate": "{filePath}"
+      },
+      {
+        "task": "copy",
+        "targetTemplate": "{configPath}/dummy.exr",
+        "matchVars": {
+          "dummyVariable": true
+        }
       }
       ]
     }
