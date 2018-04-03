@@ -41,7 +41,7 @@ class TemplateTest(BaseTestCase):
         variables = {'otherVar': 'value'}
         self.assertRaises(VariableNotFoundError, Template('{var}').value, variables)
         variables['var'] = 'test'
-        self.assertEqual(Template('{var}').value(), 'test')
+        self.assertEqual(Template('{var}').value(variables), 'test')
 
 
 if __name__ == "__main__":
