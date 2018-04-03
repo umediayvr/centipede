@@ -19,9 +19,9 @@ class ChecksumTest(BaseTestCase):
         Create copy of the source file.
         """
         shutil.copy2(
-                cls.__sourcePath,
-                cls.__targetPath
-            )
+            cls.__sourcePath,
+            cls.__targetPath
+        )
 
     def testChecksum(self):
         """

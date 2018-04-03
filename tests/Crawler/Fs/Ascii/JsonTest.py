@@ -31,10 +31,10 @@ class JsonTest(BaseTestCase):
         """
         crawler = Path.create(PathHolder(self.__jsonFile))
         testData = {
-                    "testList": [1, 1.2, "value"],
-                    "testDict": {"key": "value", "number": 1},
-                    "testString": "blah"
-                    }
+            "testList": [1, 1.2, "value"],
+            "testDict": {"key": "value", "number": 1},
+            "testString": "blah"
+        }
         self.assertEqual(crawler.contents(), testData)
 
 

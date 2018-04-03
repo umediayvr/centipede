@@ -62,13 +62,13 @@ class TaskTest(BaseTestCase):
         self.assertCountEqual(dummyTask.optionNames(), clone.optionNames())
         self.assertCountEqual(dummyTask.metadataNames(), clone.metadataNames())
         self.assertCountEqual(
-                map(dummyTask.filePath, dummyTask.pathCrawlers()),
-                map(clone.filePath, clone.pathCrawlers())
-                )
+            map(dummyTask.filePath, dummyTask.pathCrawlers()),
+            map(clone.filePath, clone.pathCrawlers())
+        )
         self.assertCountEqual(
-                map(lambda x: x.var('filePath'), dummyTask.pathCrawlers()),
-                map(lambda x: x.var('filePath'), clone.pathCrawlers())
-                )
+            map(lambda x: x.var('filePath'), dummyTask.pathCrawlers()),
+            map(lambda x: x.var('filePath'), clone.pathCrawlers())
+        )
 
     def testTaskOptions(self):
         """
@@ -103,12 +103,12 @@ class TaskTest(BaseTestCase):
         result = dummyTask.output()
         self.assertEqual(len(result), len(crawlers))
         self.assertCountEqual(
-                map(lambda x: x.var('filePath'), result),
-                targetPaths
+            map(lambda x: x.var('filePath'), result),
+            targetPaths
         )
         self.assertEqual(
-                list(map(lambda x: x.var('contextVarTest'), result)),
-                [1]*len(crawlers)
+            list(map(lambda x: x.var('contextVarTest'), result)),
+            [1]*len(crawlers)
         )
         for crawler in result:
             self.assertIn('contextVarTest', crawler.contextVarNames())
@@ -119,9 +119,9 @@ class TaskTest(BaseTestCase):
         dummyTask.setOption('emptyFilterResult', 'taskCrawlers')
         result = dummyTask.output()
         self.assertCountEqual(
-                map(lambda x: x.var('filePath'), result),
-                map(lambda x: x.var('filePath'), crawlers)
-                )
+            map(lambda x: x.var('filePath'), result),
+            map(lambda x: x.var('filePath'), crawlers)
+        )
         dummyTask.setOption('emptyFilterResult', 'badOption')
         self.assertRaises(TaskInvalidOptionValue, dummyTask.output)
 
@@ -146,13 +146,13 @@ class TaskTest(BaseTestCase):
         self.assertCountEqual(dummyTask.optionNames(), resultTask.optionNames())
         self.assertCountEqual(dummyTask.metadataNames(), resultTask.metadataNames())
         self.assertCountEqual(
-                map(lambda x: x.var('filePath'), dummyTask.pathCrawlers()),
-                map(lambda x: x.var('filePath'), resultTask.pathCrawlers())
-                )
+            map(lambda x: x.var('filePath'), dummyTask.pathCrawlers()),
+            map(lambda x: x.var('filePath'), resultTask.pathCrawlers())
+        )
         self.assertCountEqual(
-                map(dummyTask.filePath, dummyTask.pathCrawlers()),
-                map(resultTask.filePath, resultTask.pathCrawlers())
-                )
+            map(dummyTask.filePath, dummyTask.pathCrawlers()),
+            map(resultTask.filePath, resultTask.pathCrawlers())
+        )
 
     def testConfig(self):
         """
