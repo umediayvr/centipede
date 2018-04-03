@@ -9,6 +9,7 @@ from ingestor.Task.Task import InvalidPathCrawlerError
 from ingestor.Task.Task import TaskInvalidOptionError
 from ingestor.Task.Task import TaskInvalidOptionValue
 from ingestor.Task.Task import TaskTypeNotFoundError
+from ingestor.TaskHolder import InvalidCustomVariableNameError
 from ingestor.Crawler.Fs.Image import Jpg
 
 class TaskTest(BaseTestCase):
@@ -154,6 +155,9 @@ class TaskTest(BaseTestCase):
         taskHolderLoader.addFromJsonFile(self.__jsonConfig)
         crawlers = Path.createFromPath(BaseTestCase.dataDirectory()).glob()
         for taskHolder in taskHolderLoader.taskHolders():
+            self.assertIn('testCustomVar', taskHolder.customVarNames())
+            self.assertEqual(taskHolder.customVar('testCustomVar'), 'randomValue')
+            self.assertRaises(InvalidCustomVariableNameError, taskHolder.customVar, 'badVar')
             taskHolder.run(crawlers)
         dummyFile = os.path.join(BaseTestCase.dataDirectory(), 'config', 'dummy.exr')
         self.assertFalse(os.path.isfile(dummyFile))
