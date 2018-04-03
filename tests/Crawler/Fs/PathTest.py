@@ -45,6 +45,12 @@ class PathTest(BaseTestCase):
         result = list(map(lambda x: x.rstrip("/"), result))
         self.assertCountEqual(result, crawlerPaths)
 
+        crawlers = crawler.glob(filterTypes=['exr'])
+        crawlerPaths = list(map(lambda x: x.var("filePath"), crawlers))
+        result = glob.glob("{}/**/**.exr".format(self.__dir), recursive=True)
+        result = list(map(lambda x: x.rstrip("/"), result))
+        self.assertCountEqual(result, crawlerPaths)
+
         crawler = Path.create(PathHolder(self.__turntableFile))
         otherCrawlers = crawler.globFromParent(filterTypes=[ExrRender])
         crawlerPaths = list(map(lambda x: x.var("filePath"), crawlers))
