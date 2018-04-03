@@ -98,13 +98,20 @@ class TaskTest(BaseTestCase):
             target = '{}_target.mov'.format(crawler.var('name'))
             targetPath = os.path.join(BaseTestCase.dataDirectory(), target)
             targetPaths.append(targetPath)
+            crawler.setVar('contextVarTest', 1, True)
             dummyTask.add(crawler, targetPath)
         result = dummyTask.output()
         self.assertEqual(len(result), len(crawlers))
         self.assertCountEqual(
                 map(lambda x: x.var('filePath'), result),
                 targetPaths
-                )
+        )
+        self.assertEqual(
+                list(map(lambda x: x.var('contextVarTest'), result)),
+                [1]*len(crawlers)
+        )
+        for crawler in result:
+            self.assertIn('contextVarTest', crawler.contextVarNames())
         dummyTask.setOption('filterTemplate', 'false')
         dummyTask.setOption('emptyFilterResult', 'empty')
         result = dummyTask.output()
