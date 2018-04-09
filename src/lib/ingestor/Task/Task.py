@@ -156,6 +156,16 @@ class Task(object):
 
         return self.__options[name]
 
+    def templateOption(self, name, crawler=None, vars={}):
+        """
+        Return a value resolved by the Template module.
+        """
+        value = self.option(name)
+        if crawler:
+            return Template(value).valueFromCrawler(crawler, vars)
+        else:
+            return Template(value).value(vars)
+
     def setOption(self, name, value):
         """
         Set an option to the task.
