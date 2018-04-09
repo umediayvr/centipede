@@ -31,9 +31,7 @@ class FileColorTransformation(Ocio):
 
         for pathCrawler in self.pathCrawlers():
             # resolving the lut path
-            lut = Template(self.option('lut')).valueFromCrawler(
-                pathCrawler
-            )
+            lut = self.templateOption('lut', crawler=pathCrawler)
 
             # adding color space transform
             groupTransform = ocio.GroupTransform()
