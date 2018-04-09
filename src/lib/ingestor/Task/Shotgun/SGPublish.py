@@ -33,8 +33,8 @@ class SGPublish(Task):
         filePath = sourceCrawler.var('filePath')
         self.__publishData["path"] = {"local_path": filePath}
 
-        self.__publishData["description"] = self.option('comment')
-        self.__publishData["version_number"] = self.pathCrawlers()[0].var('version')
+        self.__publishData["description"] = Template(self.option('comment')).valueFromCrawler(sourceCrawler)
+        self.__publishData["version_number"] = sourceCrawler.var('version')
 
         if "_sgTask" in sourceCrawler.varNames():
             self.__publishData["task"] = sourceCrawler.var("_sgTask")

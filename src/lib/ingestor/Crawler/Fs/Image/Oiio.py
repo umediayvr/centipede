@@ -38,8 +38,9 @@ class Oiio(Image):
                     )
 
                 spec = imageInput.spec()
-                self.setVar('width', spec.width)
-                self.setVar('height', spec.height)
+                self.setVar('width', spec.full_width)
+                self.setVar('height', spec.full_height)
+
                 imageInput.close()
             else:
                 self.__getWidthHeight()

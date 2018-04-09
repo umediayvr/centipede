@@ -45,7 +45,7 @@ class SGPlatePublish(Task):
             movieFilePath = Template(self.option('movieFile')).valueFromCrawler(sourceCrawler)
             thumbnailFilePath = Template(self.option('thumbnailFile')).valueFromCrawler(sourceCrawler)
             publishedFileType = self.option('publishedFileType')
-            comment = self.option('comment')
+            comment = Template(self.option('comment')).valueFromCrawler(sourceCrawler)
 
             version = sourceCrawler.var('version')
             firstFrame = sequenceCrawlers[0].var('frame')

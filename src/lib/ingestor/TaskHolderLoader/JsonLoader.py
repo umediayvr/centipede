@@ -101,6 +101,9 @@ class JsonLoader(TaskHolderLoader):
                       "sequence"
                     ]
                   }
+                },
+                {
+                    "includeTaskHolder": "../../myTaskHolderInfo.json"
                 }
               ]
             }
@@ -156,6 +159,21 @@ class JsonLoader(TaskHolderLoader):
             # task holder info checking
             if not isinstance(taskHolderInfo, dict):
                 raise UnexpectedContentError('Expecting an object to describe the task holder!')
+
+            # special case where configurations can be defined externally, when that is the case loading that instead
+            if 'includeTaskHolder' in taskHolderInfo:
+
+                # detecting if the path is absolute or needs to be resolved
+                if os.path.isabs(taskHolderInfo['includeTaskHolder']):
+                    absolutePath = taskHolderInfo['includeTaskHolder']
+                else:
+                    absolutePath = os.path.normpath(
+                        os.path.join(vars['configPath'], taskHolderInfo['includeTaskHolder'])
+                    )
+
+                # replacing the contents of the taskHolderInfo base on the one stored inside the json file
+                with open(absolutePath) as f:
+                    taskHolderInfo = json.load(f)
 
             task = Task.create(taskHolderInfo['task'])
 
