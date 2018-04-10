@@ -43,10 +43,10 @@ class PathCrawlerMatcher(object):
             "Invalid Path crawler type!"
 
         crawlerType = crawler.var('type')
-
         foundType = not self.matchTypes()
         for matchType in self.matchTypes():
-            if fnmatch(crawlerType, matchType):
+            registeredTypes = Path.registeredSubTypes(matchType)
+            if crawlerType in registeredTypes:
                 foundType = True
                 break
 
