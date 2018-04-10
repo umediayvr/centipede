@@ -44,7 +44,7 @@ class Crawler(object):
 
     def isLeaf(self):
         """
-        For re-implementation: Return a bollean telling if the crawler is leaf.
+        For re-implementation: Return a boolean telling if the crawler is leaf.
         """
         return True
 

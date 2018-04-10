@@ -24,7 +24,7 @@ class UpdateImageMetadata(Task):
             # updating umedia metadata
             self.updateUmediaMetadata(inputSpec, pathCrawler)
 
-            # writting image with updated metadata
+            # writing image with updated metadata
             outImage = oiio.ImageOutput.create(targetFilePath)
             outImage.open(
                 targetFilePath,
