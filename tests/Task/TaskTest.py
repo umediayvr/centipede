@@ -11,6 +11,7 @@ from ingestor.Task.Task import TaskInvalidOptionValue
 from ingestor.Task.Task import TaskTypeNotFoundError
 from ingestor.TaskHolder import InvalidCustomVariableNameError
 from ingestor.Crawler.Fs.Image import Jpg
+from ingestor.Crawler import Crawler
 
 class TaskTest(BaseTestCase):
     """Test for tasks."""
@@ -82,6 +83,25 @@ class TaskTest(BaseTestCase):
         dummyTask.setOption('intOption', 1)
         self.assertEqual(dummyTask.option('intOption'), 1)
         self.assertRaises(TaskInvalidOptionError, dummyTask.option, 'badOption')
+
+    def testTaskTemplateOption(self):
+        """
+        Test that task template option are working properly.
+        """
+        class MyClawler(Crawler):
+            pass
+
+        taskHolderLoader = JsonLoader()
+        taskHolderLoader.addFromJsonFile(self.__jsonConfig)
+        dummyCrawler = MyClawler('dummy')
+        dummyCrawler.setVar('testCustomVar', 'testValue')
+
+        for taskHolder in taskHolderLoader.taskHolders():
+            vars = {'testCustomVar': taskHolder.customVar('testCustomVar')}
+            dummyTask = taskHolder.task()
+            self.assertEqual(dummyTask.templateOption('testOption', crawler=dummyCrawler), 'testValue')
+            self.assertEqual(dummyTask.templateOption('testOption', vars=vars), 'randomValue')
+            self.assertEqual(dummyTask.templateOption('testExpr'), '2')
 
     def testTaskOutput(self):
         """
