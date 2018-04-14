@@ -33,13 +33,13 @@ class SGPublish(Task):
         filePath = sourceCrawler.var('filePath')
         self.__publishData["path"] = {"local_path": filePath}
 
-        self.__publishData["description"] = self.option('comment')
-        self.__publishData["version_number"] = self.pathCrawlers()[0].var('version')
+        self.__publishData["description"] = self.templateOption('comment', crawler=sourceCrawler)
+        self.__publishData["version_number"] = sourceCrawler.var('version')
 
         if "_sgTask" in sourceCrawler.varNames():
             self.__publishData["task"] = sourceCrawler.var("_sgTask")
 
-        publishName = Template(self.option('publishName')).valueFromCrawler(sourceCrawler)
+        publishName = self.templateOption('publishName', crawler=sourceCrawler)
         self.__publishData["name"] = publishName
         self.__publishData["code"] = publishName
 
@@ -110,7 +110,7 @@ class SGPublish(Task):
         createThumbnail = False
         sourceCrawler = self.pathCrawlers()[0]
         if "thumbnailFile" in self.optionNames():
-            thumbnailFilePath = Template(self.option('thumbnailFile')).valueFromCrawler(sourceCrawler)
+            thumbnailFilePath = self.templateOption('thumbnailFile', crawler=sourceCrawler)
         else:
             # Look for an image sequence to create a thumbnail. If multiple sequences found, using the first one.
             createThumbnail = True
@@ -157,7 +157,7 @@ class SGPublish(Task):
                 return
             movieFilePath = movCrawlers[0].var("filePath")
         else:
-            movieFilePath = Template(self.option('movieFile')).valueFromCrawler(sourceCrawler)
+            movieFilePath = self.templateOption('movieFile', crawler=sourceCrawler)
             if not movieFilePath or not os.path.exists(movieFilePath):
                 raise Exception("Movie provided for daily creation does not exist: {}".format(movieFilePath))
 

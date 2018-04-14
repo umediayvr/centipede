@@ -33,6 +33,19 @@ class MathTest(BaseTestCase):
         result = ExpressionEvaluator.run("div", 6, 2)
         self.assertEqual(result, "3")
 
+    def testMin(self):
+        """
+        Test that the min expression works properly.
+        """
+        result = ExpressionEvaluator.run("min", 6, 2)
+        self.assertEqual(result, "2")
+
+    def testMax(self):
+        """
+        Test that the max expression works properly.
+        """
+        result = ExpressionEvaluator.run("max", 6, 2)
+        self.assertEqual(result, "6")
 
 if __name__ == "__main__":
     unittest.main()

@@ -19,8 +19,8 @@ class MediaDelivery(NukeTemplate):
         super(MediaDelivery, self)._perform()
 
         targetCrawler = self.pathCrawlers()[0]
-        mediaInfoJson = Template(self.option('mediaInfo')).valueFromCrawler(targetCrawler)
-        clientShot = Template(self.option('clientShot')).valueFromCrawler(targetCrawler)
+        mediaInfoJson = self.templateOption('mediaInfo', crawler=targetCrawler)
+        clientShot = self.templateOption('clientShot', crawler=targetCrawler)
         targetFilePath = self.filePath(targetCrawler)
 
         # updating any existing file

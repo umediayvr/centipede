@@ -42,9 +42,8 @@ class SGImageSeqPublish(Task):
         # publishing sequences to shotgun
         for target, sequenceCrawlers in sourceSequenceCrawlers.items():
             sourceCrawler = sequenceCrawlers[0]
-            movieFilePath = Template(self.option('movieFile')).valueFromCrawler(sourceCrawler)
-            thumbnailFilePath = Template(self.option('thumbnailFile')).valueFromCrawler(sourceCrawler)
-
+            movieFilePath = self.templateOption('movieFile', crawler=sourceCrawler)
+            thumbnailFilePath = self.templateOption('thumbnailFile', crawler=sourceCrawler)
             comment = sourceCrawler.var('comment') if 'comment' in sourceCrawler.varNames() else self.option('comment')
             sceneFilePath = sourceCrawler.var('filePath')
             sgTask = sourceCrawler.var('_sgTask') if '_sgTask' in sourceCrawler.varNames() else None

@@ -77,8 +77,8 @@ class SubmissionSheet(Task):
                 self.__rows[name][label] = name
 
             elif fieldName == "clientStatus":
-                var = {"sg_status_list": self.__deliveryData[name].get('sg_status_list')}
-                self.__rows[name][label] = Template(self.option('clientStatus')).value(var)
+                vars = {"sg_status_list": self.__deliveryData[name].get('sg_status_list')}
+                self.__rows[name][label] = self.templateOption('clientStatus', vars=vars)
 
             else:
                 self.__rows[name][label] = self.__getFieldValue(name, fieldName, pathCrawler)
@@ -98,7 +98,7 @@ class SubmissionSheet(Task):
             return self.__deliveryData[name].get(fieldName)
         # Next, it could be a task option
         elif fieldName in self.optionNames():
-            return Template(self.option(fieldName)).valueFromCrawler(pathCrawler)
+            return self.templateOption(fieldName, crawler=pathCrawler)
         # Finally, the value would be in the crawler
         elif fieldName in pathCrawler.varNames():
             return pathCrawler.var(fieldName)

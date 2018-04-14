@@ -8,6 +8,10 @@
   "taskHolders": [
     {
       "task": "copy",
+      "taskOptions": {
+        "testOption": "{testCustomVar}",
+        "testExpr": "(min 2 6)"
+      },
       "targetTemplate": "{configPath}/{baseName}",
       "matchTypes": [
         "exr"

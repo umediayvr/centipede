@@ -42,10 +42,10 @@ class SGPlatePublish(Task):
         # publishing sequences to shotgun
         for target, sequenceCrawlers in sourceSequenceCrawlers.items():
             sourceCrawler = sequenceCrawlers[0]
-            movieFilePath = Template(self.option('movieFile')).valueFromCrawler(sourceCrawler)
-            thumbnailFilePath = Template(self.option('thumbnailFile')).valueFromCrawler(sourceCrawler)
+            movieFilePath = self.templateOption('movieFile', crawler=sourceCrawler)
+            thumbnailFilePath = self.templateOption('thumbnailFile', crawler=sourceCrawler)
             publishedFileType = self.option('publishedFileType')
-            comment = self.option('comment')
+            comment = self.templateOption('comment', crawler=sourceCrawler)
 
             version = sourceCrawler.var('version')
             firstFrame = sequenceCrawlers[0].var('frame')
