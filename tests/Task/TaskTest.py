@@ -9,7 +9,7 @@ from ingestor.Task.Task import InvalidPathCrawlerError
 from ingestor.Task.Task import TaskInvalidOptionError
 from ingestor.Task.Task import TaskInvalidOptionValue
 from ingestor.Task.Task import TaskTypeNotFoundError
-from ingestor.TaskHolder import InvalidCustomVariableNameError
+from ingestor.TaskHolder import TaskHolderInvalidVarNameError
 from ingestor.Crawler.Fs.Image import Jpg
 from ingestor.Crawler import Crawler
 
@@ -97,7 +97,7 @@ class TaskTest(BaseTestCase):
         dummyCrawler.setVar('testCustomVar', 'testValue')
 
         for taskHolder in taskHolderLoader.taskHolders():
-            vars = {'testCustomVar': taskHolder.customVar('testCustomVar')}
+            vars = {'testCustomVar': taskHolder.var('testCustomVar')}
             dummyTask = taskHolder.task()
             self.assertEqual(dummyTask.templateOption('testOption', crawler=dummyCrawler), 'testValue')
             self.assertEqual(dummyTask.templateOption('testOption', vars=vars), 'randomValue')
@@ -182,9 +182,9 @@ class TaskTest(BaseTestCase):
         taskHolderLoader.addFromJsonFile(self.__jsonConfig)
         crawlers = Path.createFromPath(BaseTestCase.dataDirectory()).glob()
         for taskHolder in taskHolderLoader.taskHolders():
-            self.assertIn('testCustomVar', taskHolder.customVarNames())
-            self.assertEqual(taskHolder.customVar('testCustomVar'), 'randomValue')
-            self.assertRaises(InvalidCustomVariableNameError, taskHolder.customVar, 'badVar')
+            self.assertIn('testCustomVar', taskHolder.varNames())
+            self.assertEqual(taskHolder.var('testCustomVar'), 'randomValue')
+            self.assertRaises(TaskHolderInvalidVarNameError, taskHolder.var, 'badVar')
             taskHolder.run(crawlers)
         dummyFile = os.path.join(BaseTestCase.dataDirectory(), 'config', 'dummy.exr')
         self.assertFalse(os.path.isfile(dummyFile))
