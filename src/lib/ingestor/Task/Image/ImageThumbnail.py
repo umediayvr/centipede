@@ -21,6 +21,7 @@ class ImageThumbnail(Task):
         self.setOption('width', self.__defaultWidth)
         self.setOption('height', self.__defaultHeight)
         self.setOption("convertToRGBA", self.__defaultConvertToRGBA)
+        self.setMetadata('dispatch.split', True)
 
     def _perform(self):
         """

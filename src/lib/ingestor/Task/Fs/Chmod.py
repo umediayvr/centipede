@@ -8,6 +8,13 @@ class Chmod(Task):
     Require options: directoryMode and fileMode
     """
 
+    def __init__(self, *args, **kwargs):
+        """
+        Create a Chmod task.
+        """
+        super(Chmod, self).__init__(*args, **kwargs)
+        self.setMetadata('dispatch.split', True)
+
     def _perform(self):
         """
         Perform the task.

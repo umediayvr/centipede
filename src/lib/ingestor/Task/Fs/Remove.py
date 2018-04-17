@@ -6,6 +6,13 @@ class Remove(Task):
     Remove target files task.
     """
 
+    def __init__(self, *args, **kwargs):
+        """
+        Create a Remove task.
+        """
+        super(Remove, self).__init__(*args, **kwargs)
+        self.setMetadata('dispatch.split', True)
+
     def _perform(self):
         """
         Perform the task.

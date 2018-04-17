@@ -14,6 +14,13 @@ class Copy(Task):
     Copies a file to the filePath.
     """
 
+    def __init__(self, *args, **kwargs):
+        """
+        Create a Copy task.
+        """
+        super(Copy, self).__init__(*args, **kwargs)
+        self.setMetadata('dispatch.split', True)
+
     def _perform(self):
         """
         Perform the task.

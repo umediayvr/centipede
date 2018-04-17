@@ -7,6 +7,13 @@ class ConvertImage(Task):
     Convert the source image (from the crawler) to the target one using oiio.
     """
 
+    def __init__(self, *args, **kwargs):
+        """
+        Create a ConvertImage task.
+        """
+        super(ConvertImage, self).__init__(*args, **kwargs)
+        self.setMetadata('dispatch.split', True)
+
     def _perform(self):
         """
         Perform the task.
