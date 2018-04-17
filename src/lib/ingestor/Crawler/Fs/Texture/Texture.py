@@ -1,6 +1,6 @@
-from ..Image import Image
+from ..Image import Oiio
 
-class Texture(Image):
+class Texture(Oiio):
     """
     Custom crawler used to detect textures.
     """
