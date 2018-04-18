@@ -79,8 +79,11 @@ class JsonLoader(TaskHolderLoader):
           },
           "taskHolders": [
             {
-              "task": "convertImage",
               "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {seq} {shot} {plateName}).(pad {frame} 4).exr",
+              "task": "convertImage",
+              "taskMetadata": {
+                "dispatch.await": True
+              },
               "matchTypes": [
                 "dpxPlate"
               ],
@@ -130,19 +133,13 @@ class JsonLoader(TaskHolderLoader):
                 for scriptFile in scriptFiles:
                     Resource.get().load(scriptFile)
 
-        vars = {}
-        if 'vars' in contents:
-            # vars checking
-            if not isinstance(contents['vars'], dict):
-                raise UnexpectedContentError('Expecting a list of vars!')
-            vars = dict(contents['vars'])
-
+        vars = self.__parseVars(contents)
         vars['configPath'] = configPath
         vars['configName'] = configName
 
-        self.__loadTaskHolder(contents, vars)
+        self.__loadTaskHolder(contents, vars, configPath)
 
-    def __loadTaskHolder(self, contents, vars, parentTaskHolder=None):
+    def __loadTaskHolder(self, contents, vars, configPath, parentTaskHolder=None):
         """
         Load a task holder contents.
         """
@@ -160,27 +157,7 @@ class JsonLoader(TaskHolderLoader):
             if not isinstance(taskHolderInfo, dict):
                 raise UnexpectedContentError('Expecting an object to describe the task holder!')
 
-            # special case where configurations can be defined externally, when that is the case loading that instead
-            if 'includeTaskHolder' in taskHolderInfo:
-
-                # detecting if the path is absolute or needs to be resolved
-                if os.path.isabs(taskHolderInfo['includeTaskHolder']):
-                    absolutePath = taskHolderInfo['includeTaskHolder']
-                else:
-                    absolutePath = os.path.normpath(
-                        os.path.join(vars['configPath'], taskHolderInfo['includeTaskHolder'])
-                    )
-
-                # replacing the contents of the taskHolderInfo base on the one stored inside the json file
-                with open(absolutePath) as f:
-                    taskHolderInfo = json.load(f)
-
-            task = Task.create(taskHolderInfo['task'])
-
-            # setting task options
-            if 'taskOptions' in taskHolderInfo:
-                for taskOptionName, taskOptionValue in taskHolderInfo['taskOptions'].items():
-                    task.setOption(taskOptionName, taskOptionValue)
+            task = self.__parseTask(taskHolderInfo, configPath)
 
             # getting the target template
             targetTemplate = Template(taskHolderInfo.get('targetTemplate', ''))
@@ -201,8 +178,12 @@ class JsonLoader(TaskHolderLoader):
             self.__loadTaskWrapper(taskHolder, taskHolderInfo)
 
             # adding variables to the task holder
-            for varName, varValue in vars.items():
-                taskHolder.addCustomVar(varName, varValue)
+            for varName, varValue in list(vars.items()) + list(self.__parseVars(taskHolderInfo).items()):
+                taskHolder.addVar(
+                    varName,
+                    varValue,
+                    isContextVar=True
+                )
 
             if parentTaskHolder:
                 parentTaskHolder.addSubTaskHolder(
@@ -213,7 +194,57 @@ class JsonLoader(TaskHolderLoader):
 
             # loading sub task holders recursevely
             if 'taskHolders' in contents:
-                self.__loadTaskHolder(taskHolderInfo, vars, taskHolder)
+                self.__loadTaskHolder(taskHolderInfo, {}, configPath, taskHolder)
+
+    @classmethod
+    def __parseTask(cls, contents, configPath):
+        """
+        Return a task object parsed under the contents.
+        """
+        # special case where configurations can be defined externally, when that
+        # is the case loading that instead
+        if 'includeTaskHolder' in contents:
+
+            # detecting if the path is absolute or needs to be resolved
+            if os.path.isabs(contents['includeTaskHolder']):
+                absolutePath = contents['includeTaskHolder']
+            else:
+                absolutePath = os.path.normpath(
+                    os.path.join(configPath, contents['includeTaskHolder'])
+                )
+
+            # replacing the contents of the contents base on the one stored
+            # inside the json file
+            with open(absolutePath) as f:
+                contents = json.load(f)
+
+        task = Task.create(contents['task'])
+
+        # setting task options
+        if 'taskOptions' in contents:
+            for taskOptionName, taskOptionValue in contents['taskOptions'].items():
+                task.setOption(taskOptionName, taskOptionValue)
+
+        # setting task metadata
+        if 'taskMetadata' in contents:
+            for taskMetadataName, taskMetadataValue in contents['taskMetadata'].items():
+                task.setMetadata(taskMetadataName, taskMetadataValue)
+
+        return task
+
+    @classmethod
+    def __parseVars(cls, contents):
+        """
+        Return the variables defined inside of the contents.
+        """
+        vars = {}
+        if 'vars' in contents:
+            # vars checking
+            if not isinstance(contents['vars'], dict):
+                raise UnexpectedContentError('Expecting a list of vars!')
+            vars = dict(contents['vars'])
+
+        return vars
 
     @classmethod
     def __loadTaskWrapper(cls, taskHolder, taskHolderInfo):
