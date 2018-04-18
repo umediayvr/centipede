@@ -8,7 +8,7 @@ from .RenderfarmJob import RenderfarmJob, ExpandedJob, CollapsedJob
 
 class Renderfarm(Dispatcher):
     """
-    ABC implementation for a renderfarm dispatcher.
+    Abstracted implementation for a renderfarm dispatcher.
 
     Optional options: label, jobTempDir, splitSize, priority and expandOnTheFarm
     """
@@ -84,7 +84,7 @@ class Renderfarm(Dispatcher):
 
     def __generateJobData(self, renderfarmJob):
         """
-        Generete a file used to execute the task on the farm.
+        Generete a file used to execute the task holder on the farm.
         """
         assert isinstance(renderfarmJob, RenderfarmJob), \
             "Invalid RenderfarmJob type!"
@@ -131,7 +131,7 @@ class Renderfarm(Dispatcher):
             )
         )
 
-        # writting out the job data
+        # writing out the job data
         with open(jobDataFilePath, 'w') as outputFile:
             json.dump(
                 data,
@@ -143,7 +143,7 @@ class Renderfarm(Dispatcher):
 
     def __dispatchMainTaskHolder(self, taskHolder, jobDirectory):
         """
-        Dispatch all the expended jobs on task on the farm.
+        Dispatch the main task holder as expanded jobs on the farm.
 
         The result is a list of expanded job instances.
         """
@@ -152,8 +152,8 @@ class Renderfarm(Dispatcher):
         result = []
 
         # figuring out how the task is going to split the crawlers in multiple
-        # tasks in case the split size is 0 means the task is execute with all
-        # crawlers at once.
+        # tasks. In case the split size is assigned to 0 means the task is not
+        # going to be divided
         splitSize = 0
         if task.hasMetadata('dispatch.split') and task.metadata('dispatch.split'):
             if task.hasMetadata('dispatch.splitSize'):
@@ -170,10 +170,10 @@ class Renderfarm(Dispatcher):
         crawlers = list(pathCrawlers.keys())
         chunckfiedCrawlers = self.__chunkify(crawlers, splitSize) if splitSize else [crawlers]
 
-        # splitting task in multiple tasks
+        # splitting in multiple tasks
         for index, chunckedCrawlers in enumerate(chunckfiedCrawlers):
 
-            # creating a renderfarm
+            # creating a renderfarm job
             expandedJob = ExpandedJob(clonedTaskHolder, jobDirectory)
 
             # adding information about the chunks
@@ -183,10 +183,9 @@ class Renderfarm(Dispatcher):
 
             task = clonedTaskHolder.task()
 
-            # adding crawlers to the task
-            # by setting the task it is going to get cloned, so we can modify it
+            # adding crawlers to the task (since the task holder has been cloned
+            # previously it's safe for us to change it)
             task.clear()
-
             for chunckedCrawler in chunckedCrawlers:
                 targetFilePath = pathCrawlers[chunckedCrawler]
                 task.add(chunckedCrawler, targetFilePath)
@@ -201,7 +200,7 @@ class Renderfarm(Dispatcher):
                 jobDataFilePath
             )
 
-            # setting the job id to expaded farm job. This information may
+            # setting the job id to the expanded job. This information may
             # be used by sub tasks holders.
             expandedJob.setJobId(jobId)
 
@@ -213,14 +212,14 @@ class Renderfarm(Dispatcher):
 
     def __dispatchSubTaskHolders(self, subTaskHolders, jobDirectory, renderfarmJobs):
         """
-        Dispatch the sub tasks on the farm.
+        Dispatch the sub task holders as collapsed jobs on the farm.
 
-        Results a list of render farm jobs.
+        The result is a list of collapsed job instances.
         """
         result = []
         awaitSubtaskHolders = []
 
-        # processing all the sub-tasks that can be executed in parallel.
+        # processing first all sub task holders that can be executed in parallel
         for subTaskHolder in subTaskHolders:
             if subTaskHolder.task().hasMetadata('dispatch.await') and subTaskHolder.task().metadata('dispatch.await'):
                 awaitSubtaskHolders.append(subTaskHolder)
@@ -251,9 +250,9 @@ class Renderfarm(Dispatcher):
 
             result.append(collapsedJob)
 
-        # processing the awaiting sub-tasks. When a sub-task is marked to "await"
-        # means it is only going to be started after all the sub-tasks are done,
-        # making the sub-task to be executed in a stack model rather than
+        # processing the awaiting sub-tasks holders. When a sub task holder is marked with
+        # "await" means it is only going to be started after all the sub task holders are done,
+        # making the sub task holder to be executed in a stack model rather than
         # in a parallel model.
         parentRenderfarmJobs = result
         for awaitSubtaskHolder in awaitSubtaskHolders:
@@ -298,7 +297,7 @@ class Renderfarm(Dispatcher):
 
     def __createJobDirectory(self):
         """
-        Create the temporary remote dir used to copy the configuration.
+        Create a temporary job directory used to store the job configuration.
         """
         currentDate = datetime.now()
         baseRemoteTemporaryPath = os.path.join(
