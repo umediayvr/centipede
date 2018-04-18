@@ -213,8 +213,9 @@ class JsonLoader(TaskHolderLoader):
                     os.path.join(configPath, contents['includeTaskHolder'])
                 )
 
-            # replacing the contents of the contents base on the one stored
-            # inside the json file
+            # replacing the current contents for the one defined externally
+            # inside the json file (that one is going to contain the resolved task holder
+            # information)
             with open(absolutePath) as f:
                 contents = json.load(f)
 
