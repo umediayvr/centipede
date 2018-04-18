@@ -29,7 +29,7 @@ class Local(Dispatcher):
     """
     Local dispatcher implementation.
 
-    Dispatches the task holder as a sub-process and returns
+    Dispatches the task holder as sub-process and returns
     the proccess id. The sub-process is executed in a separated
     thread by default.
     """
@@ -91,7 +91,7 @@ class Local(Dispatcher):
     @classmethod
     def cleanup(cls):
         """
-        Clean up all the finished threads from dispatched previously.
+        Clean up all the finished threads dispatched previously.
         """
         # cleaning up previous threads that have been finished
         for runningThread in list(cls.__runningThreads):
