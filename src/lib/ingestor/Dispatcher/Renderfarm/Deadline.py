@@ -11,7 +11,7 @@ class DeadlineCommandError(Exception):
 
 class Deadline(Renderfarm):
     """
-    Dispatches the configuration to be executed on deadline.
+    Deadline dispatcher implementation.
 
     Optional options: pool, secondaryPool, group and jobFailRetryAttempts
     """
@@ -37,15 +37,15 @@ class Deadline(Renderfarm):
 
         # deadline is extremely slow to submit jobs to the farm. Therefore,
         # we need to expand them inside of the farm rather than awaiting
-        # locally the submission of all the jobs.
+        # locally for the submission of all the jobs.
         self.setOption('expandOnTheFarm', True)
 
     def option(self, name, *args, **kwargs):
         """
         Return a value from an option.
 
-        Due the performance penality issue caused by querying deadline command
-        we compute 'groupNames' and 'poolNames' only when they are queried.
+        Due several performance penality caused by querying deadline command
+        we need to compute 'groupNames' and 'poolNames' only when they are queried.
         """
         # computing dynamic option
         if name not in self.optionNames() and name in ['groupNames', 'poolNames']:
@@ -79,7 +79,7 @@ class Deadline(Renderfarm):
 
         args = self.__defaultJobArgs(jobDataFilePath)
 
-        # pending task
+        # collapsed job
         if isinstance(renderfarmJob, CollapsedJob):
             # adding the job name
             args += [
@@ -182,7 +182,7 @@ class Deadline(Renderfarm):
 
     def __serializeDeadlineArgs(self, args, directory):
         """
-        Return a file path under input directory containing the input args serialized as txt file.
+        Return a file path about the serialized args.
         """
         temporaryFile = tempfile.NamedTemporaryFile(
             mode='w',
