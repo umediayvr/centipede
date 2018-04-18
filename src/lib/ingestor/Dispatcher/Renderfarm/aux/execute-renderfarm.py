@@ -55,7 +55,7 @@ parser.add_argument(
     'data',
     metavar='data',
     type=str,
-    help='json file containg the data that should be executed'
+    help='json file containing the data that should be executed'
 )
 
 # executing it
