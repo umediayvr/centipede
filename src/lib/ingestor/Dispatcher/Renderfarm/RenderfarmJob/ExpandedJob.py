@@ -44,7 +44,7 @@ class ExpandedJob(RenderfarmJob):
 
     def chunkSize(self):
         """
-        Return the job chuck size.
+        Return the job chunk size.
         """
         return self.__chunkSize
 
