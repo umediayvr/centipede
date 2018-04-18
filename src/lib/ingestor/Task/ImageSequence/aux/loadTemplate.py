@@ -39,6 +39,6 @@ for writeNode in nuke.allNodes('Write'):
     else:
         createdFiles.append(currentFile)
 
-# writting a json file with a list about all files created by the render
+# writing a json file with a list about all files created by the render
 with open(options['_renderOutputData'], 'w') as output:
     json.dump(createdFiles, output)

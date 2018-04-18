@@ -44,5 +44,5 @@ colorTransform.setInput(0, read)
 metadata.setInput(0, colorTransform)
 write.setInput(0, metadata)
 
-# writting the color transformed sequence
+# writing the color transformed sequence
 nuke.execute(write, startFrame - 1, endFrame)

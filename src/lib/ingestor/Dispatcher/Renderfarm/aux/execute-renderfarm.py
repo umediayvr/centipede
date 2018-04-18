@@ -33,7 +33,7 @@ def __run(dataJsonFile):
     elif data['jobType'] == "expanded":
         outputCrawlers = taskHolder.run()
 
-        # writting resulted crawlers
+        # writing resulted crawlers
         with open(data['taskResultFilePath'], 'w') as jsonFile:
             data = list(map(lambda x: x.toJson(), outputCrawlers))
             json.dump(
