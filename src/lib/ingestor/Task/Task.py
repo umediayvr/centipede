@@ -213,7 +213,7 @@ class Task(object):
     def add(self, pathCrawler, filePath=''):
         """
         Add a path crawler to the task.
-        
+
         A file path can be associated with the path crawler, this file path may be used
         as target to the path crawler.
         """
@@ -231,7 +231,7 @@ class Task(object):
         """
         self.__pathCrawlers.clear()
 
-    def output(self, verbose=False):
+    def output(self):
         """
         Perform and result a list of crawlers created by task.
         """
