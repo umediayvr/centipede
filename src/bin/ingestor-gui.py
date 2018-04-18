@@ -1,9 +1,9 @@
 import sys
-import uuid
 import os
 import re
-import shutil
 import ingestor
+from ingestor.Dispatcher import Dispatcher
+from ingestor.Crawler import Crawler
 import subprocess
 import functools
 import json
@@ -103,8 +103,8 @@ class Application(QtWidgets.QApplication):
                 taskHolders = taskHolderLoader.taskHolders()
                 columns = []
                 for taskHolder in taskHolders:
-                    if '__uiHintSourceColumns' in taskHolder.customVarNames():
-                        for columnName in taskHolder.customVar('__uiHintSourceColumns'):
+                    if '__uiHintSourceColumns' in taskHolder.varNames():
+                        for columnName in taskHolder.var('__uiHintSourceColumns'):
                             if columnName not in columns:
                                 columns.append(columnName)
 
@@ -333,127 +333,35 @@ class Application(QtWidgets.QApplication):
 
         visibleCrawlers = self.__visibleCrawlers()
 
+        # applying overrides
+        overrides = self.__loadSourceOverrides()
+        if overrides:
+            for crawler in visibleCrawlers:
+                filePath = crawler.var('filePath')
+                if filePath in overrides:
+                    for varName, varValue in overrides[filePath].items():
+                        crawler.setVar(varName, varValue)
+
         try:
-
-            # current environment
-            baseRemoteTemporaryPath = os.path.join(
-                self.__remoteTempDirectory,
-                str(uuid.uuid1())
-            )
-            os.makedirs(baseRemoteTemporaryPath)
-
-            # run on the farm
-            if self.__runOnTheFarmCheckbox.checkState() == QtCore.Qt.Checked:
-
-                outputEnvironment = os.path.join(
-                    baseRemoteTemporaryPath,
-                    "ingestorEnv.json"
-                )
-
-                with open(outputEnvironment, 'w') as outputFile:
-                    bakeEnv = dict(os.environ)
-                    del bakeEnv['USER']
-                    del bakeEnv['HOSTNAME']
-                    del bakeEnv['UMEDIA_LOCAL_DATA']
-                    bakeEnv['PYTHONPATH'] += ":{0}".format(
-                        os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "lib")
-                    )
-
-                    json.dump(
-                        bakeEnv,
-                        outputFile
-                    )
-
-                groupedCrawlers = OrderedDict()
-                groupedCrawlers[None] = []
-                for visibleCrawler in visibleCrawlers:
-
-                    # group
-                    if self.__checkedViewMode == "Group" and 'group' in visibleCrawler.tagNames():
-                        groupName = visibleCrawler.tag('group')
-                        if groupName not in groupedCrawlers:
-                            groupedCrawlers[groupName] = []
-
-                        groupedCrawlers[groupName].append(visibleCrawler)
-
-                    # flat
-                    else:
-                        groupedCrawlers[None].append(visibleCrawler)
-
-                configPath = self.__taskHolders[0].customVar('configPath')
-                for fileGroupName, crawlers in groupedCrawlers.items():
-
-                    if not len(crawlers):
-                        continue
-
-                    outputFileLocation = os.path.join(
-                        baseRemoteTemporaryPath,
-                        "{0}_group.json".format(
-                            str(uuid.uuid1())
-                        )
-                    )
-
-                    with open(outputFileLocation, 'w') as outputFile:
-                        json.dump(
-                            list(map(lambda x: x.var('filePath'), crawlers)),
-                            outputFile
-                        )
-
-                    # executing deadline command
-                    if fileGroupName is None:
-                        fileGroupName = "Generic files"
-                    else:
-                        fileGroupName = os.path.basename(fileGroupName)
-
-                    # making a copy of the current configuration that is going
-                    # to be used when it is running on the farm
-                    targetConfigPath = os.path.join(
-                        baseRemoteTemporaryPath,
-                        "config"
-                    )
-
-                    # copying the configuration
-                    if not os.path.exists(targetConfigPath):
-                        shutil.copytree(configPath, targetConfigPath)
-
-                    command = ' '.join([
-                        "deadlinecommand",
-                        "-SubmitCommandLineJob",
-                        "-executable",
-                        "python",
-                        "-arguments",
-                        '"{0} -env {1} upython {2} -configPath {3} -files {4}"'.format(
-                            os.path.join(os.path.dirname(os.path.realpath(__file__)), "ingestor-env.py"),
-                            outputEnvironment,
-                            os.path.join(os.path.dirname(os.path.realpath(__file__)), "ingestor-farm.py"),
-                            targetConfigPath,
-                            outputFileLocation
-                        ),
-                        "-name",
-                        '"Ingestor: {0}"'.format(fileGroupName),
-                        "-group",
-                        "desktop"
-                    ])
-
-                    subprocess.Popen(
-                        command,
-                        shell=True,
-                        env=dict(os.environ)
-                    )
-
-            # run locally
-            else:
-                # applying overrides
-                overrides = self.__loadSourceOverrides()
-                if overrides:
-                    for crawler in visibleCrawlers:
-                        filePath = crawler.var('filePath')
-                        if filePath in overrides:
-                            for varName, varValue in overrides[filePath].items():
-                                crawler.setVar(varName, varValue)
-
+            for crawlersGroup in Crawler.group(visibleCrawlers):
                 for taskHolder in self.__taskHolders:
-                    taskHolder.run(visibleCrawlers)
+
+                    # run on the farm
+                    if self.__runOnTheFarmCheckbox.checkState() == QtCore.Qt.Checked:
+
+                        renderFarmDispatcher = Dispatcher.create('renderFarm')
+                        label = os.path.basename(taskHolder.var('configPath'))
+                        label += "/"
+                        label += os.path.splitext(taskHolder.var('configName'))[0]
+                        label += ": "
+                        label += crawlersGroup[0].tag('group') if 'group' in crawlersGroup[0].tagNames() else crawlersGroup[0].var('baseName')
+                        renderFarmDispatcher.setOption('label', label)
+                        renderFarmDispatcher.dispatch(taskHolder, crawlersGroup)
+
+                    # run locally
+                    else:
+                        localDispatcher = Dispatcher.create('local')
+                        localDispatcher.dispatch(taskHolder, crawlersGroup)
 
         except Exception as err:
             QtWidgets.QMessageBox.critical(
@@ -766,7 +674,7 @@ class Application(QtWidgets.QApplication):
                     taskNameValue = QtWidgets.QTreeWidgetItem(taskName)
                     taskNameValue.setData(0, QtCore.Qt.EditRole, type(taskHolder.task()).__name__)
 
-                    if 'configName' in taskHolder.customVarNames():
+                    if 'configName' in taskHolder.varNames():
                         configName = QtWidgets.QTreeWidgetItem(mainTask)
                         configName.setData(0, QtCore.Qt.EditRole, "Config")
 
@@ -775,8 +683,8 @@ class Application(QtWidgets.QApplication):
                             0,
                             QtCore.Qt.EditRole,
                             os.path.join(
-                                taskHolder.customVar('configPath'),
-                                taskHolder.customVar('configName')
+                                taskHolder.var('configPath'),
+                                taskHolder.var('configName')
                             )
                         )
 
