@@ -84,7 +84,7 @@ class Renderfarm(Dispatcher):
 
     def __generateJobData(self, renderfarmJob):
         """
-        Generete a file used to execute the task holder on the farm.
+        Generate a file used to execute the task holder on the farm.
         """
         assert isinstance(renderfarmJob, RenderfarmJob), \
             "Invalid RenderfarmJob type!"
