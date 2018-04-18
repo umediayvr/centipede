@@ -7,6 +7,13 @@ class UpdateImageMetadata(Task):
     Updates the image metadata using oiio.
     """
 
+    def __init__(self, *args, **kwargs):
+        """
+        Create a UpdateImageMetadata task.
+        """
+        super(UpdateImageMetadata, self).__init__(*args, **kwargs)
+        self.setMetadata('dispatch.split', True)
+
     def _perform(self):
         """
         Perform the task.

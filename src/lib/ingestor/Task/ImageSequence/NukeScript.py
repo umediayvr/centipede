@@ -87,7 +87,7 @@ class NukeScript(Task):
                 else:
                     options[optionName] = optionValue
 
-            # writting options
+            # writing options
             tempJsonOptionsFile.write(json.dumps(options))
             tempJsonOptionsFile.close()
 

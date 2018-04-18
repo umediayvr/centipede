@@ -17,9 +17,8 @@ class Crawler(object):
         Create a crawler.
         """
         self.__vars = {}
-        self.__contextVarNames = set()
         self.__tags = {}
-        self.__hasComputedSelf = False
+        self.__contextVarNames = set()
 
         # passing variables
         if parentCrawler:
@@ -79,6 +78,9 @@ class Crawler(object):
         """
         if isContextVar:
             self.__contextVarNames.add(name)
+        elif name in self.__contextVarNames:
+            self.__contextVarNames.remove(name)
+
         self.__vars[name] = value
 
     def var(self, name):

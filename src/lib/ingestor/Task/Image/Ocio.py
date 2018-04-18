@@ -20,6 +20,7 @@ class Ocio(Task):
         super(Ocio, self).__init__(*args, **kwargs)
 
         self.setOption("ocioConfig", self.__ocioConfigDefault)
+        self.setMetadata('dispatch.split', True)
 
     def ocioConfig(self):
         """

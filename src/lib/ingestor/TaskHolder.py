@@ -1,26 +1,34 @@
-import sys
+import json
 from .Task import Task
 from .TaskWrapper import TaskWrapper
 from .Template import Template
 from .PathCrawlerMatcher import PathCrawlerMatcher
 from .PathCrawlerQuery import PathCrawlerQuery
 
-class InvalidCustomVariableNameError(Exception):
-    """Invalid custom variable name error."""
+class TaskHolderInvalidVarNameError(Exception):
+    """Task holder invalid var name error."""
 
 class TaskHolder(object):
     """
-    Holds task and subtasks associated with a target template and path crawler matcher.
+    Holds task and sub task holders associated with a target template and path crawler matcher.
     """
 
-    def __init__(self, task, targetTemplate, pathCrawlerMatcher):
+    def __init__(self, task, targetTemplate=None, pathCrawlerMatcher=None):
         """
         Create a task holder object.
         """
-        self.__setTask(task)
+        self.setTask(task)
+
+        if targetTemplate is None:
+            targetTemplate = Template()
         self.__setTargetTemplate(targetTemplate)
+
+        if pathCrawlerMatcher is None:
+            pathCrawlerMatcher = PathCrawlerMatcher()
         self.__setPathCrawlerMatcher(pathCrawlerMatcher)
+
         self.__subTaskHolders = []
+        self.__contextVarNames = set()
         self.__taskWrapper = TaskWrapper.create('default')
         self.__vars = {}
         self.__query = PathCrawlerQuery(
@@ -28,24 +36,29 @@ class TaskHolder(object):
             self.pathCrawlerMatcher()
         )
 
-    def addCustomVar(self, name, value):
+    def addVar(self, name, value, isContextVar=False):
         """
-        Add a variable that is going to be passed later to the query.
+        Add a variable to the task holder.
         """
+        if isContextVar:
+            self.__contextVarNames.add(name)
+        elif name in self.__contextVarNames:
+            self.__contextVarNames.remove(name)
+
         self.__vars[name] = value
 
-    def customVarNames(self):
+    def varNames(self):
         """
-        Return a list of custom variable names that are passed to the query.
+        Return a list of variable names.
         """
         return self.__vars.keys()
 
-    def customVar(self, name):
+    def var(self, name):
         """
-        Return the value for the variable name.
+        Return the value for the variable.
         """
         if name not in self.__vars:
-            raise InvalidCustomVariableNameError(
+            raise TaskHolderInvalidVarNameError(
                 'Invalid variable name "{0}'.format(
                     name
                 )
@@ -53,9 +66,15 @@ class TaskHolder(object):
 
         return self.__vars[name]
 
+    def contextVarNames(self):
+        """
+        Return a list of variable names defined as context variables.
+        """
+        return list(self.__contextVarNames)
+
     def setTaskWrapper(self, taskWrapper):
         """
-        Override the default task wrapper to use a custom one.
+        Override the default task wrapper.
         """
         assert isinstance(taskWrapper, TaskWrapper), "Invalid taskWrapper type!"
 
@@ -67,17 +86,51 @@ class TaskHolder(object):
         """
         return self.__taskWrapper
 
+    def targetTemplate(self):
+        """
+        Return the targetTemplate associated with the task holder.
+        """
+        return self.__targetTemplate
+
+    def setTask(self, task):
+        """
+        Associate a cloned task with the task holder.
+        """
+        assert isinstance(task, Task), \
+            "Invalid Task type"
+
+        self.__task = task.clone()
+
     def task(self):
         """
         Return the task associted with the task holder.
         """
         return self.__task
 
-    def targetTemplate(self):
+    def addPathCrawlers(self, crawlers, addTaskHolderVars=True):
         """
-        Return the targetTemplate associated with the task holder.
+        Add a list of crawlers to the task.
+
+        The crawlers are added to the task using "query" method to resolve
+        the target template.
         """
-        return self.__targetTemplate
+        for crawler, filePath in self.query(crawlers).items():
+
+            if addTaskHolderVars:
+                # cloning crawler so we can modify it safely
+                crawler = crawler.clone()
+
+                for varName in self.varNames():
+                    crawler.setVar(
+                        varName,
+                        self.var(varName),
+                        varName in self.contextVarNames()
+                    )
+
+            self.__task.add(
+                crawler,
+                filePath
+            )
 
     def pathCrawlerMatcher(self):
         """
@@ -98,46 +151,58 @@ class TaskHolder(object):
         """
         Return a list sub task holders associated with the task holder.
         """
-        return self.__subTaskHolders
+        return list(self.__subTaskHolders)
+
+    def cleanSubTaskHolders(self):
+        """
+        Remove all sub task holders from the current task holder.
+        """
+        del self.__subTaskHolders[:]
 
     def query(self, pathCrawlers):
         """
         Query path crawlers that meet the specification.
         """
-        return self.__query.query(pathCrawlers, self.__vars)
+        return self.__query.query(
+            pathCrawlers,
+            self.__vars
+        )
 
-    def run(self, crawlers, verbose=True):
+    def toJson(self, includeSubTaskHolders=True):
+        """
+        Bake the current task holder (including all sub task holders) to json.
+        """
+        return json.dumps(
+            self.__bakeTaskHolder(self, includeSubTaskHolders),
+            indent=4,
+            separators=(',', ': ')
+        )
+
+    def clone(self, includeSubTaskHolders=True):
+        """
+        Return a cloned instance of the current task holder.
+        """
+        return self.createFromJson(self.toJson(includeSubTaskHolders))
+
+    def run(self, crawlers=[]):
         """
         Perform the task.
+
+        Return all the crawlers resulted by the execution of the task (and sub tasks).
         """
-        # running task per group
-        groupedCrawlers = {}
-        noGroupIndex = 0
-        for crawler in crawlers:
-            # group
-            if 'group' in crawler.tagNames():
-                groupName = str(crawler.tag('group'))
-                if groupName not in groupedCrawlers:
-                    groupedCrawlers[groupName] = []
+        return self.__recursiveTaskRunner(
+            self,
+            crawlers
+        )
 
-                groupedCrawlers[groupName].append(crawler)
-
-            # no group
-            else:
-                groupedCrawlers[noGroupIndex] = [crawler]
-                noGroupIndex += 1
-
-        for crawlers in groupedCrawlers.values():
-            self.__recursiveTaskRunner(crawlers, self, verbose)
-
-    def __setTask(self, task):
+    @classmethod
+    def createFromJson(cls, jsonContents):
         """
-        Associate a task with the task holder.
+        Create a new task holder instance from json.
         """
-        assert isinstance(task, Task), \
-            "Invalid Task type"
+        contents = json.loads(jsonContents)
 
-        self.__task = task
+        return cls.__loadTaskHolder(contents)
 
     def __setTargetTemplate(self, targetTemplate):
         """
@@ -157,53 +222,112 @@ class TaskHolder(object):
         self.__pathCrawlerMatcher = pathCrawlerMatcher
 
     @classmethod
-    def __recursiveTaskRunner(cls, crawlers, taskHolder, verbose):
+    def __bakeTaskHolder(cls, taskHolder, includeSubTaskHolders=True):
+        """
+        Auxiliary method to bake the task holder recursively.
+        """
+        # template info
+        targetTemplate = taskHolder.targetTemplate().inputString()
+        vars = {}
+        for varName in taskHolder.varNames():
+            vars[varName] = taskHolder.var(varName)
+
+        # path crawler matcher info
+        matchTypes = taskHolder.pathCrawlerMatcher().matchTypes()
+        matchVars = {}
+        for matchVarName in taskHolder.pathCrawlerMatcher().matchVarNames():
+            matchVars[matchVarName] = taskHolder.pathCrawlerMatcher().matchVar(matchVarName)
+
+        # task wrapper info
+        taskWrapperType = taskHolder.taskWrapper().type()
+        taskWrapperOptions = {}
+        for optionName in taskHolder.taskWrapper().optionNames():
+            taskWrapperOptions[optionName] = taskHolder.taskWrapper().option(optionName)
+
+        output = {
+            'template': {
+                'target': targetTemplate
+            },
+            'patchCrawlerMatcher': {
+                'matchTypes': matchTypes,
+                'matchVars': matchVars
+            },
+            'vars': vars,
+            'contextVarNames': taskHolder.contextVarNames(),
+            'task': taskHolder.task().toJson(),
+            'taskWrapper': {
+                'type': taskWrapperType,
+                'options': taskWrapperOptions
+            },
+            'subTaskHolders': []
+        }
+
+        if includeSubTaskHolders:
+            output['subTaskHolders'] = list(map(cls.__bakeTaskHolder, taskHolder.subTaskHolders()))
+
+        return output
+
+    @classmethod
+    def __loadTaskHolder(cls, taskHolderContents):
+        """
+        Auxiliary method used to load the contents of the task holder recursively.
+        """
+        # creating task holder
+        template = Template(taskHolderContents['template']['target'])
+        pathCrawlerMatcher = PathCrawlerMatcher(
+            taskHolderContents['patchCrawlerMatcher']['matchTypes'],
+            taskHolderContents['patchCrawlerMatcher']['matchVars']
+        )
+
+        # creating task
+        task = Task.createFromJson(taskHolderContents['task'])
+
+        # building the task holder instance
+        taskHolder = TaskHolder(
+            task,
+            template,
+            pathCrawlerMatcher
+        )
+
+        # creating task wrapper
+        taskWrapper = TaskWrapper.create(taskHolderContents['taskWrapper']['type'])
+        for optionName, optionValue in taskHolderContents['taskWrapper']['options'].items():
+            taskWrapper.setOption(optionName, optionValue)
+        taskHolder.setTaskWrapper(taskWrapper)
+
+        # adding vars
+        contextVarNames = taskHolderContents['contextVarNames']
+        for varName, varValue in taskHolderContents['vars'].items():
+            taskHolder.addVar(
+                varName,
+                varValue,
+                varName in contextVarNames
+            )
+
+        # adding sub task holders
+        for subTaskHolderContent in taskHolderContents['subTaskHolders']:
+            taskHolder.addSubTaskHolder(cls.__loadTaskHolder(subTaskHolderContent))
+
+        return taskHolder
+
+    @classmethod
+    def __recursiveTaskRunner(cls, taskHolder, crawlers):
         """
         Perform the task runner recursively.
         """
-        matchedCrawlers = taskHolder.query(crawlers)
-        if not matchedCrawlers:
-            return
+        result = []
+        taskHolder.addPathCrawlers(crawlers)
 
-        # cloning task so we can modify it safely
-        clonedTask = taskHolder.task().clone()
-        clonedCrawlers = {}
-        for matchedCrawler, targetFilePath in matchedCrawlers.items():
-
-            # cloning crawler so we can modify it safely
-            clonedCrawler = matchedCrawler.clone()
-            clonedCrawlers[clonedCrawler] = targetFilePath
-
-            # passing custom variables from the task holder to the crawlers.
-            # This basically transfer the global variables declared in
-            # the json configuration to the crawler, so subtasks can use
-            # them to resolve templates (when necessary).
-            for customVarName in taskHolder.customVarNames():
-                clonedCrawler.setVar(
-                    customVarName,
-                    taskHolder.customVar(customVarName)
-                )
-
-            clonedTask.add(clonedCrawler, targetFilePath)
-
-        # performing task
-        currentTaskName = type(clonedTask).__name__
-
-        if verbose:
-            sys.stdout.write('Running task: {0}\n'.format(currentTaskName))
+        # in case the task does not have any path crawlers, there is nothing to do
+        if not taskHolder.task().pathCrawlers():
+            return result
 
         # executing task through the wrapper
-        resultCrawlers = taskHolder.taskWrapper().run(clonedTask)
-        for pathCrawler in resultCrawlers:
-            if verbose:
-                sys.stdout.write('  - {0}: {1}\n'.format(
-                        currentTaskName,
-                        pathCrawler.var('filePath'),
-                    )
-                )
-                sys.stdout.flush()
-                sys.stderr.flush()
+        taskCrawlers = taskHolder.taskWrapper().run(taskHolder.task())
+        result += taskCrawlers
 
         # calling subtask holders
         for subTaskHolder in taskHolder.subTaskHolders():
-            cls.__recursiveTaskRunner(resultCrawlers, subTaskHolder, verbose)
+            result += cls.__recursiveTaskRunner(subTaskHolder, taskCrawlers)
+
+        return result

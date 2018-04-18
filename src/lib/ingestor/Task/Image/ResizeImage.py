@@ -22,6 +22,7 @@ class ResizeImage(Task):
         super(ResizeImage, self).__init__(*args, **kwargs)
 
         self.setOption("convertToRGBA", self.__defaultConvertToRGBA)
+        self.setMetadata('dispatch.split', True)
 
     def _perform(self):
         """

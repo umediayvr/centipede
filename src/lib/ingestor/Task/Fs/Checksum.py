@@ -8,8 +8,15 @@ class Checksum(Task):
     """
     Make sure the filePath has the same checksum as the crawler file path.
 
-    In case the checksum does not match an expection is raised.
+    In case the checksum does not match an exception is raised.
     """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Create a Checksum task.
+        """
+        super(Checksum, self).__init__(*args, **kwargs)
+        self.setMetadata('dispatch.split', True)
 
     def _perform(self):
         """

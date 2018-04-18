@@ -33,7 +33,7 @@ class Template(object):
 
     __safeTokenId = uuid.uuid1()
 
-    def __init__(self, inputString):
+    def __init__(self, inputString=""):
         """
         Create a template object.
         """
