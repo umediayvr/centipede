@@ -10,7 +10,7 @@ class TaskHolderInvalidVarNameError(Exception):
 
 class TaskHolder(object):
     """
-    Holds task and subtasks associated with a target template and path crawler matcher.
+    Holds task and sub task holders associated with a target template and path crawler matcher.
     """
 
     def __init__(self, task, targetTemplate=None, pathCrawlerMatcher=None):
@@ -38,7 +38,7 @@ class TaskHolder(object):
 
     def addVar(self, name, value, isContextVar=False):
         """
-        Add a variable used for the query and when crawlers are added through addPathCrawlers.
+        Add a variable to the task holder.
         """
         if isContextVar:
             self.__contextVarNames.add(name)
@@ -49,13 +49,13 @@ class TaskHolder(object):
 
     def varNames(self):
         """
-        Return a list of custom variable names that are passed to the query.
+        Return a list of variable names.
         """
         return self.__vars.keys()
 
     def var(self, name):
         """
-        Return the value for the variable name.
+        Return the value for the variable.
         """
         if name not in self.__vars:
             raise TaskHolderInvalidVarNameError(
@@ -68,13 +68,13 @@ class TaskHolder(object):
 
     def contextVarNames(self):
         """
-        Return a list of variable names that are defined as context variables.
+        Return a list of variable names defined as context variables.
         """
         return list(self.__contextVarNames)
 
     def setTaskWrapper(self, taskWrapper):
         """
-        Override the default task wrapper to use a custom one.
+        Override the default task wrapper.
         """
         assert isinstance(taskWrapper, TaskWrapper), "Invalid taskWrapper type!"
 
@@ -170,7 +170,7 @@ class TaskHolder(object):
 
     def toJson(self, includeSubTaskHolders=True):
         """
-        Bake the current task holder (including all subtasks) to json.
+        Bake the current task holder (including all sub task holders) to json.
         """
         return json.dumps(
             self.__bakeTaskHolder(self, includeSubTaskHolders),
