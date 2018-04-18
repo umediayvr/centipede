@@ -6,9 +6,9 @@ class ExpandedJob(RenderfarmJob):
     """
     Implements an expanded render farm job.
 
-    An expanded job is used to process a task on the farm. The processing
-    of the task can be devided by chunks or in case the task can't
-    be split then it can represent an execution of an entire task.
+    An expanded job is used to run a task on the farm. The processing
+    of the task can be devided by chunks or in case a task cannot
+    be divided then it performs the execution of an entire task.
     """
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +24,7 @@ class ExpandedJob(RenderfarmJob):
 
     def taskResultFilePath(self):
         """
-        Return the file path about where the result of the task is going to serialized.
+        Return the file path about where the result of the task is going to be serialized.
         """
         if self.__taskResultFilePath is None:
             self.__taskResultFilePath = os.path.join(
@@ -38,7 +38,7 @@ class ExpandedJob(RenderfarmJob):
 
     def setChunkSize(self, chunkSize):
         """
-        Assciate the chunk size with the job.
+        Associate the chunk size with the job.
         """
         self.__chunkSize = chunkSize
 
@@ -50,7 +50,7 @@ class ExpandedJob(RenderfarmJob):
 
     def setCurrentChunk(self, currentChunk):
         """
-        Assiate information about the current chunk with the job.
+        Associate the information about the current chunk with the job.
         """
         self.__currentChunk = currentChunk
 
