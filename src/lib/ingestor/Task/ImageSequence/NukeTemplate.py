@@ -38,11 +38,11 @@ class NukeTemplate(NukeScript):
 
     def add(self, pathCrawler, filePath=''):
         """
-        Add a file path associate with a path crawler to the Task.
+        Add a path crawler to the task.
         """
         # this task can be also used to generate a quicktime movie. Therefore,
         # we only split it when creating image sequences. For this reason we
-        # look if the target file path contains the padding prefix used
+        # need to look if the target file path contains the padding prefix used
         # by nuke to write an image sequence (for instance: "image.%04d.exr").
         if not self.hasMetadata('dispatch.split') and "%0" in filePath:
             self.setMetadata('dispatch.split', True)
