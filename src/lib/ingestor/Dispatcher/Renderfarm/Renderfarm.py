@@ -161,23 +161,23 @@ class Renderfarm(Dispatcher):
             else:
                 splitSize = self.option('splitSize')
 
-        # querying all crawlers from the current task so we can re-assing them
-        # back to the task in chuncks (when split size is greater than 0)
+        # querying all crawlers from the current task so we can re-assign them
+        # back to the task in chunks (when split size is greater than 0)
         pathCrawlers = OrderedDict()
         for crawler in task.pathCrawlers():
             pathCrawlers[crawler] = task.filePath(crawler)
 
         crawlers = list(pathCrawlers.keys())
-        chunckfiedCrawlers = self.__chunkify(crawlers, splitSize) if splitSize else [crawlers]
+        chunkfiedCrawlers = self.__chunkify(crawlers, splitSize) if splitSize else [crawlers]
 
         # splitting in multiple tasks
-        for index, chunckedCrawlers in enumerate(chunckfiedCrawlers):
+        for index, chunkedCrawlers in enumerate(chunkfiedCrawlers):
 
             # creating a renderfarm job
             expandedJob = ExpandedJob(clonedTaskHolder, jobDirectory)
 
             # adding information about the chunks
-            expandedJob.setChunkTotal(len(chunckfiedCrawlers))
+            expandedJob.setChunkTotal(len(chunkfiedCrawlers))
             expandedJob.setCurrentChunk(index)
             expandedJob.setChunkSize(splitSize)
 
@@ -186,9 +186,9 @@ class Renderfarm(Dispatcher):
             # adding crawlers to the task (since the task holder has been cloned
             # previously it's safe for us to change it)
             task.clear()
-            for chunckedCrawler in chunckedCrawlers:
-                targetFilePath = pathCrawlers[chunckedCrawler]
-                task.add(chunckedCrawler, targetFilePath)
+            for chunkedCrawler in chunkedCrawlers:
+                targetFilePath = pathCrawlers[chunkedCrawler]
+                task.add(chunkedCrawler, targetFilePath)
 
             jobDataFilePath = self.__generateJobData(
                 expandedJob
@@ -312,19 +312,19 @@ class Renderfarm(Dispatcher):
         return baseRemoteTemporaryPath
 
     @classmethod
-    def __chunkify(cls, inputList, chunckSize):
+    def __chunkify(cls, inputList, chunkSize):
         """
         Return an 2D array containing the input list divided by chunks.
         """
         result = []
-        if len(inputList) <= chunckSize:
+        if len(inputList) <= chunkSize:
             result.append(inputList)
             return result
 
-        for chunk in range(int(len(inputList) / chunckSize)):
-            currentIndex = chunk * chunckSize
+        for chunk in range(int(len(inputList) / chunkSize)):
+            currentIndex = chunk * chunkSize
             result.append(
-                inputList[currentIndex:currentIndex + chunckSize]
+                inputList[currentIndex:currentIndex + chunkSize]
             )
 
         return result
