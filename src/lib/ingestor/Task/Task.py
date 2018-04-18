@@ -1,4 +1,5 @@
 import json
+import sys
 from ..Resource import Resource
 from ..Crawler.Fs import Path
 from ..Template import Template
@@ -53,10 +54,11 @@ class Task(object):
         self.__pathCrawlers = OrderedDict()
         self.__metadata = {}
         self.__taskType = taskType
-        self.__options = {
-            "filterTemplate": "",
-            "emptyFilterResult": "empty"
-        }
+        self.__options = {}
+
+        # default options
+        self.setOption('filterTemplate', '')
+        self.setOption('emptyFilterResult', 'empty')
 
     def type(self):
         """
@@ -220,27 +222,26 @@ class Task(object):
 
         self.__pathCrawlers[pathCrawler] = filePath
 
-    def output(self):
+    def clear(self):
+        """
+        Remove all crawlers associate with the task.
+        """
+        self.__pathCrawlers.clear()
+
+    def output(self, verbose=False):
         """
         Perform and result a list of crawlers created by task.
         """
+        verbose = self.hasMetadata('output.verbose') and self.metadata('output.verbose')
+        if verbose:
+            sys.stdout.write('{0} output:\n'.format(self.type()))
+
         # in case all path crawlers were filtered out, returning right away.
         # \TODO: we may want to have the behaviour of don't performing the task
         # when the task does not have any path crawler. Right now, it's only applied
         # when all crawlers were filtered out by the filter template option.
-        unfilteredCrawlers = self.pathCrawlers(useFilterTemplateOption=False)
-        if len(unfilteredCrawlers) and len(self.pathCrawlers()) == 0:
-            if self.option('emptyFilterResult') == 'taskCrawlers':
-                return unfilteredCrawlers
-            elif self.option('emptyFilterResult') == 'empty':
-                return []
-            else:
-                raise TaskInvalidOptionValue(
-                    'Invalid option value "{}" for "{}"'.format(
-                        self.option('emptyFilterResult'),
-                        "emptyFilterResult"
-                    )
-                )
+        if len(self.pathCrawlers(useFilterTemplateOption=False)) and len(self.pathCrawlers()) == 0:
+            return self.__emptyFilterResult(verbose)
 
         contextVars = {}
         for crawler in self.pathCrawlers():
@@ -252,8 +253,19 @@ class Task(object):
 
         # Copy all context variables to output crawlers
         for outputCrawler in outputCrawlers:
+            if verbose:
+                sys.stdout.write(
+                    '  - {}\n'.format(
+                        outputCrawler.var('filePath')
+                    )
+                )
+
             for ctxVarName in contextVars:
                 outputCrawler.setVar(ctxVarName, contextVars[ctxVarName], True)
+
+        # flushing output stream
+        if verbose:
+            sys.stdout.flush()
 
         return outputCrawlers
 
@@ -368,6 +380,8 @@ class Task(object):
 
         # loading resources
         for loadResource in loadResources:
+            if loadResource in Resource.get().loaded():
+                continue
             Resource.get().load(loadResource)
 
         # loading task
@@ -398,10 +412,32 @@ class Task(object):
         The default implementation return a list of crawlers based on the target filePath (The filePath is provided by
         by the template). In case none file path has not been specified then returns an empty list of crawlers.
         """
-        filePaths = set()
+        filePaths = []
         for crawler in self.pathCrawlers():
             filePath = self.filePath(crawler)
-            if filePath:
-                filePaths.add(filePath)
+            if filePath not in filePaths:
+                filePaths.append(filePath)
 
         return list(map(Path.createFromPath, filePaths))
+
+    def __emptyFilterResult(self, verbose):
+        """
+        Auxiliary method to compute an empty filter result.
+        """
+        if self.option('emptyFilterResult') == 'taskCrawlers':
+            if verbose:
+                sys.stdout.write('  - Empty filter resulting original task crawlers\n')
+
+            return self.pathCrawlers(useFilterTemplateOption=False)
+
+        elif self.option('emptyFilterResult') == 'empty':
+            if verbose:
+                sys.stdout.write('  - Empty filter resulting no crawlers\n')
+
+            return []
+        else:
+            raise TaskInvalidOptionValue(
+                'Invalid option value "{}" for "emptyFilterResult"'.format(
+                    self.option('emptyFilterResult')
+                )
+            )
