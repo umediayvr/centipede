@@ -90,7 +90,7 @@ class Renderfarm(Dispatcher):
             "Invalid RenderfarmJob type!"
 
         # in case the option "expandOnTheFarm" is enabled we need to disable that
-        # otheriwse, the job is going to keep re-spawing on the farm indefinitely.
+        # otherwise, the job is going to keep re-spawing on the farm indefinitely.
         renderFarmDispatcher = self
         if renderFarmDispatcher.option('expandOnTheFarm'):
             renderFarmDispatcher = renderFarmDispatcher.createFromJson(
