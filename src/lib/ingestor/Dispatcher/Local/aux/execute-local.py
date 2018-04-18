@@ -19,7 +19,7 @@ parser.add_argument(
     'data',
     metavar='data',
     type=str,
-    help='json file containg the serialized task holder that should be executed'
+    help='json file containing the serialized task holder that should be executed'
 )
 
 # executing it
