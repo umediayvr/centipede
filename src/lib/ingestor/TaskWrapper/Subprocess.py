@@ -1,9 +1,7 @@
 import os
-import sys
 import json
 import tempfile
-import subprocess
-from ulauncher import EnvModifier
+from ulauncher import EnvModifier, ProcessExecution
 from .TaskWrapper import TaskWrapper
 from ..Task import Task
 from ..Crawler.Fs import Path
@@ -18,11 +16,11 @@ class Subprocess(TaskWrapper):
 
     __serializedTaskEnv = "TASKWRAPPER_SUBPROCESS_FILE"
 
-    def __init__(self):
+    def __init__(self, taskWrapperType, *args, **kwargs):
         """
         Create a task wrapper object.
         """
-        super(Subprocess, self).__init__()
+        super(Subprocess, self).__init__(taskWrapperType, *args, **kwargs)
 
         # options for tweaking the environment that is going to be used by
         # the process
@@ -82,38 +80,29 @@ class Subprocess(TaskWrapper):
                 command.replace('\\', '\\\\').replace('"', '\\"')
             )
 
-        envModifier = self.__envModifier()
-
         # adding the serializedTaskFile information
+        envModifier = self.__envModifier()
         envModifier.setOverrideVar(
             self.__serializedTaskEnv,
             serializedTaskFile
         )
 
-        # calling task as subprocess
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            env=envModifier.generate(),
-            shell=True
+        processExecution = ProcessExecution(
+            [
+                command
+            ],
+            envModifier.generate(),
+            shell=True,
+            redirectStderrToStdout=True
         )
 
-        # capturing the output
-        output, error = process.communicate()
-        if output:
-            sys.stdout.write(output.decode("utf-8"))
-            sys.stdout.flush()
-
-        if error:
-            sys.stderr.write(error.decode("utf-8"))
-            sys.stderr.flush()
+        processExecution.execute()
 
         # checking if process has failed based on the return code
-        if process.returncode and not self.option('ignoreExitCode'):
+        if not processExecution.executionSuccess() and not self.option('ignoreExitCode'):
             raise SubprocessFailedError(
                 'Error during the execution of the process, return code {}'.format(
-                    process.returncode
+                    processExecution.exitStatus()
                 )
             )
 

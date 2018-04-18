@@ -15,11 +15,18 @@ class TaskWrapper(object):
 
     __registered = {}
 
-    def __init__(self):
+    def __init__(self, taskWrapperType):
         """
         Create a task object.
         """
         self.__options = {}
+        self.__taskWrapperType = taskWrapperType
+
+    def type(self):
+        """
+        Return the task wrapper type.
+        """
+        return self.__taskWrapperType
 
     def option(self, name):
         """
@@ -91,7 +98,8 @@ class TaskWrapper(object):
                     taskType
                 )
             )
-        return TaskWrapper.__registered[taskType](*args, **kwargs)
+
+        return TaskWrapper.__registered[taskType](taskType, *args, **kwargs)
 
 
 # always providing a default implementation to wrap the task execution
