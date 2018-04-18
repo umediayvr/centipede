@@ -27,7 +27,7 @@ class RenderfarmJob(object):
 
     def setJobId(self, jobId):
         """
-        Associates a sumitted job id with the renderfarm job.
+        Associate a sumitted job id with the renderfarm job.
         """
         self.__jobId = jobId
 
