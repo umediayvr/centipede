@@ -160,7 +160,7 @@ class Deadline(Renderfarm):
             "-prop",
             "OverrideJobFailureDetection=true",
             "-prop",
-            "FailureDetectionJobErrors={}".format(self.option('jobFailRetryAttempts')),
+            "FailureDetectionJobErrors={}".format(self.option('jobFailRetryAttempts') + 1),
             "-prop",
             "IncludeEnvironment=true",
             "-prop",
