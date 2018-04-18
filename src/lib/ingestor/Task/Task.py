@@ -212,7 +212,10 @@ class Task(object):
 
     def add(self, pathCrawler, filePath=''):
         """
-        Add a file path associate with a path crawler to the Task.
+        Add a path crawler to the task.
+        
+        A file path can be associated with the path crawler, this file path may be used
+        as target to the path crawler.
         """
         assert isinstance(pathCrawler, Path), \
             "Invalid Path Crawler!"
