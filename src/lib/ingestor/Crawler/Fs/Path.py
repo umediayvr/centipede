@@ -51,18 +51,7 @@ class Path(Crawler):
         """
         Return a cloned instance about the current crawler.
         """
-        newInstance = self.__class__(self.pathHolder())
-
-        # cloning variables
-        for varName in self.varNames():
-            isContextVar = (varName in self.contextVarNames())
-            newInstance.setVar(varName, self.var(varName), isContextVar)
-
-        # cloning tags
-        for tagName in self.tagNames():
-            newInstance.setTag(tagName, self.tag(tagName))
-
-        return newInstance
+        return Path.createFromJson(self.toJson())
 
     def toJson(self):
         """
@@ -83,7 +72,11 @@ class Path(Crawler):
         for tagName in self.tagNames():
             crawlerContents['tags'][tagName] = self.tag(tagName)
 
-        return json.dumps(crawlerContents)
+        return json.dumps(
+            crawlerContents,
+            indent=4,
+            separators=(',', ': ')
+        )
 
     def glob(self, filterTypes=[], useCache=True):
         """
