@@ -19,7 +19,7 @@ class CollapsedJob(RenderfarmJob):
 
     def addExpandedJob(self, expandedJob):
         """
-        Add a resolved job as input of the unresolved job.
+        Add an expanded job that is later used as input when the collapsed job is expanded.
         """
         assert isinstance(expandedJob, ExpandedJob), \
             "Invalid ExpandedJob type!"
@@ -28,6 +28,6 @@ class CollapsedJob(RenderfarmJob):
 
     def expandedJobs(self):
         """
-        Return a list of file paths used related with serialized crawlers.
+        Return the list of expanded jobs.
         """
         return self.__expandedJobs
