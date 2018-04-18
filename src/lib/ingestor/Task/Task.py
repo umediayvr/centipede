@@ -227,7 +227,7 @@ class Task(object):
 
     def clear(self):
         """
-        Remove all crawlers associate with the task.
+        Remove all crawlers associated with the task.
         """
         self.__pathCrawlers.clear()
 
