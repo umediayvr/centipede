@@ -71,7 +71,9 @@ class CreateIncrementalVersion(CreateVersion):
             self.files()
         ))
 
-        incrementalVersionContents = json.load(open(incrementalVersionData))
+        with open(incrementalVersionData) as f:
+            incrementalVersionContents = json.load(f)
+
         for fileEntry, fileMetadata in incrementalVersionContents.items():
 
             # file is part of the current version, skipping it

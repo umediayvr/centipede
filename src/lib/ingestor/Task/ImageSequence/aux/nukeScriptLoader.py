@@ -25,7 +25,8 @@ if 'script' not in options:
     raise Exception('Could not find "script" in the options!')
 
 # executing script
-exec(
-    open(options['script']).read(),
-    globals()
-)
+with open(options['script']) as f:
+    exec(
+        f.read(),
+        globals()
+    )
