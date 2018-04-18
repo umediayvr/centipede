@@ -112,8 +112,8 @@ class Renderfarm(Dispatcher):
             data['jobType'] = 'collapsed'
             data['taskInputFilePaths'] = []
 
-            # adding the result of of expanded jobs added
-            # to the collapsed job.
+            # adding the result of expanded jobs. This information is going
+            # to be used as input when the job gets expanded
             for expandedJob in renderfarmJob.expandedJobs():
                 data['taskInputFilePaths'].append(
                     expandedJob.taskResultFilePath()
