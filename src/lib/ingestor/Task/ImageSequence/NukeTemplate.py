@@ -31,11 +31,6 @@ class NukeTemplate(NukeScript):
             )
         )
 
-        self.setOption(
-            '_renderOutputData',
-            tempfile.NamedTemporaryFile(suffix='.json').name
-        )
-
     def add(self, pathCrawler, filePath=''):
         """
         Add a path crawler to the task.
@@ -53,6 +48,14 @@ class NukeTemplate(NukeScript):
         """
         Execute the task.
         """
+        # this option needs to be assigned at this point, otherwise
+        # by setting at the construction time the same file name can be
+        # shared on the farm when a task is computed in chunks
+        self.setOption(
+            '_renderOutputData',
+            tempfile.NamedTemporaryFile(suffix='.json').name
+        )
+
         super(NukeTemplate, self)._perform()
 
         # we want to return a list of crawlers about the files that were

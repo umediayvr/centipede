@@ -20,6 +20,7 @@ class ExpandedJob(RenderfarmJob):
         self.__chunkSize = 0
         self.__currentChunk = 0
         self.__chunkTotal = 0
+        self.__totalInChunk = 0
         self.__taskResultFilePath = None
 
     def taskResultFilePath(self):
@@ -47,6 +48,18 @@ class ExpandedJob(RenderfarmJob):
         Return the job chunk size.
         """
         return self.__chunkSize
+
+    def setTotalInChunk(self, totalInChunk):
+        """
+        Associate the information about the total crawlers in the current chunk.
+        """
+        self.__totalInChunk = totalInChunk
+
+    def totalInChunk(self):
+        """
+        Return the information about the total of crawlers in the current chunk.
+        """
+        return self.__totalInChunk
 
     def setCurrentChunk(self, currentChunk):
         """

@@ -50,7 +50,10 @@ class NukeScript(Task):
             # beforehand
             requiredRenderDirName = os.path.dirname(targetSequenceFilePath)
             if not os.path.exists(requiredRenderDirName):
-                os.makedirs(requiredRenderDirName)
+                try:
+                    os.makedirs(requiredRenderDirName)
+                except OSError:
+                    pass
 
             # converting the active frame to the frame padding notation
             sourceSequenceFilePath = pathCrawler.var('filePath').split(".")

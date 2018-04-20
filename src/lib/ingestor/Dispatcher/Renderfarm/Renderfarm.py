@@ -10,12 +10,13 @@ class Renderfarm(Dispatcher):
     """
     Abstracted implementation for a renderfarm dispatcher.
 
-    Optional options: label, jobTempDir, splitSize, priority and expandOnTheFarm
+    Optional options: label, jobTempDir, splitSize, priority, chunkifyOnTheFarm and expandOnTheFarm
     """
 
     __defaultJobTempDir = os.environ.get('UMEDIA_TEMP_REMOTE_DIR', '')
     __defaultLabel = "ingestor"
     __defaultExpandOnTheFarm = False
+    __defaultChunkifyOnTheFarm = False
     __defaultPriority = 50
     __defaultSplitSize = 5
 
@@ -31,6 +32,7 @@ class Renderfarm(Dispatcher):
         self.setOption('splitSize', self.__defaultSplitSize)
         self.setOption('priority', self.__defaultPriority)
         self.setOption('expandOnTheFarm', self.__defaultExpandOnTheFarm)
+        self.setOption('chunkifyOnTheFarm', self.__defaultChunkifyOnTheFarm)
 
     def _perform(self, taskHolder):
         """
@@ -78,7 +80,11 @@ class Renderfarm(Dispatcher):
         """
         For re-implementation: Should dispatch the job to the farm.
 
-        Make sure the implementation returns the job id created during the dispatch.
+        Make sure the implementation returns the job id created during the dispatch. Also,
+        in case you want the renderfarm manager itself to deal with the chunkfication
+        of the task (available through "chunkifyOnTheFarm" option) you can query the
+        information about the chunk through ExpandedJob object which is passed
+        via renderfarmjob argument.
         """
         raise NotImplementedError
 
@@ -167,8 +173,14 @@ class Renderfarm(Dispatcher):
         for crawler in task.pathCrawlers():
             pathCrawlers[crawler] = task.filePath(crawler)
 
+        # we can delegate the chunkfication to the render farm dispatcher
+        # when chunkifyOnTheFarm is enabled. Otherwise, we chunkify
+        # by splitting in sub jobs
         crawlers = list(pathCrawlers.keys())
-        chunkfiedCrawlers = self.__chunkify(crawlers, splitSize) if splitSize else [crawlers]
+        if self.option('chunkifyOnTheFarm') or splitSize == 0:
+            chunkfiedCrawlers = [crawlers]
+        else:
+            chunkfiedCrawlers = self.__chunkify(crawlers, splitSize)
 
         # splitting in multiple tasks
         for index, chunkedCrawlers in enumerate(chunkfiedCrawlers):
@@ -179,6 +191,7 @@ class Renderfarm(Dispatcher):
             # adding information about the chunks
             expandedJob.setChunkTotal(len(chunkfiedCrawlers))
             expandedJob.setCurrentChunk(index)
+            expandedJob.setTotalInChunk(len(chunkedCrawlers))
             expandedJob.setChunkSize(splitSize)
 
             task = clonedTaskHolder.task()
