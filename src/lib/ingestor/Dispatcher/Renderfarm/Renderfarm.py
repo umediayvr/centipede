@@ -334,7 +334,13 @@ class Renderfarm(Dispatcher):
             result.append(inputList)
             return result
 
-        for chunk in range(int(len(inputList) / chunkSize)):
+        # adding an extra chunk for the crawlers
+        # that don't fit completly in a full chunk
+        totalChunks = int(len(inputList) / chunkSize)
+        if len(inputList) % chunkSize:
+            totalChunks += 1
+
+        for chunk in range(totalChunks):
             currentIndex = chunk * chunkSize
             result.append(
                 inputList[currentIndex:currentIndex + chunkSize]
