@@ -2,7 +2,7 @@ import os
 import subprocess
 import tempfile
 from .Renderfarm import Renderfarm
-from .RenderfarmJob import RenderfarmJob, CollapsedJob
+from .RenderfarmJob import RenderfarmJob, CollapsedJob, ExpandedJob
 
 class DeadlineCommandError(Exception):
     """
@@ -39,6 +39,10 @@ class Deadline(Renderfarm):
         # we need to expand them inside of the farm rather than awaiting
         # locally for the submission of all the jobs.
         self.setOption('expandOnTheFarm', True)
+
+        # for the same performance reason above we want to let deadline to chunkify
+        # the job on the farm by default
+        self.setOption('chunkifyOnTheFarm', True)
 
     def option(self, name, *args, **kwargs):
         """
@@ -77,7 +81,19 @@ class Deadline(Renderfarm):
         dependencyIds = renderfarmJob.dependencyIds()
         outputDirectories = []
 
-        args = self.__defaultJobArgs(jobDataFilePath)
+        # computing the command that deadline is going to trigger on the farm
+        command = '{0} {1}'.format(
+            os.path.join(os.path.dirname(os.path.realpath(__file__)), "aux", "execute-renderfarm.py"),
+            jobDataFilePath
+        )
+
+        # in case "chunkifyOnTheFarm" is enabled we need to add the parameters about
+        # the start frame and end frame. Deadline is going to provide the value
+        # for them when computing the chunks on the farm
+        if self.option('chunkifyOnTheFarm') and isinstance(renderfarmJob, ExpandedJob) and renderfarmJob.chunkSize():
+            command += " --range-start <STARTFRAME> --range-end <ENDFRAME>"
+
+        args = self.__defaultJobArgs(command, jobDataFilePath)
 
         # collapsed job
         if isinstance(renderfarmJob, CollapsedJob):
@@ -100,11 +116,20 @@ class Deadline(Renderfarm):
             currentChunk = renderfarmJob.currentChunk()
 
             # label displayed in deadline
-            taskLabel = '{} ({}/{}): '.format(
-                task.type(),
-                str(currentChunk + 1).zfill(3),
-                str(totalChunks).zfill(3)
-            )
+            taskLabel = task.type()
+
+            if self.option('chunkifyOnTheFarm') and renderfarmJob.chunkSize():
+                args += [
+                    "-prop",
+                    "Frames=0-{}".format(renderfarmJob.totalInChunk() - 1),
+                    "-prop",
+                    "ChunkSize={}".format(renderfarmJob.chunkSize())
+                ]
+            else:
+                taskLabel += ' ({}/{}): '.format(
+                    str(currentChunk + 1).zfill(3),
+                    str(totalChunks).zfill(3)
+                )
 
             taskLabel += task.pathCrawlers()[0].var('name')
 
@@ -142,7 +167,7 @@ class Deadline(Renderfarm):
         else:
             raise DeadlineCommandError(output)
 
-    def __defaultJobArgs(self, jobDataFilePath):
+    def __defaultJobArgs(self, command, jobDataFilePath):
         """
         Return a list containing the default job args that later are passed to deadlinecommand.
         """
@@ -151,10 +176,7 @@ class Deadline(Renderfarm):
             "-executable",
             "upython",
             "-arguments",
-            '{0} {1}'.format(
-                os.path.join(os.path.dirname(os.path.realpath(__file__)), "aux", "execute-renderfarm.py"),
-                jobDataFilePath
-            ),
+            command,
             "-priority",
             self.option('priority'),
             "-prop",
