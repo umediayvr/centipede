@@ -27,7 +27,7 @@ class Cdl(Lut):
 
     def __parseXML(self):
         """
-        Parse the cld XML information and assign that to the the crawler.
+        Parse the cld XML information and assign that to the crawler.
         """
         tree = ElementTree.parse(self.var('filePath'))
         root = tree.getroot()
