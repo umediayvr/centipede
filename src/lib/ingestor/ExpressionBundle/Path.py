@@ -1,7 +1,6 @@
 import os
 from ..ExpressionEvaluator import ExpressionEvaluator
 
-
 class _Path(object):
     """
     Basic path functions.
@@ -29,7 +28,7 @@ class _Path(object):
         return os.path.basename(string)
 
     @staticmethod
-    def rfind(fileName, startPath, finalPath=None):
+    def rfindpath(fileName, startPath, finalPath=None):
         """
         Find and return a specific file.
 
@@ -51,10 +50,10 @@ class _Path(object):
             raise IOError('File was not found')
 
         previousPath = os.path.dirname(startPath)
-        return _Path.rfind(fileName, previousPath, finalPath)
+        return _Path.rfindpath(fileName, previousPath, finalPath)
 
     @staticmethod
-    def find(fileName, startPath):
+    def findpath(fileName, startPath):
         """
         Find and return a specific file.
 
@@ -77,9 +76,9 @@ class _Path(object):
         except StopIteration:
             dirList = []
 
-        for dir in dirList:
-            nextPath = os.path.join(startPath, dir)
-            result = _Path.find(fileName, nextPath)
+        for dirName in dirList:
+            nextPath = os.path.join(startPath, dirName)
+            result = _Path.findpath(fileName, nextPath)
             if result:
                 return result
 
@@ -103,11 +102,11 @@ ExpressionEvaluator.register(
 )
 
 ExpressionEvaluator.register(
-    'rfind',
-    _Path.rfind
+    'rfindpath',
+    _Path.rfindpath
 )
 
 ExpressionEvaluator.register(
-    'find',
-    _Path.find
+    'findpath',
+    _Path.findpath
 )

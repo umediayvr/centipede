@@ -4,7 +4,6 @@ from ..BaseTestCase import BaseTestCase
 from ingestor.ExpressionEvaluator import ExpressionEvaluator
 from ingestor.ExpressionEvaluator import ExpressionNotFoundError
 
-
 class PathTest(BaseTestCase):
     """Test Path expressions."""
 
@@ -32,19 +31,21 @@ class PathTest(BaseTestCase):
         result = ExpressionEvaluator.run("basename", self.__path)
         self.assertEqual(result, "example.ext")
 
-    def testRFind(self):
+    def testRFindPath(self):
         """
         Test that the rfind expression works properly.
         """
-        result = ExpressionEvaluator.run('rfind', 'test.txt', self.__testRFindPath)
-        self.assertEqual(os.path.basename(result), 'test.txt')
+        result = ExpressionEvaluator.run('rfindpath', 'test.txt', self.__testRFindPath)
+        testPath = os.path.join(BaseTestCase.dataDirectory(), 'test.txt')
+        self.assertEqual(result, testPath)
 
-    def testFind(self):
+    def testFindPath(self):
         """
         Test that the find expression works properly.
         """
-        result = ExpressionEvaluator.run("find", 'TestCrawler.py', BaseTestCase.dataDirectory())
-        self.assertEqual(os.path.basename(result), 'TestCrawler.py')
+        result = ExpressionEvaluator.run("findpath", 'TestCrawler.py', BaseTestCase.dataDirectory())
+        testPath = os.path.join(BaseTestCase.dataDirectory(), 'config', 'crawlers', 'TestCrawler.py')
+        self.assertEqual(result, testPath)
 
     def testRegistration(self):
         """
