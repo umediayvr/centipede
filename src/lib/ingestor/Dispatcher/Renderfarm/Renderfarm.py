@@ -335,7 +335,7 @@ class Renderfarm(Dispatcher):
             return result
 
         # adding an extra chunk for the crawlers
-        # that don't fit completly in a full chunk
+        # that don't fit completely in a full chunk
         totalChunks = int(len(inputList) / chunkSize)
         if len(inputList) % chunkSize:
             totalChunks += 1
