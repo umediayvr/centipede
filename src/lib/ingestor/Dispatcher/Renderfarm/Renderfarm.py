@@ -80,7 +80,11 @@ class Renderfarm(Dispatcher):
         """
         For re-implementation: Should dispatch the job to the farm.
 
-        Make sure the implementation returns the job id created during the dispatch.
+        Make sure the implementation returns the job id created during the dispatch. Also,
+        in case you want the renderfarm manager itself to deal with the chunkfication
+        of the task (available through "chunkifyOnTheFarm" option) you can query the
+        information about the chunk through ExpandedJob object which is passed
+        via renderfarmjob argument.
         """
         raise NotImplementedError
 
