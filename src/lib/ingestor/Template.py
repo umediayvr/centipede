@@ -60,9 +60,9 @@ class Template(object):
         contextVariableValues = {}
         for varName in self.varNames():
             if varName in vars:
-                contextVariableValues[varName] = vars[varName]
+                contextVariableValues[varName] = str(vars[varName])
             else:
-                contextVariableValues[varName] = crawler.var(varName)
+                contextVariableValues[varName] = str(crawler.var(varName))
 
         return self.value(contextVariableValues)
 
@@ -74,16 +74,7 @@ class Template(object):
 
         # resolving variables values
         resolvedTemplate = self.inputString()
-
-        # special case where the template only contains one variable and the value for that is either a list or dict
-        # TODO: Need a redesigned
-        if len(self.varNames()) == 1:
-            for varName, varValue in vars.items():
-                if varName in self.varNames() and isinstance(varValue, (dict, list,)):
-                    return varValue
-
         for varName, varValue in vars.items():
-            varValue = str(varValue)
             resolvedTemplate = resolvedTemplate.replace(
                 ('{' + varName + '}'),
                 self.__escapeTemplateTokens(varValue)
