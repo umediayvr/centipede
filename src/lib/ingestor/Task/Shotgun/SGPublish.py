@@ -29,8 +29,8 @@ class SGPublish(Task):
 
         # Source crawler is a json crawler that points to published data
         sourceCrawler = self.pathCrawlers()[0]
+        filePath = self.filePath(sourceCrawler) if self.filePath(sourceCrawler) else sourceCrawler.var('filePath')
 
-        filePath = sourceCrawler.var('filePath')
         self.__publishData["path"] = {"local_path": filePath}
 
         self.__publishData["description"] = self.templateOption('comment', crawler=sourceCrawler)
