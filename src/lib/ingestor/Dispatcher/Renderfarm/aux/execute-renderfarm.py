@@ -98,7 +98,7 @@ def __runExpanded(data, taskHolder, rangeStart, rangeEnd):
     if rangeStart is not None:
 
         # since a range has been assigned we need to modify the result file name
-        # to include the range information. This can only done at this point
+        # to include the range information. This can only be done at this point
         # since execute-renderfarm is called directly by the renderfarm
         # manager itself to split the job in chunks (when chunkifyOnTheFarm
         # option is enabled in the dispatcher)
