@@ -34,6 +34,28 @@ class Renderfarm(Dispatcher):
         self.setOption('expandOnTheFarm', self.__defaultExpandOnTheFarm)
         self.setOption('chunkifyOnTheFarm', self.__defaultChunkifyOnTheFarm)
 
+    def extendDependencyIds(self, jobId, dependencyIds):
+        """
+        Extend the dependencies in the input job id.
+        """
+        assert isinstance(dependencyIds, list), "dependencyIds should be a list!"
+
+        self._addDependencyIds(
+            jobId,
+            dependencyIds
+        )
+
+    def _addDependencyIds(self, jobId, dependencyIds):
+        """
+        For re-implementation: Should add the dependency ids to the input job id.
+
+        This is feature used when a collapsed job is expanded on the farm. Therefore,
+        all the jobs created by the collapsed job should be added back
+        as dependency of the collapsed job itself. Also, you may need to mark
+        the collapsed job as pending status again.
+        """
+        raise NotImplementedError
+
     def _perform(self, taskHolder):
         """
         Execute the dispatcher.
@@ -261,6 +283,11 @@ class Renderfarm(Dispatcher):
             # setting the job id to the collapsed job
             collapsedJob.setJobId(jobId)
 
+            self.__createJobIdFile(
+                jobDataFilePath,
+                jobId
+            )
+
             result.append(collapsedJob)
 
         # processing the awaiting sub-tasks holders. When a sub task holder is marked with
@@ -298,6 +325,11 @@ class Renderfarm(Dispatcher):
             )
 
             collapsedJob.setJobId(jobId)
+            self.__createJobIdFile(
+                jobDataFilePath,
+                jobId
+            )
+
             result.append(collapsedJob)
 
             # making sure the next following await task holder is going
@@ -323,6 +355,27 @@ class Renderfarm(Dispatcher):
         os.makedirs(baseRemoteTemporaryPath)
 
         return baseRemoteTemporaryPath
+
+    @classmethod
+    def __createJobIdFile(cls, jobDataFilePath, jobId):
+        """
+        Create a json file based on the jobDataFilePath containing the job id.
+        """
+        name, ext = os.path.splitext(jobDataFilePath)
+        jobIdFilePath = "{}_jobId.{ext}".format(
+            name,
+            ext=ext[1:]
+        )
+
+        data = {
+            'id': jobId
+        }
+
+        with open(jobIdFilePath, "w") as jsonFile:
+            json.dump(
+                data,
+                jsonFile
+            )
 
     @classmethod
     def __chunkify(cls, inputList, chunkSize):
