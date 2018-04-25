@@ -68,6 +68,38 @@ class Deadline(Renderfarm):
         # returning the value for an option
         return super(Deadline, self).option(name, *args, **kwargs)
 
+    def _addDependencyIds(self, jobId, dependencyIds):
+        """
+        For re-implementation: Should add the dependency ids to the input job id.
+
+        This is feature used when a collapsed job is expanded on the farm. Therefore,
+        all the jobs created by the collapsed job should be added back
+        as dependency of the collapsed job itself. Also, you may need to mark
+        the collapsed job as pending status again.
+        """
+        # getting the current job ids
+        currentJobIds = self.__executeDeadlineCommand(
+            "deadlinecommand GetJobSetting {} JobDependencies".format(jobId)
+        )
+
+        currentJobIds = currentJobIds.split(",") if len(currentJobIds) else []
+
+        # appending with the new dependency ids
+        currentJobIds += dependencyIds
+
+        # updating the job dependency ids
+        currentJobIds = self.__executeDeadlineCommand(
+            "deadlinecommand SetJobSetting {} JobDependencies {}".format(
+                jobId,
+                ','.join(dependencyIds)
+            )
+        )
+
+        # marking job as pending again
+        self.__executeDeadlineCommand(
+            "deadlinecommand PendJob {}".format(jobId)
+        )
+
     def _executeOnTheFarm(self, renderfarmJob, jobDataFilePath):
         """
         For re-implementation: Should call the subprocess that dispatches the job to the farm.
@@ -131,7 +163,10 @@ class Deadline(Renderfarm):
                     str(totalChunks).zfill(3)
                 )
 
-            taskLabel += task.pathCrawlers()[0].var('name')
+            taskLabel = "{} {}".format(
+                taskLabel,
+                task.pathCrawlers()[0].var('name')
+            )
 
             args += [
                 "-name",
