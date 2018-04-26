@@ -19,11 +19,11 @@ def __runCollapsed(data, taskHolder, dataJsonFile):
     name, ext = os.path.splitext(dataJsonFile)
 
     # checking if the job has been already processed. This happens
-    # when a collapsed job dispatches expanded jobs on the farm
-    # that were added as dependencies of the collapsed
+    # when a collapsed job dispatches expanded jobs on the farm. The
+    # dispatched jobs get added as dependencies of the collapsed
     # job itself. Therefore, when the dependencies are completed
-    # and the job gets resumed we want to avoid the job to
-    # execute itself again by just returning it at the second time.
+    # and the job gets resumed (restarted). We want to avoid the job to
+    # execute itself again by just returning it right away.
     jobProcessedFilePath = "{}_jobProcessed".format(name)
     if os.path.exists(jobProcessedFilePath):
         sys.stdout.write("Job has been already processed, skipping it.\n")
