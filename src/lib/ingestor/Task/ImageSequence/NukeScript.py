@@ -25,6 +25,14 @@ class NukeScript(Task):
     myOption = options['myOption']
     """
 
+    def __init__(self, *args, **kwargs):
+        """
+        Create a nuke script task.
+        """
+        super(NukeScript, self).__init__(*args, **kwargs)
+
+        self.__assignMetadata()
+
     def _perform(self):
         """
         Execute the nuke script.
@@ -131,6 +139,28 @@ class NukeScript(Task):
 
         # default result based on the target filePath
         return super(NukeScript, self)._perform()
+
+    def __assignMetadata(self):
+        """
+        Assign the default metadata to the task.
+        """
+        # group metadata
+        self.setMetadata(
+            'dispatch.renderFarm.group',
+            os.environ.get(
+                'DISPATCHER_RENDERFARM_NUKE_GROUP',
+                ''
+            )
+        )
+
+        # pool metadata
+        self.setMetadata(
+            'dispatch.renderFarm.pool',
+            os.environ.get(
+                'DISPATCHER_RENDERFARM_NUKE_POOL',
+                ''
+            )
+        )
 
 
 # registering task

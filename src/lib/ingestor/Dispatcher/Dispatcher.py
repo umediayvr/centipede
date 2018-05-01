@@ -44,10 +44,27 @@ class Dispatcher(object):
         """
         return self.__dispatcherType
 
-    def option(self, name):
+    def option(self, name, task=None):
         """
         Return a value for an option.
+
+        When a task is specified it will look for the value of the option
+        in the metadata first otherwise returns the value held by the
+        dispatcher. This allows tasks to customize the behaviour
+        of the dispatcher dynamically without affecting the defaults of the
+        dispatcher itself.
         """
+        # return from metadata
+        if task:
+            metadataKey = "dispatch.{}.{}".format(
+                self.type(),
+                name
+            )
+
+            if task.hasMetadata(metadataKey):
+                return task.metadata(metadataKey)
+
+        # return from dispatcher itself
         if name not in self.__options:
             raise DispatcherInvalidOptionError(
                 'Invalid option name: "{0}"'.format(

@@ -20,6 +20,7 @@ class Copy(Task):
         """
         super(Copy, self).__init__(*args, **kwargs)
         self.setMetadata('dispatch.split', True)
+        self.setMetadata('dispatch.splitSize', 20)
 
     def _perform(self):
         """
