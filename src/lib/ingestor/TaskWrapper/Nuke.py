@@ -28,7 +28,7 @@ class Nuke(DCC):
         """
         For re-implementation: should return a string containing the name used for the hook registered in basetools.
         """
-        raise "nuke"
+        return "nuke"
 
 
 # registering task wrapper

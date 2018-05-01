@@ -17,7 +17,7 @@ class Maya(DCC):
         """
         For re-implementation: should return a string containing the name used for the hook registered in basetools.
         """
-        raise "maya"
+        return "maya"
 
 
 # registering task wrapper
