@@ -16,9 +16,9 @@ class Deadline(Renderfarm):
     Optional options: pool, secondaryPool, group and jobFailRetryAttempts
     """
 
-    __defaultGroup = ''
-    __defaultPool = ''
-    __defaultSecondaryPool = ''
+    __defaultGroup = os.environ.get('DISPATCHER_RENDERFARM_GROUP', '')
+    __defaultPool = os.environ.get('DISPATCHER_RENDERFARM_POOL', '')
+    __defaultSecondaryPool = os.environ.get('DISPATCHER_RENDERFARM_SECONDARYPOOL', '')
     __defaultJobFailRetryAttempts = 1
 
     def __init__(self, *args, **kwargs):
@@ -125,7 +125,11 @@ class Deadline(Renderfarm):
         if self.option('chunkifyOnTheFarm') and isinstance(renderfarmJob, ExpandedJob) and renderfarmJob.chunkSize():
             command += " --range-start <STARTFRAME> --range-end <ENDFRAME>"
 
-        args = self.__defaultJobArgs(command, jobDataFilePath)
+        args = self.__defaultJobArgs(
+            task,
+            command,
+            jobDataFilePath
+        )
 
         # collapsed job
         if isinstance(renderfarmJob, CollapsedJob):
@@ -202,7 +206,7 @@ class Deadline(Renderfarm):
         else:
             raise DeadlineCommandError(output)
 
-    def __defaultJobArgs(self, command, jobDataFilePath):
+    def __defaultJobArgs(self, task, command, jobDataFilePath):
         """
         Return a list containing the default job args that later are passed to deadlinecommand.
         """
@@ -213,11 +217,16 @@ class Deadline(Renderfarm):
             "-arguments",
             command,
             "-priority",
-            self.option('priority'),
+            '{}'.format(
+                self.option(
+                    'priority',
+                    task
+                )
+            ),
             "-prop",
             "OverrideJobFailureDetection=true",
             "-prop",
-            "FailureDetectionJobErrors={}".format(self.option('jobFailRetryAttempts') + 1),
+            "FailureDetectionJobErrors={}".format(self.option('jobFailRetryAttempts', task) + 1),
             "-prop",
             "IncludeEnvironment=true",
             "-prop",
@@ -226,12 +235,15 @@ class Deadline(Renderfarm):
 
         # adding optional options
         for optionName in ['group', 'pool', 'secondaryPool']:
-            if self.option(optionName):
+            if self.option(optionName, task):
                 args += [
                     "-prop",
                     "{}={}".format(
                         optionName.capitalize(),
-                        self.option(optionName)
+                        self.option(
+                            optionName,
+                            task
+                        )
                     )
                 ]
 
