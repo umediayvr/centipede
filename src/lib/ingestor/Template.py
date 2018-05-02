@@ -37,7 +37,7 @@ class Template(object):
         """
         Create a template object.
         """
-        self.__setRawTemplateString(inputString)
+        self.setInputString(inputString)
         self.__setVarNames()
         self.__expressionValueCache = {}
 
@@ -46,6 +46,15 @@ class Template(object):
         Return the raw template string used to create the object.
         """
         return self.__inputString
+
+    def setInputString(self, inputString):
+        """
+        Set the template string.
+        """
+        assert isinstance(inputString, basestring), \
+            "Invalid template string!"
+
+        self.__inputString = inputString
 
     def varNames(self):
         """
@@ -167,15 +176,6 @@ class Template(object):
             result.add(templatePart[:endIndex])
 
         self.__varNames = list(result)
-
-    def __setRawTemplateString(self, inputString):
-        """
-        Set the raw template string.
-        """
-        assert isinstance(inputString, basestring), \
-            "Invalid template string!"
-
-        self.__inputString = inputString
 
     @classmethod
     def __escapeTemplateTokens(cls, value, direction=1):
