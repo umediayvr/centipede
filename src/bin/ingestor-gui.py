@@ -2,6 +2,7 @@ import sys
 import os
 import re
 import ingestor
+import datetime
 from ingestor.Dispatcher import Dispatcher
 from ingestor.Crawler import Crawler
 import subprocess
@@ -348,11 +349,12 @@ class Application(QtWidgets.QApplication):
 
                     # run on the farm
                     if self.__runOnTheFarmCheckbox.checkState() == QtCore.Qt.Checked:
-
+                        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         renderFarmDispatcher = Dispatcher.create('renderFarm')
                         label = os.path.basename(taskHolder.var('configPath'))
                         label += "/"
                         label += os.path.splitext(taskHolder.var('configName'))[0]
+                        label += date
                         label += ": "
                         label += crawlersGroup[0].tag('group') if 'group' in crawlersGroup[0].tagNames() else crawlersGroup[0].var('baseName')
                         renderFarmDispatcher.setOption('label', label)
