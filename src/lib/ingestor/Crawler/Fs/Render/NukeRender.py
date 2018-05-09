@@ -24,6 +24,11 @@ class NukeRender(ExrRender):
         self.setVar('versionName', parts[-2])
         self.setVar('version', int(parts[-2][1:]))
 
+        # Keep track of if the render is a matte to use later in deliveries
+        # \todo: Find a better way to detect if a render is a matte
+        isMatte = 'matte' in self.var('output').lower()
+        self.setVar('isMatte', int(isMatte))
+
     @classmethod
     def test(cls, pathHolder, parentCrawler):
         """

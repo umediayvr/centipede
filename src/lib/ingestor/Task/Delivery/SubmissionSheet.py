@@ -4,7 +4,6 @@ from ...Crawler.Fs import Path
 from ...Crawler.Fs.Image import Image
 from ...Crawler.Fs.Video import Video
 from ..Task import Task
-from ...Template import Template
 
 class SubmissionSheet(Task):
     """
@@ -27,6 +26,8 @@ class SubmissionSheet(Task):
         """
         jsonCrawler = self.pathCrawlers()[0]
         self.__getDeliveryData(jsonCrawler)
+        if self.option('mergeMattes'):
+            self.__findMattes()
 
         self.__columnLabels = list(map(lambda x: x[0], self.option("_columns")))
 
@@ -53,16 +54,39 @@ class SubmissionSheet(Task):
         """
         self.__deliveryData = jsonCrawler.contents()
 
+    def __findMattes(self):
+        """
+        Look for delivery data tagged as mattes and set their name on their matching internalVersion entry.
+        """
+        mattes = {}
+        toDelete = []
+        for name in self.__deliveryData:
+            if not self.__deliveryData[name].get('isMatte', 0):
+                continue
+            internalVersion = self.__deliveryData[name].get('internalVersion')
+            mattes[internalVersion] = name
+            toDelete.append(name)
+        for name in self.__deliveryData:
+            internalVersion = self.__deliveryData[name].get('internalVersion')
+            self.__deliveryData[name]['matteName'] = mattes.get(internalVersion, '')
+        # Remove mattes from dictionary so they don't get added on their own line in the spreadsheet
+        for name in toDelete:
+            del self.__deliveryData[name]
+
     def __setRow(self, pathCrawler):
         """
         Get the data expected to be in a spreadsheet row for the given file crawler.
         """
         name = pathCrawler.var("name")
+
         isProxy = (name.endswith("_h264") or name.endswith("_prores"))
         if isProxy and not self.option('includeProxies'):
             return
 
         shortName = name if not isProxy else "_".join(name.split("_")[:-1])
+        if self.option('mergeMattes') and shortName not in self.__deliveryData:
+            return
+
         if shortName not in self.__rows:
             self.__addRow(shortName, pathCrawler)
         else:
