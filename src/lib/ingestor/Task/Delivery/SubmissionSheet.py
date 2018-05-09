@@ -55,6 +55,9 @@ class SubmissionSheet(Task):
         self.__deliveryData = jsonCrawler.contents()
 
     def __findMattes(self):
+        """
+        Look for delivery data tagged as mattes and set their name on their matching internalVersion entry.
+        """
         mattes = {}
         toDelete = []
         for name in self.__deliveryData:
@@ -66,6 +69,7 @@ class SubmissionSheet(Task):
         for name in self.__deliveryData:
             internalVersion = self.__deliveryData[name].get('internalVersion')
             self.__deliveryData[name]['matteName'] = mattes.get(internalVersion, '')
+        # Remove mattes from dictionary so they don't get added on their own line in the spreadsheet
         for name in toDelete:
             del self.__deliveryData[name]
 
