@@ -157,7 +157,9 @@ class JsonLoader(TaskHolderLoader):
             if not isinstance(taskHolderInfo, dict):
                 raise UnexpectedContentError('Expecting an object to describe the task holder!')
 
-            task = self.__parseTask(taskHolderInfo, configPath)
+            taskHolderInfo = self.__expandTaskHolderInfo(taskHolderInfo, configPath)
+
+            task = self.__parseTask(taskHolderInfo)
 
             # getting the target template
             targetTemplate = Template(taskHolderInfo.get('targetTemplate', ''))
@@ -197,38 +199,45 @@ class JsonLoader(TaskHolderLoader):
                 self.__loadTaskHolder(taskHolderInfo, {}, configPath, taskHolder)
 
     @classmethod
-    def __parseTask(cls, contents, configPath):
+    def __expandTaskHolderInfo(cls, taskHolderInfo, configPath):
         """
-        Return a task object parsed under the contents.
+        Return the expanded content of a task holder that can be described using an external resource.
         """
         # special case where configurations can be defined externally, when that
         # is the case loading that instead
-        if 'includeTaskHolder' in contents:
+        if 'includeTaskHolder' in taskHolderInfo:
 
             # detecting if the path is absolute or needs to be resolved
-            if os.path.isabs(contents['includeTaskHolder']):
-                absolutePath = contents['includeTaskHolder']
+            if os.path.isabs(taskHolderInfo['includeTaskHolder']):
+                absolutePath = taskHolderInfo['includeTaskHolder']
             else:
                 absolutePath = os.path.normpath(
-                    os.path.join(configPath, contents['includeTaskHolder'])
+                    os.path.join(configPath, taskHolderInfo['includeTaskHolder'])
                 )
 
-            # replacing the current contents for the one defined externally
+            # replacing the current taskHolderInfo for the one defined externally
             # inside the json file (that one is going to contain the resolved task holder
             # information)
             with open(absolutePath) as f:
-                contents = json.load(f)
+                taskHolderInfo = json.load(f)
 
-        task = Task.create(contents['task'])
+        return taskHolderInfo
+
+    @classmethod
+    def __parseTask(cls, taskHolderInfo):
+        """
+        Return a task object parsed under the taskHolderInfo.
+        """
+        task = Task.create(taskHolderInfo['task'])
 
         # setting task options
-        if 'taskOptions' in contents:
-            for taskOptionName, taskOptionValue in contents['taskOptions'].items():
+        if 'taskOptions' in taskHolderInfo:
+            for taskOptionName, taskOptionValue in taskHolderInfo['taskOptions'].items():
                 task.setOption(taskOptionName, taskOptionValue)
 
         # setting task metadata
-        if 'taskMetadata' in contents:
-            for taskMetadataName, taskMetadataValue in contents['taskMetadata'].items():
+        if 'taskMetadata' in taskHolderInfo:
+            for taskMetadataName, taskMetadataValue in taskHolderInfo['taskMetadata'].items():
                 task.setMetadata(taskMetadataName, taskMetadataValue)
 
         return task
