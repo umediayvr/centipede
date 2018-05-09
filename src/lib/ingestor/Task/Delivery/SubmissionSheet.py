@@ -4,7 +4,6 @@ from ...Crawler.Fs import Path
 from ...Crawler.Fs.Image import Image
 from ...Crawler.Fs.Video import Video
 from ..Task import Task
-from ...Template import Template
 
 class SubmissionSheet(Task):
     """
@@ -27,6 +26,8 @@ class SubmissionSheet(Task):
         """
         jsonCrawler = self.pathCrawlers()[0]
         self.__getDeliveryData(jsonCrawler)
+        if self.option('mergeMattes'):
+            self.__findMattes()
 
         self.__columnLabels = list(map(lambda x: x[0], self.option("_columns")))
 
@@ -53,11 +54,29 @@ class SubmissionSheet(Task):
         """
         self.__deliveryData = jsonCrawler.contents()
 
+    def __findMattes(self):
+        mattes = {}
+        toDelete = []
+        for name in self.__deliveryData:
+            if not self.__deliveryData[name].get('isMatte', 0):
+                continue
+            internalVersion = self.__deliveryData[name].get('internalVersion')
+            mattes[internalVersion] = name
+            toDelete.append(name)
+        for name in self.__deliveryData:
+            internalVersion = self.__deliveryData[name].get('internalVersion')
+            self.__deliveryData[name]['matteName'] = mattes.get(internalVersion, '')
+        for name in toDelete:
+            del self.__deliveryData[name]
+
     def __setRow(self, pathCrawler):
         """
         Get the data expected to be in a spreadsheet row for the given file crawler.
         """
         name = pathCrawler.var("name")
+        if self.option('mergeMattes') and name not in self.__deliveryData:
+            return
+
         isProxy = (name.endswith("_h264") or name.endswith("_prores"))
         if isProxy and not self.option('includeProxies'):
             return
