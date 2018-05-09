@@ -33,8 +33,20 @@ class Cdl(Lut):
         root = tree.getroot()
         namespace = self.__xmlNamespace(root)
 
-        colorDecision = root.find('{}ColorDecision'.format(namespace))
-        colorCorrection = colorDecision.find('{}ColorCorrection'.format(namespace))
+        # we can have this file represented in two ways (for now)
+        colorCorrection = root.find('{}ColorDecision'.format(namespace))
+        if not colorCorrection:
+            colorCorrection = root.find('ColorDecision')
+            if colorCorrection:
+                namespace = ''
+
+        if not colorCorrection:
+            colorCorrection = root.find('{}ColorCorrection'.format(namespace))
+            if not colorCorrection:
+                colorCorrection = root.find('ColorCorrection')
+                if colorCorrection:
+                    namespace = ''
+
         sopNode = colorCorrection.find('{}SOPNode'.format(namespace))
 
         slope = sopNode.find('{}Slope'.format(namespace))
