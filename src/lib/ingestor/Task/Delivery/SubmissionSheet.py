@@ -78,14 +78,15 @@ class SubmissionSheet(Task):
         Get the data expected to be in a spreadsheet row for the given file crawler.
         """
         name = pathCrawler.var("name")
-        if self.option('mergeMattes') and name not in self.__deliveryData:
-            return
 
         isProxy = (name.endswith("_h264") or name.endswith("_prores"))
         if isProxy and not self.option('includeProxies'):
             return
 
         shortName = name if not isProxy else "_".join(name.split("_")[:-1])
+        if self.option('mergeMattes') and shortName not in self.__deliveryData:
+            return
+
         if shortName not in self.__rows:
             self.__addRow(shortName, pathCrawler)
         else:
