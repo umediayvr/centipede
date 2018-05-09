@@ -201,7 +201,7 @@ class JsonLoader(TaskHolderLoader):
     @classmethod
     def __expandTaskHolderInfo(cls, taskHolderInfo, configPath):
         """
-        Return the expanded content of a task holder that can described using an external resource.
+        Return the expanded content of a task holder that can be described using an external resource.
         """
         # special case where configurations can be defined externally, when that
         # is the case loading that instead
