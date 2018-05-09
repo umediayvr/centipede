@@ -27,7 +27,7 @@ class MediaDelivery(NukeTemplate):
         mediaInfo = {}
         if os.path.exists(mediaInfoJson):
            with open(mediaInfoJson) as jsonFile:
-            	mediaInfo = json.load(jsonFile)
+               mediaInfo = json.load(jsonFile)
 
         createdFilePath = targetFilePath[len(mediaInfoJson[:-4]):]
         createdFilePath = createdFilePath[:createdFilePath.find("/")]

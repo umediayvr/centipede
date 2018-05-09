@@ -94,9 +94,11 @@ class Local(Dispatcher):
         Clean up all the finished threads dispatched previously.
         """
         # cleaning up previous threads that have been finished
-        for runningThread in list(cls.__runningThreads):
+        removedIndex = 0
+        for index, runningThread in enumerate(list(cls.__runningThreads)):
             if not runningThread.is_alive():
-                del cls.__runningThreads[runningThread]
+                del cls.__runningThreads[index - removedIndex]
+                removedIndex += 1
 
     @classmethod
     def __bakeTaskHolderToJson(cls, taskHolder):
