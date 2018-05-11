@@ -6,7 +6,7 @@ import "installExtra/mainGroup.qbs" as MainGroup
 
 Project {
   id: main
-  property string name: "ingestor"
+  property string name: "centipede"
   property string releaseType
   property int pythonMajorVersion
 

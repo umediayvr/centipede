@@ -57,7 +57,7 @@ class Subprocess(TaskWrapper):
         """
         For re-implementation: should return a string which is executed as subprocess.
         """
-        return 'upython -c "import ingestor; ingestor.TaskWrapper.Subprocess.runSerializedTask()"'
+        return 'upython -c "import centipede; centipede.TaskWrapper.Subprocess.runSerializedTask()"'
 
     def _perform(self, task):
         """

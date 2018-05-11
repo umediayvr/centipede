@@ -119,7 +119,7 @@ class NukeScript(Task):
                 del customEnv['OCIO']
 
             process = subprocess.Popen(
-                'nuke -x -t "{scriptLoader}" --ingestor-options "{optionsFile}" --log-level error'.format(
+                'nuke -x -t "{scriptLoader}" --centipede-options "{optionsFile}" --log-level error'.format(
                     scriptLoader=scriptLoaderPath,
                     optionsFile=tempJsonOptionsFile.name
                 ),

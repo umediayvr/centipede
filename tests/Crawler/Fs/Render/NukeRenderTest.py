@@ -1,9 +1,9 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from ingestor.Crawler.Fs import Path
-from ingestor.PathHolder import PathHolder
-from ingestor.Crawler.Fs.Render import NukeRender
+from centipede.Crawler.Fs import Path
+from centipede.PathHolder import PathHolder
+from centipede.Crawler.Fs.Render import NukeRender
 
 class NukeRenderTest(BaseTestCase):
     """Test NukeRender crawler."""

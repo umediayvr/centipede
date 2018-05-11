@@ -1,10 +1,10 @@
 import unittest
 import os
 from ...BaseTestCase import BaseTestCase
-from ingestor.Task import Task
-from ingestor.Crawler.Fs import Path
-from ingestor.Task.Fs.Checksum import ChecksumMatchError
-from ingestor.Task.Image import UpdateImageMetadata
+from centipede.Task import Task
+from centipede.Crawler.Fs import Path
+from centipede.Task.Fs.Checksum import ChecksumMatchError
+from centipede.Task.Image import UpdateImageMetadata
 
 class UpdateImageMetadataTest(BaseTestCase):
     """Test UpdateImageMetadata task."""
@@ -26,7 +26,7 @@ class UpdateImageMetadataTest(BaseTestCase):
         import OpenImageIO as oiio
         inputSpec = oiio.ImageInput.open(self.__targetPath).spec()
         self.assertEqual(inputSpec.get_string_attribute("umedia:sourceFile"), self.__sourcePath)
-        self.assertEqual(inputSpec.get_string_attribute("umedia:ingestorUser"), os.environ['USERNAME'])
+        self.assertEqual(inputSpec.get_string_attribute("umedia:centipedeUser"), os.environ['USERNAME'])
         checkTask = Task.create('checksum')
         checkTask.add(crawler, self.__sourcePath)
         self.assertRaises(ChecksumMatchError, checkTask.output)

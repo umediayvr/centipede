@@ -34,7 +34,7 @@
             "notes": "",
             "videocodec": "",
             "bottomLeft": "{pass}, {versionName}",
-            "template": "{prefix}/{job}/config/ingestor/mediaDelivery/templates/template.nk",
+            "template": "{prefix}/{job}/config/centipede/mediaDelivery/templates/template.nk",
             "enableSlate": 0,
             "enableColorSpace": 0,
             "enableReformat": 0,

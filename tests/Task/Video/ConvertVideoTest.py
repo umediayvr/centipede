@@ -1,8 +1,8 @@
 import unittest
 import os
 from ...BaseTestCase import BaseTestCase
-from ingestor.Task import Task
-from ingestor.Crawler.Fs import Path
+from centipede.Task import Task
+from centipede.Crawler.Fs import Path
 
 class ConvertVideoTest(BaseTestCase):
     """Test ConvertVideo task."""

@@ -1,9 +1,9 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from ingestor.Crawler.Fs import Path
-from ingestor.PathHolder import PathHolder
-from ingestor.Crawler.Fs.Lut import Cdl
+from centipede.Crawler.Fs import Path
+from centipede.PathHolder import PathHolder
+from centipede.Crawler.Fs.Lut import Cdl
 
 class CdlTest(BaseTestCase):
     """Test Cdl crawler."""

@@ -1,5 +1,5 @@
-from ingestor.Task import Task
-from ingestor.TaskWrapper import TaskWrapper
+from centipede.Task import Task
+from centipede.TaskWrapper import TaskWrapper
 
 class UPythonTestTask(Task):
     """

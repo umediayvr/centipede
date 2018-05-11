@@ -10,7 +10,7 @@ class Maya(DCC):
         """
         For re-implementation: should return a string which is executed as subprocess.
         """
-        return 'maya -batch -command "python(\\"import ingestor; ingestor.TaskWrapper.Subprocess.runSerializedTask()\\")"'
+        return 'maya -batch -command "python(\\"import centipede; centipede.TaskWrapper.Subprocess.runSerializedTask()\\")"'
 
     @classmethod
     def _hookName(cls):

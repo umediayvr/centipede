@@ -1,6 +1,6 @@
 import unittest
 from ..BaseTestCase import BaseTestCase
-from ingestor.ExpressionEvaluator import ExpressionEvaluator
+from centipede.ExpressionEvaluator import ExpressionEvaluator
 
 class DatetimeTest(BaseTestCase):
     """Test Datetime expressions."""
