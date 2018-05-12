@@ -1,6 +1,5 @@
 from .Lut import Lut
-import re
-import xml.etree.ElementTree as ElementTree
+from ..Ascii import Xml
 
 class Cdl(Lut):
     """
@@ -29,49 +28,21 @@ class Cdl(Lut):
         """
         Parse the cld XML information and assign that to the crawler.
         """
-        tree = ElementTree.parse(self.var('filePath'))
-        root = tree.getroot()
-        namespace = self.__xmlNamespace(root)
+        cdlTags = ['Slope', 'Offset', 'Power', 'Saturation']
+        cdlRequireTags = ['ColorCorrection', 'SOPNode']
 
-        # we can have this file represented in two ways (for now)
-        colorCorrection = root.find('{}ColorDecision'.format(namespace))
-        if not colorCorrection:
-            colorCorrection = root.find('ColorDecision')
-            if colorCorrection:
-                namespace = ''
+        # Check if the cdl have the required tags
+        xmlCrawler = Xml.createFromPath(self.var('filePath'), 'xml')
+        for tag in cdlRequireTags:
+            xmlCrawler.queryTag(tag)
 
-        if not colorCorrection:
-            colorCorrection = root.find('{}ColorCorrection'.format(namespace))
-            if not colorCorrection:
-                colorCorrection = root.find('ColorCorrection')
-                if colorCorrection:
-                    namespace = ''
-
-        sopNode = colorCorrection.find('{}SOPNode'.format(namespace))
-
-        slope = sopNode.find('{}Slope'.format(namespace))
-        offset = sopNode.find('{}Offset'.format(namespace))
-        power = sopNode.find('{}Power'.format(namespace))
-
-        slope = list(map(float, slope.text.split(" ")))
-        offset = list(map(float, offset.text.split(" ")))
-        power = list(map(float, power.text.split(" ")))
-
-        satNode = colorCorrection.find('{}SatNode'.format(namespace))
-        saturation = float(satNode.find('{}Saturation'.format(namespace)).text)
-
-        self.setVar('slope', slope)
-        self.setVar('offset', offset)
-        self.setVar('power', power)
-        self.setVar('saturation', saturation)
-
-    @classmethod
-    def __xmlNamespace(cls, element):
-        """
-        Return the namespace used in the xml file.
-        """
-        m = re.match('\{.*\}', element.tag)
-        return m.group(0) if m else ''
+        # Get the values from the cdl file
+        for tag in cdlTags:
+            tagValue = xmlCrawler.queryTag(tag)
+            value = list(map(float, tagValue.split(" ")))
+            if tag == 'Saturation':
+                value = value[0]
+            self.setVar(tag.lower(), value)
 
 
 # registering crawler
