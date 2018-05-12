@@ -1,1 +1,1 @@
-# ingestor (legacy - maintenance branch)
+# ingestor
