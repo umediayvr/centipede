@@ -1,6 +1,6 @@
 import os
 import re
-import ingestor
+import centipede
 
 def plateNewVersionExpression(prefix, job, seq, shot, plateName):
     """
@@ -27,7 +27,7 @@ def plateNewVersionExpression(prefix, job, seq, shot, plateName):
 
 
 # registering expression
-ingestor.ExpressionEvaluator.register(
+centipede.ExpressionEvaluator.register(
     'plateNewVersion',
     plateNewVersionExpression
 )

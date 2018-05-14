@@ -1,4 +1,4 @@
-from ingestor.Task import Task
+from centipede.Task import Task
 
 class SgPythonTestTask(Task):
     """

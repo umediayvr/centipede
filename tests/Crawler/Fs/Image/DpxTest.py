@@ -1,9 +1,9 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from ingestor.Crawler.Fs import Path
-from ingestor.PathHolder import PathHolder
-from ingestor.Crawler.Fs.Image import Dpx
+from centipede.Crawler.Fs import Path
+from centipede.PathHolder import PathHolder
+from centipede.Crawler.Fs.Image import Dpx
 
 class DpxTest(BaseTestCase):
     """Test Dpx crawler."""

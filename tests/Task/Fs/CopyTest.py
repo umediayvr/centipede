@@ -1,9 +1,9 @@
 import unittest
 import os
 from ...BaseTestCase import BaseTestCase
-from ingestor.Task import Task
-from ingestor.Crawler.Fs import Path
-from ingestor.Crawler.Fs.Image import Exr
+from centipede.Task import Task
+from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs.Image import Exr
 
 class CopyTest(BaseTestCase):
     """Test Copy task."""

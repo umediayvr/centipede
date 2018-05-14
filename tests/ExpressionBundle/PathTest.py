@@ -1,8 +1,8 @@
 import unittest
 import os
 from ..BaseTestCase import BaseTestCase
-from ingestor.ExpressionEvaluator import ExpressionEvaluator
-from ingestor.ExpressionEvaluator import ExpressionNotFoundError
+from centipede.ExpressionEvaluator import ExpressionEvaluator
+from centipede.ExpressionEvaluator import ExpressionNotFoundError
 
 class PathTest(BaseTestCase):
     """Test Path expressions."""

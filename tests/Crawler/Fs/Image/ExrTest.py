@@ -2,9 +2,9 @@ import os
 import unittest
 import glob
 from ....BaseTestCase import BaseTestCase
-from ingestor.Crawler.Fs import Path
-from ingestor.PathHolder import PathHolder
-from ingestor.Crawler.Fs.Image import Exr
+from centipede.Crawler.Fs import Path
+from centipede.PathHolder import PathHolder
+from centipede.Crawler.Fs.Image import Exr
 
 class ExrTest(BaseTestCase):
     """Test Exr crawler."""
