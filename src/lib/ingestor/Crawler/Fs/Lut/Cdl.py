@@ -26,7 +26,7 @@ class Cdl(Lut):
 
     def __parseXML(self):
         """
-        Parse the cld XML information and assign that to the crawler.
+        Parse the cld file (XML file format) information and assign that to the crawler.
         """
         cdlTags = ['Slope', 'Offset', 'Power', 'Saturation']
         cdlRequireTags = ['ColorCorrection', 'SOPNode']
@@ -39,9 +39,11 @@ class Cdl(Lut):
         # Get the values from the cdl file
         for tag in cdlTags:
             tagValue = xmlCrawler.queryTag(tag)
-            value = list(map(float, tagValue.split(" ")))
             if tag == 'Saturation':
-                value = value[0]
+                self.setVar(tag.lower(), float(tagValue))
+                continue
+
+            value = list(map(float, tagValue.split(" ")))
             self.setVar(tag.lower(), value)
 
 
