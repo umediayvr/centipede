@@ -204,7 +204,7 @@ class CreateData(Task):
         Perform the task.
         """
         self.__writeEnv()
-        self.__copycentipedeConfig()
+        self.__copyCentipedeConfig()
         self.updateInfo()
         self.updateData()
 
@@ -220,7 +220,7 @@ class CreateData(Task):
         with open(envJsonFilePath, 'w') as jsonOutFile:
             json.dump(dict(os.environ), jsonOutFile, indent=4, sort_keys=True)
 
-    def __copycentipedeConfig(self):
+    def __copyCentipedeConfig(self):
         """
         Copy the configuration used by the centipede to the current version.
         """
