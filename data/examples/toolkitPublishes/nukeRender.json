@@ -30,7 +30,7 @@
             "notes": "",
             "videocodec": "",
             "name": "{renderName}, {versionName}",
-            "template": "/data/job/RND/config/centipede/mediaDelivery/templates/template.nk",
+            "template": "/data/job/RND/config/ingestor/mediaDelivery/templates/template.nk",
             "enableSlate": 0,
             "enableColorSpace": 0,
             "enableReformat": 0
