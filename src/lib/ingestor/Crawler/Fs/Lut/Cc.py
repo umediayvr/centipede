@@ -1,6 +1,5 @@
 from .Lut import Lut
-import re
-import xml.etree.ElementTree as ElementTree
+from ..Ascii import Xml
 
 class Cc(Lut):
     """
@@ -29,39 +28,27 @@ class Cc(Lut):
         """
         Parse the cc XML information and assign that to the crawler.
         """
-        tree = ElementTree.parse(self.var('filePath'))
-        root = tree.getroot()
-        namespace = self.__xmlNamespace(root)
+        ccTags = ['Slope', 'Offset', 'Power', 'Saturation', 'Error']
+        ccRequireTags = ['ColorCorrection', 'SOPNode', 'Error', 'SatNode']
 
-        sopNode = root.find('{}SOPNode'.format(namespace))
-        error = root.find('{}Error'.format(namespace))
+        # Check if the cdl have the required tags
+        xmlCrawler = Xml.createFromPath(self.var('filePath'), 'xml')
+        for tag in ccRequireTags:
+            xmlCrawler.queryTag(tag)
 
-        slope = sopNode.find('{}Slope'.format(namespace))
-        offset = sopNode.find('{}Offset'.format(namespace))
-        power = sopNode.find('{}Power'.format(namespace))
+        # Get the values from the cdl file
+        for tag in ccTags:
+            tagValue = xmlCrawler.queryTag(tag)
+            if tag == 'Saturation':
+                self.setVar(tag.lower(), float(tagValue))
+                continue
 
-        slope = list(map(float, slope.text.split(" ")))
-        offset = list(map(float, offset.text.split(" ")))
-        power = list(map(float, power.text.split(" ")))
+            elif tag == 'Error' and tagValue is not None:
+                self.setVar(tag.lower(), tagValue)
+                continue
 
-        satNode = root.find('{}SatNode'.format(namespace))
-        saturation = float(satNode.find('{}Saturation'.format(namespace)).text)
-
-        self.setVar('slope', slope)
-        self.setVar('offset', offset)
-        self.setVar('power', power)
-        self.setVar('saturation', saturation)
-
-        if error is not None:
-            self.setVar('error', error.text)
-
-    @classmethod
-    def __xmlNamespace(cls, element):
-        """
-        Return the namespace used in the xml file.
-        """
-        m = re.match('\{.*\}', element.tag)
-        return m.group(0) if m else ''
+            value = list(map(float, tagValue.split(" ")))
+            self.setVar(tag.lower(), value)
 
 
 # registering crawler
