@@ -14,7 +14,7 @@ class Renderfarm(Dispatcher):
     """
 
     __defaultJobTempDir = os.environ['UMEDIA_TEMP_REMOTE_DIR']
-    __defaultLabel = "centipede"
+    __defaultLabel = "ingestor"
     __defaultExpandOnTheFarm = False
     __defaultChunkifyOnTheFarm = False
     __defaultPriority = int(os.environ['DISPATCHER_RENDERFARM_PRIORITY'])
