@@ -9,7 +9,7 @@ class Ascii(File):
         """
         Create a ascii crawler.
         """
-        super(Ascii, self).__init__(*args, **kwargs)
+        super(File, self).__init__(*args, **kwargs)
         self.__parsedContents = None
 
         self.setVar('category', 'ascii')
