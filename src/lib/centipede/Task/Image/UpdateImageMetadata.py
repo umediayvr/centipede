@@ -55,7 +55,7 @@ class UpdateImageMetadata(Task):
             'fileUpdatedTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'uverVersion': os.environ.get('UVER_VERSION', ''),
             'centipedeUser': os.environ['USERNAME'],
-            'centipedeVersion': os.environ.get('UVER_centipede_VERSION', ''),
+            'centipedeVersion': os.environ.get('UVER_CENTIPEDE_VERSION', ''),
         }
 
         # default metadata
