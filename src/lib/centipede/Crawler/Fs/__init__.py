@@ -1,4 +1,4 @@
-from .Path import Path, TestCrawlerError, CreateCrawlerError
+from .FsPath import FsPath, TestCrawlerError, CreateCrawlerError
 from .File import File
 from .Directory import Directory
 
