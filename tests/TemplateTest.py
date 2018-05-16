@@ -4,7 +4,7 @@ from .BaseTestCase import BaseTestCase
 from centipede.Template import Template
 from centipede.Template import RequiredPathNotFoundError
 from centipede.Template import VariableNotFoundError
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 
 class TemplateTest(BaseTestCase):
     """Test Template crawler."""
@@ -15,7 +15,7 @@ class TemplateTest(BaseTestCase):
         """
         Test that the Template works properly.
         """
-        crawler = Path.createFromPath(self.__file)
+        crawler = FsPath.createFromPath(self.__file)
         value = '(dirname {filePath})/(newVersion <parentPath>)/{name}.(pad {frame} 6).{ext}'
         result = Template(value).valueFromCrawler(crawler)
         self.assertEqual(result, os.path.join(

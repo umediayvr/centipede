@@ -2,7 +2,7 @@ import unittest
 import os
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 
 class ConvertImageTest(BaseTestCase):
     """
@@ -20,7 +20,7 @@ class ConvertImageTest(BaseTestCase):
         """
         Test that the ConvertImage task works properly.
         """
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         convertTask = Task.create('convertImage')
         convertTask.add(pathCrawler, self.__targetPath)
         result = convertTask.output()

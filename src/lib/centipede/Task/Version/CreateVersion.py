@@ -1,7 +1,7 @@
 import os
 import time
 from ..Task import Task
-from ...Crawler.Fs import Path
+from ...Crawler.Fs import FsPath
 from .CreateData import CreateData
 
 class FileNotUnderDataDirectoryError(Exception):
@@ -91,12 +91,12 @@ class CreateVersion(CreateData):
         super(CreateVersion, self)._perform()
 
         # Find all the crawlers for data that was created for this version
-        pathCrawler = Path.createFromPath(self.dataPath())
+        pathCrawler = FsPath.createFromPath(self.dataPath())
         dataCrawlers = pathCrawler.glob()
 
         # Add json files
         for jsonFile in ["info.json", "data.json", "env.json"]:
-            dataCrawlers.append(Path.createFromPath(os.path.join(self.versionPath(), jsonFile)))
+            dataCrawlers.append(FsPath.createFromPath(os.path.join(self.versionPath(), jsonFile)))
 
         # Add context variables so subsequent tasks get them
         for crawler in dataCrawlers:

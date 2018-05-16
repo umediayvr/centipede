@@ -2,7 +2,7 @@ import unittest
 import os
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 from centipede.Task.Fs.Checksum import ChecksumMatchError
 from centipede.Task.Image import UpdateImageMetadata
 
@@ -16,7 +16,7 @@ class UpdateImageMetadataTest(BaseTestCase):
         """
         Test that the UpdateImageMetadata task works properly.
         """
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         updateTask = Task.create('updateImageMetadata')
         updateTask.add(pathCrawler, self.__targetPath)
         result = updateTask.output()

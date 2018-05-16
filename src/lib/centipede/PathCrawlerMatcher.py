@@ -1,5 +1,6 @@
 from fnmatch import fnmatch
-from .Crawler.Fs.Path import Path
+from .Crawler.Fs.FsPath import FsPath
+from .Crawler import Crawler
 
 class PathCrawlerMatcher(object):
     """
@@ -39,13 +40,13 @@ class PathCrawlerMatcher(object):
         test and another one that actually throwns an exception telling
         why it does not match.
         """
-        assert isinstance(crawler, Path), \
+        assert isinstance(crawler, FsPath), \
             "Invalid Path crawler type!"
 
         crawlerType = crawler.var('type')
         foundType = not self.matchTypes()
         for matchType in self.matchTypes():
-            registeredTypes = Path.registeredSubTypes(matchType)
+            registeredTypes = Crawler.registeredSubTypes(matchType)
             if crawlerType in registeredTypes:
                 foundType = True
                 break

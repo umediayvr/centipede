@@ -6,4 +6,4 @@ from . import Scene
 from . import Texture
 from . import Video
 from .DirectoryTest import DirectoryTest
-from .PathTest import PathTest
+from .FsPathTest import FsPathTest

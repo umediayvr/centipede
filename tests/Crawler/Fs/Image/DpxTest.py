@@ -1,7 +1,7 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Image import Dpx
 
@@ -14,14 +14,14 @@ class DpxTest(BaseTestCase):
         """
         Test that the Dpx crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__dpxFile))
+        crawler = Crawler.create(PathHolder(self.__dpxFile))
         self.assertIsInstance(crawler, Dpx)
 
     def testDpxVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__dpxFile))
+        crawler = Crawler.create(PathHolder(self.__dpxFile))
         self.assertEqual(crawler.var("type"), "dpx")
         self.assertEqual(crawler.var("category"), "image")
         self.assertEqual(crawler.var("imageType"), "single")

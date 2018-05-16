@@ -1,7 +1,7 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Lut import Ccc
 
@@ -14,14 +14,14 @@ class CccTest(BaseTestCase):
         """
         Test that the Ccc crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__cccFile))
+        crawler = Crawler.create(PathHolder(self.__cccFile))
         self.assertIsInstance(crawler, Ccc)
 
     def testCccVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__cccFile))
+        crawler = Crawler.create(PathHolder(self.__cccFile))
         self.assertEqual(crawler.var("type"), "ccc")
         self.assertEqual(crawler.var("category"), "lut")
         self.assertEqual(crawler.var("slope"), [1.1, 1.2, 1.3])

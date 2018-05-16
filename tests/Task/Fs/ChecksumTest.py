@@ -3,7 +3,7 @@ import os
 import shutil
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 from centipede.Task.Fs.Checksum import ChecksumMatchError
 
 class ChecksumTest(BaseTestCase):
@@ -27,7 +27,7 @@ class ChecksumTest(BaseTestCase):
         """
         Test that the checksum task works properly.
         """
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         checksumTask = Task.create('checksum')
         checksumTask.add(pathCrawler, self.__targetPath)
         result = checksumTask.output()

@@ -1,5 +1,12 @@
 import os
+import json
 from collections import OrderedDict
+
+# compatibility with python 2/3
+try:
+    basestring
+except NameError:
+    basestring = str
 
 class InvalidVarError(Exception):
     """Invalid Var Error."""
@@ -7,10 +14,19 @@ class InvalidVarError(Exception):
 class InvalidTagError(Exception):
     """Invalid Tag Error."""
 
+class TestCrawlerError(Exception):
+    """Test crawler error."""
+
+class CreateCrawlerError(Exception):
+    """Create crawler error."""
+
+
 class Crawler(object):
     """
     Abstracted Crawler.
     """
+
+    __registeredTypes = OrderedDict()
 
     def __init__(self, name, parentCrawler=None):
         """
@@ -30,16 +46,17 @@ class Crawler(object):
                 self.setVar(varName, parentCrawler.var(varName), isContextVar)
 
             self.setVar(
-                'path',
+                'fullPath',
                 os.path.join(
-                    parentCrawler.var('path'),
+                    parentCrawler.var('fullPath'),
                     name
                 )
             )
         else:
-            self.setVar('path', '/')
+            self.setVar('fullPath', '/')
 
         self.setVar('name', name)
+        self.__globCache = None
 
     def isLeaf(self):
         """
@@ -119,9 +136,210 @@ class Crawler(object):
 
     def clone(self):
         """
-        For re-implementation: Should return a cloned instance of the current crawler.
+        Return a cloned instance about the current crawler.
+        """
+        return Crawler.createFromJson(self.toJson())
+
+    def toJson(self):
+        """
+        Serialize the crawler to json (it can be recovered later using fromJson).
+        """
+        crawlerContents = {
+            "vars": {},
+            "contextVarNames": [],
+            "tags": {}
+        }
+
+        for varName in self.varNames():
+            crawlerContents['vars'][varName] = self.var(varName)
+
+        for varName in self.contextVarNames():
+            crawlerContents['contextVarNames'].append(varName)
+
+        for tagName in self.tagNames():
+            crawlerContents['tags'][tagName] = self.tag(tagName)
+
+        return json.dumps(
+            crawlerContents,
+            indent=4,
+            separators=(',', ': ')
+        )
+
+    def glob(self, filterTypes=[], useCache=True):
+        """
+        Return a list of all crawlers found recursively under this path.
+
+        Filter result list by crawler type (str) or class type (both include derived classes).
+        """
+        if self.__globCache is None or not useCache:
+            # Recursively collect all crawlers for this path
+            self.__globCache = Crawler.__collectCrawlers(self)
+
+        if not filterTypes:
+            return self.__globCache
+
+        filteredCrawlers = set()
+        for filterType in filterTypes:
+            subClasses = tuple(Crawler.registeredSubclasses(filterType))
+            filteredCrawlers.update(
+                    filter(lambda x: isinstance(x, subClasses), self.__globCache)
+            )
+        return list(filteredCrawlers)
+
+    @staticmethod
+    def __collectCrawlers(crawler):
+        """
+        Resursively collect crawlers.
+        """
+        result = []
+        result.append(crawler)
+
+        if not crawler.isLeaf():
+            for childCrawler in crawler.children():
+                result += Crawler.__collectCrawlers(childCrawler)
+
+        return result
+
+    @classmethod
+    def test(cls, data, parentCrawler=None):
+        """
+        Tells if crawler implementation, can handle it.
+
+        For re-implementation: Should return a boolean telling if the
+        crawler implementation can crawl the data.
         """
         raise NotImplementedError
+
+    @staticmethod
+    def create(data, parentCrawler=None):
+        """
+        Create a crawler for the input data.
+        """
+        result = None
+        for registeredName in reversed(Crawler.__registeredTypes.keys()):
+            crawlerTypeClass = Crawler.__registeredTypes[registeredName]
+            passedTest = False
+
+            # testing crawler
+            try:
+                passedTest = crawlerTypeClass.test(data, parentCrawler)
+            except Exception as err:
+                raise TestCrawlerError(
+                    'Error on testing a crawler "{}" for "{}"\n{}'.format(
+                        registeredName,
+                        data,
+                        str(err)
+                    )
+                )
+
+            # creating crawler
+            if passedTest:
+                try:
+                    result = crawlerTypeClass(data, parentCrawler)
+                except Exception as err:
+                    raise CreateCrawlerError(
+                        'Error on creating a crawler "{}" for "{}"\n{}'.format(
+                            registeredName,
+                            data,
+                            str(err)
+                        )
+                    )
+                else:
+                    result.setVar('type', registeredName)
+                break
+
+        assert result, "Don't know how to create a crawler for \"{0}\"".format(data)
+        return result
+
+    @staticmethod
+    def register(name, crawlerClass):
+        """
+        Register a crawler type.
+
+        The registration is used to tell the order that the crawler types
+        are going to be tested. The test is done from the latest registrations to
+        the first registrations (bottom top). The only exception is for types that
+        get overriden where the position is going to be the same.
+        """
+        assert issubclass(crawlerClass, Crawler), \
+            "Invalid crawler class!"
+
+        Crawler.__registeredTypes[name] = crawlerClass
+
+    @staticmethod
+    def registeredType(name):
+        """
+        Return the crawler class registered with the given name.
+        """
+        assert name in Crawler.registeredNames(), "No registered crawler type for \"{0}\"".format(name)
+        return Crawler.__registeredTypes[name]
+
+    @staticmethod
+    def registeredNames():
+        """
+        Return a list of registered crawler types.
+        """
+        return Crawler.__registeredTypes.keys()
+
+    @staticmethod
+    def registeredSubclasses(baseClassOrTypeName):
+        """
+        Return a list of registered subClasses for the given class or class type name.
+        """
+        baseClass = Crawler.__baseClass(baseClassOrTypeName)
+        result = set()
+        for registeredType in Crawler.__registeredTypes.values():
+            if issubclass(registeredType, baseClass):
+                result.add(registeredType)
+        return list(result)
+
+    @staticmethod
+    def registeredSubTypes(baseClassOrTypeName):
+        """
+        Return a list of registered names of all derived classes for the given class or class type name.
+        """
+        baseClass = Crawler.__baseClass(baseClassOrTypeName)
+        result = set()
+        for name, registeredType in Crawler.__registeredTypes.items():
+            if issubclass(registeredType, baseClass):
+                result.add(name)
+        return list(result)
+
+    @staticmethod
+    def __baseClass(baseClassOrTypeName):
+        """
+        Return a valid base class for the given class or class type name.
+        """
+        if isinstance(baseClassOrTypeName, basestring):
+            assert baseClassOrTypeName in Crawler.__registeredTypes
+            baseClass = Crawler.__registeredTypes[baseClassOrTypeName]
+        else:
+            assert issubclass(baseClassOrTypeName, Crawler)
+            baseClass = baseClassOrTypeName
+        return baseClass
+
+    @staticmethod
+    def createFromJson(jsonContents):
+        """
+        Create a crawler based on the jsonContents (serialized via toJson).
+        """
+        contents = json.loads(jsonContents)
+        crawlerType = contents["vars"]["type"]
+        fullPath = contents["vars"]["fullPath"]
+
+        # creating crawler
+        crawler = Crawler.__registeredTypes[crawlerType](fullPath)
+
+        # setting vars
+        for varName, varValue in contents["vars"].items():
+            isContextVar = (varName in contents["contextVarNames"])
+            crawler.setVar(varName, varValue, isContextVar)
+
+        # setting tags
+        for tagName, tagValue in contents["tags"].items():
+            crawler.setTag(tagName, tagValue)
+
+        return crawler
 
     @staticmethod
     def group(crawlers, tag='group'):
@@ -147,7 +365,7 @@ class Crawler(object):
         # sorting crawlers
         groupedSorted = Crawler.sortGroup(
             groupedCrawlers.values(),
-            key=lambda x: x.var('path')
+            key=lambda x: x.var('fullPath')
         )
 
         return groupedSorted + uniqueCrawlers

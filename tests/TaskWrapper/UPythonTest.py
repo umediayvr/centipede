@@ -4,7 +4,7 @@ import OpenImageIO
 from ..BaseTestCase import BaseTestCase
 from centipede.Task import Task
 from centipede.TaskWrapper import TaskWrapper
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 from centipede.Resource import Resource
 
 class UPythonTest(BaseTestCase):
@@ -19,7 +19,7 @@ class UPythonTest(BaseTestCase):
         """
         resource = Resource.get()
         resource.load(self.__taskPath)
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         dummyTask = Task.create('uPythonTestTask')
         dummyTask.add(pathCrawler)
         dummyTask.setOption("runUPython", True)
@@ -35,7 +35,7 @@ class UPythonTest(BaseTestCase):
         """
         resource = Resource.get()
         resource.load(self.__taskPath)
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         dummyTask = Task.create('uPythonTestTask')
         dummyTask.add(pathCrawler)
         dummyTask.setOption("runUPython", False)

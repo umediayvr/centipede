@@ -1,10 +1,11 @@
 import os
 import re
 import sys
-from .Path import Path
+from .FsPath import FsPath
 from ...PathHolder import PathHolder
+from ..Crawler import Crawler
 
-class Directory(Path):
+class Directory(FsPath):
     """
     Directory path crawler.
     """
@@ -56,7 +57,7 @@ class Directory(Path):
                 continue
 
             childPathHolder = PathHolder(os.path.join(currentPath, childFile))
-            childCrawler = Path.create(childPathHolder, self)
+            childCrawler = Crawler.create(childPathHolder, self)
             result.append(childCrawler)
 
         return result
@@ -66,11 +67,13 @@ class Directory(Path):
         """
         Test if the path holder contains a directory.
         """
+        if not super(Directory, cls).test(pathHolder, parentCrawler):
+            return False
         return pathHolder.isDirectory()
 
 
 # registration
-Path.register(
+Crawler.register(
     'directory',
     Directory
 )

@@ -2,7 +2,7 @@ import unittest
 import os
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 
 class ConvertVideoTest(BaseTestCase):
     """Test ConvertVideo task."""
@@ -15,7 +15,7 @@ class ConvertVideoTest(BaseTestCase):
         """
         Test that the Convert Video task works properly.
         """
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         convertTask = Task.create('convertVideo')
         convertTask.add(pathCrawler, self.__targetPath)
         result = convertTask.output()

@@ -2,7 +2,7 @@ import unittest
 import os
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 
 class ResizeImageTest(BaseTestCase):
     """Test ResizeImage task."""
@@ -15,7 +15,7 @@ class ResizeImageTest(BaseTestCase):
         """
         Test that the ResizeImage task works properly.
         """
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         resizeTask = Task.create('resizeImage')
         resizeTask.add(pathCrawler, self.__targetPath)
         resizeTask.setOption("width", "480")
