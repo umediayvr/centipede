@@ -2,7 +2,7 @@ import unittest
 import os
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 
 class RemoveTest(BaseTestCase):
     """Test Remove task."""
@@ -20,7 +20,7 @@ class RemoveTest(BaseTestCase):
         """
         Test that the remove task works properly.
         """
-        pathCrawler = Path.createFromPath(self.__path)
+        pathCrawler = FsPath.createFromPath(self.__path)
         removeTask = Task.create('remove')
         removeTask.add(pathCrawler, self.__path)
         result = removeTask.output()

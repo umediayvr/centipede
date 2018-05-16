@@ -1,2 +1,2 @@
-from .Crawler import Crawler
+from .Crawler import Crawler, TestCrawlerError, CreateCrawlerError
 from . import Fs

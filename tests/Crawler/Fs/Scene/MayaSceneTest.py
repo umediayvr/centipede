@@ -1,7 +1,7 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Scene import MayaScene
 from centipede.Crawler.Fs.Scene import Scene
@@ -17,16 +17,16 @@ class MayaSceneTest(BaseTestCase):
         """
         Test that the Maya Scene crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__maFile))
+        crawler = Crawler.create(PathHolder(self.__maFile))
         self.assertIsInstance(crawler, MayaScene)
-        crawler = Path.create(PathHolder(self.__mbFile))
+        crawler = Crawler.create(PathHolder(self.__mbFile))
         self.assertIsInstance(crawler, MayaScene)
 
     def testMayaSceneVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__maFile))
+        crawler = Crawler.create(PathHolder(self.__maFile))
         self.assertEqual(crawler.var("type"), "mayaScene")
         self.assertEqual(crawler.var("category"), "scene")
 

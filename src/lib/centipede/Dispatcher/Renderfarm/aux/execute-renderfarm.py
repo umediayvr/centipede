@@ -5,7 +5,7 @@ import argparse
 from glob import glob
 from collections import OrderedDict
 from centipede.Dispatcher import Dispatcher
-from centipede.Crawler.Fs.Path import Path
+from centipede.Crawler import Crawler
 from centipede.TaskHolder import TaskHolder
 
 def __runCollapsed(data, taskHolder, dataJsonFile):
@@ -65,7 +65,7 @@ def __runCollapsed(data, taskHolder, dataJsonFile):
     for taskInputFilePath in taskInputFilePaths:
         with open(taskInputFilePath) as jsonFile:
             serializedCrawlers = json.load(jsonFile)
-            crawlers += list(map(lambda x: Path.createFromJson(x), serializedCrawlers))
+            crawlers += list(map(lambda x: Crawler.createFromJson(x), serializedCrawlers))
 
     dispatcher = Dispatcher.createFromJson(data['dispatcher'])
     dispatchedIds = dispatcher.dispatch(

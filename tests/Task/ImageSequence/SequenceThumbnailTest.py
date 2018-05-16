@@ -3,7 +3,7 @@ import os
 import glob
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 
 class SequenceThumbnailTest(BaseTestCase):
     """Test SequenceThumbnail task."""
@@ -18,7 +18,7 @@ class SequenceThumbnailTest(BaseTestCase):
         """
         thumbnailTask = Task.create('sequenceThumbnail')
         sourceFiles = sorted(glob.glob(self.__sourcePath))
-        for i in map(Path.createFromPath, sourceFiles):
+        for i in map(FsPath.createFromPath, sourceFiles):
             thumbnailTask.add(i, self.__targetPath)
         result = thumbnailTask.output()
         self.assertEqual(len(result), 1)

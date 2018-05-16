@@ -1,7 +1,7 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Image import Png
 
@@ -14,14 +14,14 @@ class PngTest(BaseTestCase):
         """
         Test that the Png crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__pngFile))
+        crawler = Crawler.create(PathHolder(self.__pngFile))
         self.assertIsInstance(crawler, Png)
 
     def testPngVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__pngFile))
+        crawler = Crawler.create(PathHolder(self.__pngFile))
         self.assertEqual(crawler.var("type"), "png")
         self.assertEqual(crawler.var("category"), "image")
         self.assertEqual(crawler.var("imageType"), "single")

@@ -1,7 +1,7 @@
 import os
 import unittest
 from ..BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 from centipede.TaskHolderLoader import JsonLoader
 from centipede.TaskWrapper import TaskWrapper
 from centipede.Task import Task
@@ -33,7 +33,7 @@ class TaskTest(BaseTestCase):
         Test that path crawlers are correctly associated with tasks.
         """
         dummyTask = Task.create('copy')
-        crawlers = Path.createFromPath(BaseTestCase.dataDirectory()).glob(['mov'])
+        crawlers = FsPath.createFromPath(BaseTestCase.dataDirectory()).glob(['mov'])
         for crawler in crawlers:
             target = '{}_target'.format(crawler.var('name'))
             dummyTask.add(crawler, target)
@@ -47,7 +47,7 @@ class TaskTest(BaseTestCase):
         for crawler in crawlers:
             target = '{}_target'.format(crawler.var('name'))
             self.assertEqual(dummyTask.filePath(crawler), target)
-        badCrawler = Path.createFromPath(self.__jsonConfig)
+        badCrawler = FsPath.createFromPath(self.__jsonConfig)
         self.assertRaises(InvalidPathCrawlerError, dummyTask.filePath, badCrawler)
 
     def testTaskClone(self):
@@ -55,7 +55,7 @@ class TaskTest(BaseTestCase):
         Test that cloning tasks works properly.
         """
         dummyTask = Task.create('sequenceThumbnail')
-        crawlers = Path.createFromPath(BaseTestCase.dataDirectory()).glob(['exr'])
+        crawlers = FsPath.createFromPath(BaseTestCase.dataDirectory()).glob(['exr'])
         for crawler in crawlers:
             target = '{}_target'.format(crawler.var('name'))
             dummyTask.add(crawler, target)
@@ -112,7 +112,7 @@ class TaskTest(BaseTestCase):
         Task.register("dummy", DummyTask)
 
         dummyTask = Task.create('dummy')
-        crawlers = Path.createFromPath(BaseTestCase.dataDirectory()).glob(['mov'])
+        crawlers = FsPath.createFromPath(BaseTestCase.dataDirectory()).glob(['mov'])
         targetPaths = []
         for crawler in crawlers:
             target = '{}_target.mov'.format(crawler.var('name'))
@@ -154,7 +154,7 @@ class TaskTest(BaseTestCase):
         Task.register("dummy", DummyTask)
 
         dummyTask = Task.create('dummy')
-        crawlers = Path.createFromPath(BaseTestCase.dataDirectory()).glob(['mov'])
+        crawlers = FsPath.createFromPath(BaseTestCase.dataDirectory()).glob(['mov'])
         targetPaths = []
         for crawler in crawlers:
             target = '{}_target.mov'.format(crawler.var('name'))
@@ -180,7 +180,7 @@ class TaskTest(BaseTestCase):
         """
         taskHolderLoader = JsonLoader()
         taskHolderLoader.addFromJsonFile(self.__jsonConfig)
-        crawlers = Path.createFromPath(BaseTestCase.dataDirectory()).glob()
+        crawlers = FsPath.createFromPath(BaseTestCase.dataDirectory()).glob()
         for taskHolder in taskHolderLoader.taskHolders():
             self.assertIn('testCustomVar', taskHolder.varNames())
             self.assertEqual(taskHolder.var('testCustomVar'), 'randomValue')
@@ -188,7 +188,7 @@ class TaskTest(BaseTestCase):
             taskHolder.run(crawlers)
         dummyFile = os.path.join(BaseTestCase.dataDirectory(), 'config', 'dummy.exr')
         self.assertFalse(os.path.isfile(dummyFile))
-        jpgCrawlers = Path.createFromPath(self.__jsonConfig).globFromParent(['jpg'])
+        jpgCrawlers = FsPath.createFromPath(self.__jsonConfig).globFromParent(['jpg'])
         self.assertEqual(len(jpgCrawlers), 1)
         self.assertIsInstance(jpgCrawlers[0], Jpg)
         self.addCleanup(self.cleanup, jpgCrawlers[0])

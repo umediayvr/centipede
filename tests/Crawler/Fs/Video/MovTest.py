@@ -1,7 +1,7 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Video import Mov
 
@@ -15,14 +15,14 @@ class MovTest(BaseTestCase):
         """
         Test that the Mov crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__movFile))
+        crawler = Crawler.create(PathHolder(self.__movFile))
         self.assertIsInstance(crawler, Mov)
 
     def testMovVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__movFile))
+        crawler = Crawler.create(PathHolder(self.__movFile))
         self.assertEqual(crawler.var("type"), "mov")
         self.assertEqual(crawler.var("category"), "video")
         self.assertEqual(crawler.var("width"), 1920)
@@ -30,7 +30,7 @@ class MovTest(BaseTestCase):
         self.assertEqual(crawler.var("firstFrame"), 1)
         self.assertEqual(crawler.var("lastFrame"), 12)
 
-        crawler = Path.create(PathHolder(self.__movNoTimecodeFile))
+        crawler = Crawler.create(PathHolder(self.__movNoTimecodeFile))
         self.assertFalse("firstFrame" in crawler.varNames())
         self.assertFalse("lastFrame" in crawler.varNames())
 
@@ -38,7 +38,7 @@ class MovTest(BaseTestCase):
         """
         Test that the tags are set properly.
         """
-        crawler = Path.create(PathHolder(self.__movFile))
+        crawler = Crawler.create(PathHolder(self.__movFile))
         self.assertEqual(crawler.tag("video"), "test.mov")
 
 

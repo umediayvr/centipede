@@ -2,7 +2,7 @@ import unittest
 import os
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 from centipede.Crawler.Fs.Image import Exr
 
 class CopyTest(BaseTestCase):
@@ -15,7 +15,7 @@ class CopyTest(BaseTestCase):
         """
         Test that the copy task works properly.
         """
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         copyTask = Task.create('copy')
         copyTask.add(pathCrawler, self.__targetPath)
         result = copyTask.output()

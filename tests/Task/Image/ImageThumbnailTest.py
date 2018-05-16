@@ -2,7 +2,7 @@ import unittest
 import os
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 
 class ImageThumbnailTest(BaseTestCase):
     """Test ImageThumbnail task."""
@@ -15,7 +15,7 @@ class ImageThumbnailTest(BaseTestCase):
         """
         Test that the ImageThumbnail task works properly.
         """
-        pathCrawler = Path.createFromPath(self.__sourcePath)
+        pathCrawler = FsPath.createFromPath(self.__sourcePath)
         thumbnailTask = Task.create('imageThumbnail')
         thumbnailTask.add(pathCrawler, self.__targetPath)
         result = thumbnailTask.output()

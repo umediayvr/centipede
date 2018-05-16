@@ -2,7 +2,8 @@ import os
 import glob
 import unittest
 from ...BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
+from centipede.Crawler.Fs import FsPath
 from centipede.Crawler.Fs import File
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Render import ExrRender
@@ -10,25 +11,28 @@ from centipede.Crawler.Fs.Image import Exr
 from centipede.Crawler.Crawler import InvalidVarError
 from centipede.Crawler.Crawler import InvalidTagError
 
-class PathTest(BaseTestCase):
+class FsPathTest(BaseTestCase):
     """Test Directory crawler."""
 
     __dir = os.path.join(BaseTestCase.dataDirectory(), "glob")
     __turntableFile = os.path.join(__dir, "images", "RND_ass_lookdev_default_beauty_tt.1001.exr")
     __shotRenderFile = os.path.join(__dir, "images", "RND-TST-SHT_lighting_beauty_sr.1001.exr")
 
-    def testPathCrawler(self):
+    def testFsPathCrawler(self):
         """
-        Test that the Path crawler test is not implemented.
+        Test that the Path crawler test works.
         """
         pathHolder = PathHolder(self.__dir)
-        self.assertRaises(NotImplementedError, Path.test, pathHolder, None)
+        self.assertTrue(FsPath.test(pathHolder, None))
 
-    def testPathGlob(self):
+        notAPathHolder = {}
+        self.assertFalse(FsPath.test(notAPathHolder, None))
+
+    def testFsPathGlob(self):
         """
         Test the glob functionality.
         """
-        crawler = Path.create(PathHolder(self.__dir))
+        crawler = Crawler.create(PathHolder(self.__dir))
         crawlers = crawler.glob()
         result = glob.glob("{}/**".format(self.__dir), recursive=True)
         result = list(map(lambda x: x.rstrip("/"), result))
@@ -51,7 +55,7 @@ class PathTest(BaseTestCase):
         result = list(map(lambda x: x.rstrip("/"), result))
         self.assertCountEqual(result, crawlerPaths)
 
-        crawler = Path.create(PathHolder(self.__turntableFile))
+        crawler = Crawler.create(PathHolder(self.__turntableFile))
         otherCrawlers = crawler.globFromParent(filterTypes=[ExrRender])
         crawlerPaths = list(map(lambda x: x.var("filePath"), crawlers))
         otherCrawlerPaths = list(map(lambda x: x.var("filePath"), otherCrawlers))
@@ -61,7 +65,7 @@ class PathTest(BaseTestCase):
         """
         Test that the Path Crawler variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__turntableFile))
+        crawler = Crawler.create(PathHolder(self.__turntableFile))
         name, ext = os.path.splitext(self.__turntableFile)
         self.assertEqual(crawler.var('filePath'), self.__turntableFile)
         self.assertEqual(crawler.var('ext'), ext.lstrip("."))
@@ -70,11 +74,11 @@ class PathTest(BaseTestCase):
         self.assertEqual(crawler.var('sourceDirectory'), os.path.dirname(name))
         self.assertRaises(InvalidVarError, crawler.var, "dummyVar")
 
-    def testPathTags(self):
+    def testCrawlerTags(self):
         """
-        Test that the Path Crawler tags are set properly.
+        Test that the Crawler tags are set properly.
         """
-        crawler = Path.create(PathHolder(self.__turntableFile))
+        crawler = Crawler.create(PathHolder(self.__turntableFile))
         self.assertRaises(InvalidTagError, crawler.tag, "dummyTag")
 
     def testCrawlerRegistration(self):
@@ -86,38 +90,37 @@ class PathTest(BaseTestCase):
             def test(cls, pathHolder, parentCrawler):
                 return False
 
-        Path.register("dummy", DummyCrawler)
-        self.assertIn("dummy", Path.registeredNames())
-        self.assertIn(DummyCrawler, Path.registeredSubclasses("generic"))
-        self.assertIn(DummyCrawler, Path.registeredSubclasses(Path))
+        Crawler.register("dummy", DummyCrawler)
+        self.assertIn("dummy", Crawler.registeredNames())
+        self.assertIn(DummyCrawler, Crawler.registeredSubclasses("generic"))
+        self.assertIn(DummyCrawler, Crawler.registeredSubclasses(FsPath))
 
-    def testPathClone(self):
+    def testCrawlerClone(self):
         """
         Test that cloning crawlers works.
         """
-        crawler = Path.create(PathHolder(self.__turntableFile))
+        crawler = Crawler.create(PathHolder(self.__turntableFile))
         clone = crawler.clone()
         self.assertCountEqual(crawler.varNames(), clone.varNames())
         self.assertCountEqual(crawler.contextVarNames(), clone.contextVarNames())
         self.assertCountEqual(crawler.tagNames(), clone.tagNames())
-        self.assertRaises(NotImplementedError, super(Path, crawler).clone)
 
-    def testPathJson(self):
+    def testCrawlerJson(self):
         """
         Test that you can convert a Path crawler to json and back.
         """
-        crawler = Path.create(PathHolder(self.__turntableFile))
+        crawler = Crawler.create(PathHolder(self.__turntableFile))
         jsonResult = crawler.toJson()
-        crawlerResult = Path.createFromJson(jsonResult)
+        crawlerResult = Crawler.createFromJson(jsonResult)
         self.assertCountEqual(crawler.varNames(), crawlerResult.varNames())
         self.assertCountEqual(crawler.contextVarNames(), crawlerResult.contextVarNames())
         self.assertCountEqual(crawler.tagNames(), crawlerResult.tagNames())
 
-    def testPathCreate(self):
+    def testCrawlerCreate(self):
         """
         Test that you can create a crawler with a specific type.
         """
-        crawler = Path.createFromPath(self.__turntableFile, "exr")
+        crawler = FsPath.createFromPath(self.__turntableFile, "exr")
         self.assertIsInstance(crawler, Exr)
 
     def testPathHolder(self):

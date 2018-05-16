@@ -1,7 +1,7 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Image import Jpg
 
@@ -14,14 +14,14 @@ class JpgTest(BaseTestCase):
         """
         Test that the Jpg crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__jpgFile))
+        crawler = Crawler.create(PathHolder(self.__jpgFile))
         self.assertIsInstance(crawler, Jpg)
 
     def testJpgVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__jpgFile))
+        crawler = Crawler.create(PathHolder(self.__jpgFile))
         self.assertEqual(crawler.var("type"), "jpg")
         self.assertEqual(crawler.var("category"), "image")
         self.assertEqual(crawler.var("imageType"), "single")

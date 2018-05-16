@@ -1,5 +1,6 @@
 import os
-from ...Crawler.Fs import Path
+from ...Crawler.Fs import FsPath
+from ...Crawler import Crawler
 from ...Crawler.Fs.Scene import Scene
 from ..Task import Task
 from .CreateIncrementalVersion import CreateIncrementalVersion
@@ -29,7 +30,7 @@ class CreateRenderVersion(CreateIncrementalVersion):
             self.addFile(targetFile)
 
             # Crawl from source directory for scenes to save along with data
-            pathCrawler = Path.createFromPath(pathCrawler.var('sourceDirectory'))
+            pathCrawler = FsPath.createFromPath(pathCrawler.var('sourceDirectory'))
             sceneCrawlers = pathCrawler.glob([Scene])
             for sceneCrawler in sceneCrawlers:
                 sourceScenes.add(sceneCrawler.var('filePath'))
@@ -42,7 +43,7 @@ class CreateRenderVersion(CreateIncrementalVersion):
 
         # Exclude all work scenes and movies from incremental versioning
         exclude = set()
-        for sceneClasses in Path.registeredSubclasses(Scene):
+        for sceneClasses in Crawler.registeredSubclasses(Scene):
             exclude.update(sceneClasses.extensions())
         exclude.add("mov")
 

@@ -4,7 +4,7 @@ from ..Task import Task
 from ...TaskWrapper import TaskWrapper
 from ...Template import Template
 from ...Crawler import Crawler
-from ...Crawler.Fs.Path import Path
+from ...Crawler.Fs.FsPath import FsPath
 from ...Crawler.Fs.Image import Image
 
 class SGPublish(Task):
@@ -172,7 +172,7 @@ class SGPublish(Task):
         firstFrame = None
         lastFrame = None
         imageSeqPath = None
-        movCrawler = Path.createFromPath(movieFilePath)
+        movCrawler = FsPath.createFromPath(movieFilePath)
         if firstFrame in movCrawler.varNames():
             firstFrame = movCrawler.var('firstFrame')
             lastFrame = movCrawler.var('lastFrame')

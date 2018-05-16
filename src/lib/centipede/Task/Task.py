@@ -1,7 +1,8 @@
 import json
 import sys
 from ..Resource import Resource
-from ..Crawler.Fs import Path
+from ..Crawler.Fs import FsPath
+from ..Crawler import Crawler
 from ..Template import Template
 from collections import OrderedDict
 
@@ -217,8 +218,8 @@ class Task(object):
         A file path can be associated with the path crawler, this file path may be used
         as target to the path crawler.
         """
-        assert isinstance(pathCrawler, Path), \
-            "Invalid Path Crawler!"
+        assert isinstance(pathCrawler, FsPath), \
+            "Invalid FsPath Crawler!"
 
         assert isinstance(filePath, basestring), \
             "FilePath needs to be defined as string"
@@ -401,7 +402,7 @@ class Task(object):
         # adding crawlers
         for crawlerDataItem in crawlerData:
             filePath = crawlerDataItem['filePath']
-            crawler = Path.createFromJson(
+            crawler = Crawler.createFromJson(
                 crawlerDataItem['serializedCrawler']
             )
             task.add(crawler, filePath)
@@ -421,7 +422,7 @@ class Task(object):
             if filePath not in filePaths:
                 filePaths.append(filePath)
 
-        return list(map(Path.createFromPath, filePaths))
+        return list(map(FsPath.createFromPath, filePaths))
 
     def __emptyFilterResult(self, verbose):
         """

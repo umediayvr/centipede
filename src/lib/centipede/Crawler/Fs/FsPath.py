@@ -26,6 +26,7 @@ class FsPath(Crawler):
 
         self.__setPathHolder(pathHolder)
         self.setVar('filePath', pathHolder.path())
+        self.setVar('fullPath', pathHolder.path())
         self.setVar('ext', pathHolder.ext())
         self.setVar('baseName', pathHolder.baseName())
         self.setVar('name', os.path.splitext(pathHolder.baseName())[0])
@@ -63,7 +64,7 @@ class FsPath(Crawler):
         Create a crawler directly from a path string.
         """
         if crawlerType:
-            crawlerClass = FsPath.__registeredTypes.get(crawlerType)
+            crawlerClass = FsPath.registeredType(crawlerType)
             assert crawlerClass, "Invalid crawler type {} for {}".format(crawlerType, fullPath)
 
             result = crawlerClass(PathHolder(fullPath), parentCrawler)
@@ -72,3 +73,12 @@ class FsPath(Crawler):
             return result
         else:
             return FsPath.create(PathHolder(fullPath), parentCrawler)
+
+    def globFromParent(self, filterTypes=[], useCache=True):
+        """
+        Return a list of all crawlers found recursively under the parent directory of the given path.
+
+        Filter result list by exact crawler type (str) or class type (includes derived classes).
+        """
+        parentPath = os.path.dirname(self.var("filePath"))
+        return FsPath.createFromPath(parentPath).glob(filterTypes, useCache)

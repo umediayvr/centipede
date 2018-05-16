@@ -1,7 +1,7 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Render import NukeRender
 
@@ -14,14 +14,14 @@ class NukeRenderTest(BaseTestCase):
         """
         Test that the NukeRender crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__exrFile))
+        crawler = Crawler.create(PathHolder(self.__exrFile))
         self.assertIsInstance(crawler, NukeRender)
 
     def testNukeRenderVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__exrFile))
+        crawler = Crawler.create(PathHolder(self.__exrFile))
         self.assertEqual(crawler.var("type"), "nukeRender")
         self.assertEqual(crawler.var("category"), "render")
         self.assertEqual(crawler.var("renderType"), "tk")

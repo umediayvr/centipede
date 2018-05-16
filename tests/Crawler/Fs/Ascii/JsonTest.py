@@ -1,7 +1,7 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs.Ascii import Json
 
@@ -14,14 +14,14 @@ class JsonTest(BaseTestCase):
         """
         Test that the Json crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__jsonFile))
+        crawler = Crawler.create(PathHolder(self.__jsonFile))
         self.assertIsInstance(crawler, Json)
 
     def testJsonVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__jsonFile))
+        crawler = Crawler.create(PathHolder(self.__jsonFile))
         self.assertEqual(crawler.var("type"), "json")
         self.assertEqual(crawler.var("category"), "ascii")
 
@@ -29,7 +29,7 @@ class JsonTest(BaseTestCase):
         """
         Test that json files are parsed properly.
         """
-        crawler = Path.create(PathHolder(self.__jsonFile))
+        crawler = Crawler.create(PathHolder(self.__jsonFile))
         testData = {
             "testList": [1, 1.2, "value"],
             "testDict": {"key": "value", "number": 1},

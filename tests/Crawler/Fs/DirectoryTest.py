@@ -1,7 +1,7 @@
 import os
 import unittest
 from ...BaseTestCase import BaseTestCase
-from centipede.Crawler.Fs import Path
+from centipede.Crawler import Crawler
 from centipede.PathHolder import PathHolder
 from centipede.Crawler.Fs import Directory
 
@@ -14,14 +14,14 @@ class DirectoryTest(BaseTestCase):
         """
         Test that the Directory crawler test works properly.
         """
-        crawler = Path.create(PathHolder(self.__dir))
+        crawler = Crawler.create(PathHolder(self.__dir))
         self.assertIsInstance(crawler, Directory)
 
     def testDirectoryVariables(self):
         """
         Test that the variables are set properly.
         """
-        crawler = Path.create(PathHolder(self.__dir))
+        crawler = Crawler.create(PathHolder(self.__dir))
         self.assertEqual(crawler.var("width"), 640)
         self.assertEqual(crawler.var("height"), 480)
 
@@ -29,14 +29,14 @@ class DirectoryTest(BaseTestCase):
         """
         Test to show directory crawler is not a leaf.
         """
-        crawler = Path.create(PathHolder(self.__dir))
+        crawler = Crawler.create(PathHolder(self.__dir))
         self.assertFalse(crawler.isLeaf())
 
     def testBadFile(self):
         """
         Test to show that file names with illegal characters are skipped.
         """
-        crawler = Path.create(PathHolder(self.dataDirectory()))
+        crawler = Crawler.create(PathHolder(self.dataDirectory()))
         crawlerPaths = map(lambda x: x.var("filePath"), crawler.children())
         self.assertNotIn(os.path.join(self.__dir, "bad file.txt"), crawlerPaths)
 

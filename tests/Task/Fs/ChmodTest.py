@@ -2,7 +2,7 @@ import unittest
 import os
 from ...BaseTestCase import BaseTestCase
 from centipede.Task import Task
-from centipede.Crawler.Fs import Path
+from centipede.Crawler.Fs import FsPath
 
 class ChmodTest(BaseTestCase):
     """Test Chmod task."""
@@ -14,7 +14,7 @@ class ChmodTest(BaseTestCase):
         """
         Test that the chmod task works properly on a file.
         """
-        pathCrawler = Path.createFromPath(self.__path)
+        pathCrawler = FsPath.createFromPath(self.__path)
         chmodTask = Task.create('chmod')
         chmodTask.add(pathCrawler, self.__path)
         for permission in ["644", "444", "744", "664"]:
@@ -30,8 +30,8 @@ class ChmodTest(BaseTestCase):
         """
         Test that the chmod task works properly on a directory.
         """
-        pathCrawler = Path.createFromPath(self.__dir)
-        filePathCrawler = Path.createFromPath(self.__path)
+        pathCrawler = FsPath.createFromPath(self.__dir)
+        filePathCrawler = FsPath.createFromPath(self.__path)
         chmodTask = Task.create('chmod')
         chmodTask.add(pathCrawler, self.__dir)
         chmodTask.add(filePathCrawler, self.__dir)
@@ -52,7 +52,7 @@ class ChmodTest(BaseTestCase):
         os.symlink(self.__path, link)
         self.assertEqual(self.__getPermission(link), '664')
         self.assertTrue(os.path.islink(link))
-        pathCrawler = Path.createFromPath(link)
+        pathCrawler = FsPath.createFromPath(link)
         chmodTask = Task.create('chmod')
         chmodTask.add(pathCrawler, link)
         chmodTask.setOption('directoryMode', '775')

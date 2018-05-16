@@ -186,15 +186,6 @@ class Crawler(object):
             )
         return list(filteredCrawlers)
 
-    def globFromParent(self, filterTypes=[], useCache=True):
-        """
-        Return a list of all crawlers found recursively under the parent directory of the given path.
-
-        Filter result list by exact crawler type (str) or class type (includes derived classes).
-        """
-        parentPath = os.path.dirname(self.var("fullPath"))
-        return Crawler.createFromPath(parentPath).glob(filterTypes, useCache)
-
     @staticmethod
     def __collectCrawlers(crawler):
         """
@@ -274,6 +265,14 @@ class Crawler(object):
             "Invalid crawler class!"
 
         Crawler.__registeredTypes[name] = crawlerClass
+
+    @staticmethod
+    def registeredType(name):
+        """
+        Return the crawler class registered with the given name.
+        """
+        assert name in Crawler.registeredNames(), "No registered crawler type for \"{0}\"".format(name)
+        return Crawler.__registeredTypes[name]
 
     @staticmethod
     def registeredNames():
@@ -366,7 +365,7 @@ class Crawler(object):
         # sorting crawlers
         groupedSorted = Crawler.sortGroup(
             groupedCrawlers.values(),
-            key=lambda x: x.var('path')
+            key=lambda x: x.var('fullPath')
         )
 
         return groupedSorted + uniqueCrawlers

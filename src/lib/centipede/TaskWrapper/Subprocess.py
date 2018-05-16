@@ -4,7 +4,7 @@ import tempfile
 from ulauncher import EnvModifier, ProcessExecution
 from .TaskWrapper import TaskWrapper
 from ..Task import Task
-from ..Crawler.Fs import Path
+from ..Crawler import Crawler
 
 class SubprocessFailedError(Exception):
     """Subprocess failed Error."""
@@ -112,7 +112,7 @@ class Subprocess(TaskWrapper):
         with open(serializedTaskFile) as jsonFile:
             for serializedJsonCrawler in json.load(jsonFile):
                 result.append(
-                    Path.createFromJson(serializedJsonCrawler)
+                    Crawler.createFromJson(serializedJsonCrawler)
                 )
 
         return result
