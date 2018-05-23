@@ -2,8 +2,8 @@ import unittest
 import os
 import glob
 from ...BaseTestCase import BaseTestCase
-from centipede.Task import Task
-from centipede.Crawler.Fs import FsPath
+from ingestor.Task import Task
+from ingestor.Crawler.Fs import FsPath
 
 class SequenceThumbnailTest(BaseTestCase):
     """Test SequenceThumbnail task."""

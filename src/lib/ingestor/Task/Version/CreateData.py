@@ -69,7 +69,7 @@ class CreateData(Task):
 
     def configPath(self):
         """
-        Return the path about the location for the configuration used by the centipede.
+        Return the path about the location for the configuration used by the ingestor.
         """
         return self.__configPath
 
@@ -204,7 +204,7 @@ class CreateData(Task):
         Perform the task.
         """
         self.__writeEnv()
-        self.__copyCentipedeConfig()
+        self.__copyIngestorConfig()
         self.updateInfo()
         self.updateData()
 
@@ -220,11 +220,11 @@ class CreateData(Task):
         with open(envJsonFilePath, 'w') as jsonOutFile:
             json.dump(dict(os.environ), jsonOutFile, indent=4, sort_keys=True)
 
-    def __copyCentipedeConfig(self):
+    def __copyIngestorConfig(self):
         """
-        Copy the configuration used by the centipede to the current version.
+        Copy the configuration used by the ingestor to the current version.
         """
-        configPath = os.path.join(self.rootPath(), "centipedeConfig")
+        configPath = os.path.join(self.rootPath(), "ingestorConfig")
         if os.path.exists(configPath):
             return
         shutil.copytree(

@@ -2,9 +2,9 @@ import unittest
 import os
 import shutil
 from ...BaseTestCase import BaseTestCase
-from centipede.Task import Task
-from centipede.Crawler.Fs import FsPath
-from centipede.Task.Fs.Checksum import ChecksumMatchError
+from ingestor.Task import Task
+from ingestor.Crawler.Fs import FsPath
+from ingestor.Task.Fs.Checksum import ChecksumMatchError
 
 class ChecksumTest(BaseTestCase):
     """Test Checksum task."""

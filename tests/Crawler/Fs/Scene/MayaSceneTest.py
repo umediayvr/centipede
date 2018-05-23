@@ -1,10 +1,10 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from centipede.Crawler import Crawler
-from centipede.PathHolder import PathHolder
-from centipede.Crawler.Fs.Scene import MayaScene
-from centipede.Crawler.Fs.Scene import Scene
+from ingestor.Crawler import Crawler
+from ingestor.PathHolder import PathHolder
+from ingestor.Crawler.Fs.Scene import MayaScene
+from ingestor.Crawler.Fs.Scene import Scene
 
 
 class MayaSceneTest(BaseTestCase):

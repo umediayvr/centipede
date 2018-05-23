@@ -1,8 +1,8 @@
 import unittest
 import os
 from ...BaseTestCase import BaseTestCase
-from centipede.Task import Task
-from centipede.Crawler.Fs import FsPath
+from ingestor.Task import Task
+from ingestor.Crawler.Fs import FsPath
 
 class ConvertImageTest(BaseTestCase):
     """

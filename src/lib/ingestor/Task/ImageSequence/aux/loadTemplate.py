@@ -4,7 +4,7 @@ import StringIO
 
 # reading options from the task.
 # sourceSequence, targetSequence, startFrame and endFrame are added automatically as options by
-# the centipede, everthing else comes from the taskOptions
+# the ingestor, everthing else comes from the taskOptions
 sourceSequence = options['sourceSequence']
 targetSequence = options['targetSequence']
 startFrame = options['startFrame']

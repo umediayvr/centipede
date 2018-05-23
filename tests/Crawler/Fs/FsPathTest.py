@@ -2,14 +2,14 @@ import os
 import glob
 import unittest
 from ...BaseTestCase import BaseTestCase
-from centipede.Crawler import Crawler
-from centipede.Crawler.Fs import FsPath
-from centipede.Crawler.Fs import File
-from centipede.PathHolder import PathHolder
-from centipede.Crawler.Fs.Render import ExrRender
-from centipede.Crawler.Fs.Image import Exr
-from centipede.Crawler.Crawler import InvalidVarError
-from centipede.Crawler.Crawler import InvalidTagError
+from ingestor.Crawler import Crawler
+from ingestor.Crawler.Fs import FsPath
+from ingestor.Crawler.Fs import File
+from ingestor.PathHolder import PathHolder
+from ingestor.Crawler.Fs.Render import ExrRender
+from ingestor.Crawler.Fs.Image import Exr
+from ingestor.Crawler.Crawler import InvalidVarError
+from ingestor.Crawler.Crawler import InvalidTagError
 
 class FsPathTest(BaseTestCase):
     """Test Directory crawler."""

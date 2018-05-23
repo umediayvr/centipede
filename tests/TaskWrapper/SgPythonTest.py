@@ -1,10 +1,10 @@
 import unittest
 import os
 from ..BaseTestCase import BaseTestCase
-from centipede.Task import Task
-from centipede.TaskWrapper import TaskWrapper
-from centipede.Crawler.Fs import FsPath
-from centipede.Resource import Resource
+from ingestor.Task import Task
+from ingestor.TaskWrapper import TaskWrapper
+from ingestor.Crawler.Fs import FsPath
+from ingestor.Resource import Resource
 
 class SgPythonTest(BaseTestCase):
     """Test SgPython subprocess."""

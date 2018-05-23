@@ -1,6 +1,6 @@
-import centipede
+import ingestor
 
-class TestCrawler(centipede.Crawler.Fs.Image.Exr):
+class TestCrawler(ingestor.Crawler.Fs.Image.Exr):
     """
     Test crawler for unit tests.
     """

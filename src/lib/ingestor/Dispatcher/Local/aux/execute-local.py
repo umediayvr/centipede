@@ -1,5 +1,5 @@
 import argparse
-from centipede.TaskHolder import TaskHolder
+from ingestor.TaskHolder import TaskHolder
 
 def __run(data):
     """

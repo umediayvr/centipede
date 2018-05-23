@@ -2,10 +2,10 @@ import unittest
 import os
 import OpenImageIO
 from ..BaseTestCase import BaseTestCase
-from centipede.Task import Task
-from centipede.TaskWrapper import TaskWrapper
-from centipede.Crawler.Fs import FsPath
-from centipede.Resource import Resource
+from ingestor.Task import Task
+from ingestor.TaskWrapper import TaskWrapper
+from ingestor.Crawler.Fs import FsPath
+from ingestor.Resource import Resource
 
 class UPythonTest(BaseTestCase):
     """Test UPython subprocess."""
