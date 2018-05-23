@@ -768,7 +768,7 @@ class Application(QtWidgets.QApplication):
         # globbing crawlers
         crawlerList = []
         for pathItem in path.split(';'):
-            crawler = ingestor.Crawler.Fs.Path.createFromPath(pathItem)
+            crawler = ingestor.Crawler.Fs.FsPath.createFromPath(pathItem)
             crawlerList += crawler.glob(filterTypes)
 
         # in the ingestor interface we don't care about directory crawlers
