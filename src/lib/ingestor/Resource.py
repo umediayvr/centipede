@@ -11,10 +11,10 @@ class ResourceLoadError(Exception):
 
 class Resource(object):
     """
-    Class used to load custom resources to the centipede.
+    Class used to load custom resources to the ingestor.
 
     The resources can be custom crawlers, tasks, task wrappers (etc). By default
-    any resource specified under the 'CENTIPEDE_RESOURCE_PATH' is
+    any resource specified under the 'INGESTOR_RESOURCE_PATH' is
     automatically loaded during the startup.
 
     The resources are simply python files that should import all the non-default
@@ -25,7 +25,7 @@ class Resource(object):
     """
 
     __singleton = None
-    __resourceEnvName = "CENTIPEDE_RESOURCE_PATH"
+    __resourceEnvName = "INGESTOR_RESOURCE_PATH"
 
     def __init__(self):
         """

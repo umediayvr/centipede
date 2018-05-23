@@ -1,6 +1,6 @@
-import centipede
+import ingestor
 
-class ExrPlate(centipede.Crawler.Fs.Image.Exr):
+class ExrPlate(ingestor.Crawler.Fs.Image.Exr):
     """
     Custom crawler to read production exr plates.
     """

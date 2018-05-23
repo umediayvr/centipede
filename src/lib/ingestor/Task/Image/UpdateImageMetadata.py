@@ -54,8 +54,8 @@ class UpdateImageMetadata(Task):
             'sourceFile': crawler.var('filePath'),
             'fileUpdatedTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'uverVersion': os.environ.get('UVER_VERSION', ''),
-            'centipedeUser': os.environ['USERNAME'],
-            'centipedeVersion': os.environ.get('UVER_CENTIPEDE_VERSION', ''),
+            'ingestorUser': os.environ['USERNAME'],
+            'ingestorVersion': os.environ.get('UVER_INGESTOR_VERSION', ''),
         }
 
         # default metadata

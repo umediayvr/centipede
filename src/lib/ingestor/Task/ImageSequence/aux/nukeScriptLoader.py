@@ -9,7 +9,7 @@ except NameError:
 
 # parsing options
 options = {}
-optionsArgIndex = sys.argv.index('--centipede-options')
+optionsArgIndex = sys.argv.index('--ingestor-options')
 optionsFile = sys.argv[optionsArgIndex + 1]
 with open(optionsFile) as jsonFile:
     options = json.load(jsonFile)

@@ -1,10 +1,10 @@
 import sys
 import os
 import re
-import centipede
+import ingestor
 import datetime
-from centipede.Dispatcher import Dispatcher
-from centipede.Crawler import Crawler
+from ingestor.Dispatcher import Dispatcher
+from ingestor.Crawler import Crawler
 import subprocess
 import functools
 import json
@@ -69,7 +69,7 @@ class Application(QtWidgets.QApplication):
                     break
 
             # collecting task holders from the directory
-            taskHolderLoader = centipede.TaskHolderLoader.JsonLoader()
+            taskHolderLoader = ingestor.TaskHolderLoader.JsonLoader()
             try:
                 taskHolderLoader.addFromJsonDirectory(self.__configurationDirectory)
             except Exception as err:
@@ -768,12 +768,12 @@ class Application(QtWidgets.QApplication):
         # globbing crawlers
         crawlerList = []
         for pathItem in path.split(';'):
-            crawler = centipede.Crawler.Fs.Path.createFromPath(pathItem)
+            crawler = ingestor.Crawler.Fs.Path.createFromPath(pathItem)
             crawlerList += crawler.glob(filterTypes)
 
         # in the ingestor interface we don't care about directory crawlers
         # TODO: we need to have a better way to get rid of directory crawlers
-        crawlerList = list(filter(lambda x: not isinstance(x, centipede.Crawler.Fs.Directory), crawlerList))
+        crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), crawlerList))
 
         # sorting result by name
         crawlerList.sort(key=lambda x: x.var('name').lower())

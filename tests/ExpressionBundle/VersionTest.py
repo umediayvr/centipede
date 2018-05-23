@@ -1,7 +1,7 @@
 import unittest
 import os
 from ..BaseTestCase import BaseTestCase
-from centipede.ExpressionEvaluator import ExpressionEvaluator
+from ingestor.ExpressionEvaluator import ExpressionEvaluator
 
 class VersionTest(BaseTestCase):
     """Test Version expressions."""

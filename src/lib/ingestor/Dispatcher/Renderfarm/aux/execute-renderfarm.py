@@ -4,9 +4,9 @@ import json
 import argparse
 from glob import glob
 from collections import OrderedDict
-from centipede.Dispatcher import Dispatcher
-from centipede.Crawler import Crawler
-from centipede.TaskHolder import TaskHolder
+from ingestor.Dispatcher import Dispatcher
+from ingestor.Crawler import Crawler
+from ingestor.TaskHolder import TaskHolder
 
 def __runCollapsed(data, taskHolder, dataJsonFile):
     """

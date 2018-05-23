@@ -5,7 +5,7 @@ import sys
 # querying root directory
 root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-# Add centipede source code to python path for tests
+# Add ingestor source code to python path for tests
 sourceFolder = os.path.join(root, "src", "lib")
 if not os.path.exists(sourceFolder):  # pragma: no cover
     raise Exception("Can't resolve lib location!")
@@ -13,14 +13,14 @@ if not os.path.exists(sourceFolder):  # pragma: no cover
 sys.path.insert(1, sourceFolder)
 
 class BaseTestCase(unittest.TestCase):
-    """Base class for centipede unit tests."""
+    """Base class for ingestor unit tests."""
 
     __rootPath = root
 
     @classmethod
     def rootPath(cls):
         """
-        Return the centipede code root path.
+        Return the ingestor code root path.
         """
         return cls.__rootPath
 

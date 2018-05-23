@@ -1,4 +1,4 @@
-import centipede
+import ingestor
 import os
 
 def clientStatusExpression(sg_status_list):
@@ -33,12 +33,12 @@ def fileTypeExpression(filePath):
 
 
 # registering expressions
-centipede.ExpressionEvaluator.register(
+ingestor.ExpressionEvaluator.register(
     'clientStatus',
     clientStatusExpression
 )
 
-centipede.ExpressionEvaluator.register(
+ingestor.ExpressionEvaluator.register(
     'clientFileType',
     fileTypeExpression
 )
