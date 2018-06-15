@@ -16,7 +16,7 @@ def publish(content):
     user = sa.create_script_user(
         api_script="Toolkit",
         api_key="7839b54042ddfecdc6d0bd27e72c4499d5c04516f96dc1ff30d9bb7ac084ec7e",
-        host=os.environ["UMEDIA_SHOTGUN_URL"]
+        host=os.environ["SHOTGUN_URL"]
     )
 
     # tell the Toolkit Core API which user to use
