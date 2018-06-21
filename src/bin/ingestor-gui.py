@@ -15,7 +15,6 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Application(QtWidgets.QApplication):
 
     __viewModes = ["group", "flat"]
-    __remoteTempDirectory = os.environ['UMEDIA_TEMP_REMOTE_DIR']
 
     def __init__(self, argv, **kwargs):
         super(Application, self).__init__(argv, **kwargs)

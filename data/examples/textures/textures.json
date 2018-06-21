@@ -24,7 +24,7 @@
       },
       "taskWrapper": "subprocess",
       "taskWrapperOptions": {
-        "user": "$UMEDIA_VERSION_PUBLISHER_USER"
+        "user": "$VERSION_PUBLISHER_USER"
       },
       "targetTemplate": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newVersion <parentPath>)",
       "taskHolders": [

@@ -13,18 +13,20 @@ class Renderfarm(Dispatcher):
     Optional options: label, jobTempDir, splitSize, priority, chunkifyOnTheFarm and expandOnTheFarm
     """
 
-    __defaultJobTempDir = os.environ['UMEDIA_TEMP_REMOTE_DIR']
+    __defaultJobTempDir = os.environ.get('TEMP_REMOTE_DIR', '')
     __defaultLabel = "ingestor"
     __defaultExpandOnTheFarm = False
     __defaultChunkifyOnTheFarm = False
-    __defaultPriority = int(os.environ['DISPATCHER_RENDERFARM_PRIORITY'])
-    __defaultSplitSize = int(os.environ['DISPATCHER_RENDERFARM_SPLITSIZE'])
+    __defaultPriority = int(os.environ.get('DISPATCHER_RENDERFARM_PRIORITY', 50))
+    __defaultSplitSize = int(os.environ.get('DISPATCHER_RENDERFARM_SPLITSIZE', 5))
 
     def __init__(self, *args, **kwargs):
         """
         Create a Renderfarm dispatcher object.
         """
         super(Renderfarm, self).__init__(*args, **kwargs)
+
+        assert len(self.__defaultJobTempDir), "TEMP_REMOTE_DIR env is not defined!"
 
         # setting default options
         self.setOption('label', self.__defaultLabel)

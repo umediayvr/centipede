@@ -32,7 +32,6 @@ class SGPublish(Task):
         filePath = self.filePath(sourceCrawler) if self.filePath(sourceCrawler) else sourceCrawler.var('filePath')
 
         self.__publishData["path"] = {"local_path": filePath}
-
         self.__publishData["description"] = self.templateOption('comment', crawler=sourceCrawler)
         self.__publishData["version_number"] = sourceCrawler.var('version')
 
