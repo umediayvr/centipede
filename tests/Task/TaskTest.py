@@ -200,7 +200,7 @@ class TaskTest(BaseTestCase):
         removeTask = Task.create('remove')
         removeTask.add(crawler, crawler.var("filePath"))
         wrapper = TaskWrapper.create('subprocess')
-        wrapper.setOption('user', '$VERSION_PUBLISHER_USER')
+        wrapper.setOption('user', '$INGESTOR_VERSION_PUBLISHER_USER')
         wrapper.run(removeTask)
 
 

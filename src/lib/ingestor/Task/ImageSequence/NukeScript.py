@@ -148,7 +148,7 @@ class NukeScript(Task):
         self.setMetadata(
             'dispatch.renderFarm.group',
             os.environ.get(
-                'DISPATCHER_RENDERFARM_NUKE_GROUP',
+                'INGESTOR_DISPATCHER_RENDERFARM_NUKE_GROUP',
                 ''
             )
         )
@@ -157,7 +157,7 @@ class NukeScript(Task):
         self.setMetadata(
             'dispatch.renderFarm.pool',
             os.environ.get(
-                'DISPATCHER_RENDERFARM_NUKE_POOL',
+                'INGESTOR_DISPATCHER_RENDERFARM_NUKE_POOL',
                 ''
             )
         )
