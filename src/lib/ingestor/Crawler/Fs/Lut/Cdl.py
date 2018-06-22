@@ -1,6 +1,4 @@
 from .Lut import Lut
-import re
-import xml.etree.ElementTree as ElementTree
 
 class Cdl(Lut):
     """
@@ -20,58 +18,28 @@ class Cdl(Lut):
         """
         Test if the path holder contains a cdl file.
         """
-        if not super(Cdl, cls).test(pathHolder, parentCrawler):
-            return False
-
         return pathHolder.ext() == 'cdl'
 
     def __parseXML(self):
         """
-        Parse the cld XML information and assign that to the crawler.
+        Parse the cld file (XML file format) information and assign that to the crawler.
         """
-        tree = ElementTree.parse(self.var('filePath'))
-        root = tree.getroot()
-        namespace = self.__xmlNamespace(root)
+        cdlTags = ['Slope', 'Offset', 'Power', 'Saturation']
+        cdlRequireTags = ['ColorCorrection', 'ColorDecision', 'ColorDecisionList']
 
-        # we can have this file represented in two ways (for now)
-        colorCorrection = root.find('{}ColorDecision'.format(namespace))
-        if not colorCorrection:
-            colorCorrection = root.find('ColorDecision')
-            if colorCorrection:
-                namespace = ''
+        # Check if the cdl have the required tags
+        for tag in cdlRequireTags:
+            self.queryTag(tag)
 
-        if not colorCorrection:
-            colorCorrection = root.find('{}ColorCorrection'.format(namespace))
-            if not colorCorrection:
-                colorCorrection = root.find('ColorCorrection')
-                if colorCorrection:
-                    namespace = ''
+        # Get the values from the cdl file
+        for tag in cdlTags:
+            tagValue = self.queryTag(tag)
+            if tag == 'Saturation':
+                self.setVar(tag.lower(), float(tagValue[0]))
+                continue
 
-        sopNode = colorCorrection.find('{}SOPNode'.format(namespace))
-
-        slope = sopNode.find('{}Slope'.format(namespace))
-        offset = sopNode.find('{}Offset'.format(namespace))
-        power = sopNode.find('{}Power'.format(namespace))
-
-        slope = list(map(float, slope.text.split(" ")))
-        offset = list(map(float, offset.text.split(" ")))
-        power = list(map(float, power.text.split(" ")))
-
-        satNode = colorCorrection.find('{}SatNode'.format(namespace))
-        saturation = float(satNode.find('{}Saturation'.format(namespace)).text)
-
-        self.setVar('slope', slope)
-        self.setVar('offset', offset)
-        self.setVar('power', power)
-        self.setVar('saturation', saturation)
-
-    @classmethod
-    def __xmlNamespace(cls, element):
-        """
-        Return the namespace used in the xml file.
-        """
-        m = re.match('\{.*\}', element.tag)
-        return m.group(0) if m else ''
+            value = list(map(float, tagValue[0].split(" ")))
+            self.setVar(tag.lower(), value)
 
 
 # registering crawler

@@ -5,23 +5,23 @@ from ingestor.Crawler.Fs import FsPath
 from ingestor.PathHolder import PathHolder
 from ingestor.Crawler.Fs.Lut import Ccc
 
-class CccTest(BaseTestCase):
-    """Test Ccc crawler."""
+class CcTest(BaseTestCase):
+    """Test Cc crawler."""
 
-    __cccFile = os.path.join(BaseTestCase.dataDirectory(), "test.ccc")
+    __ccFile = os.path.join(BaseTestCase.dataDirectory(), "test.cc")
 
-    def testCccCrawler(self):
+    def testCcCrawler(self):
         """
-        Test that the Ccc crawler test works properly.
+        Test that the Cc crawler test works properly.
         """
-        crawler = FsPath.create(PathHolder(self.__cccFile))
+        crawler = FsPath.create(PathHolder(self.__ccFile))
         self.assertIsInstance(crawler, Ccc)
 
-    def testCccVariables(self):
+    def testCcVariables(self):
         """
         Test that variables are set properly.
         """
-        crawler = FsPath.create(PathHolder(self.__cccFile))
+        crawler = FsPath.create(PathHolder(self.__ccFile))
         self.assertEqual(crawler.var("type"), "cc")
         self.assertEqual(crawler.var("category"), "lut")
         self.assertEqual(crawler.var("slope"), [1.1, 1.2, 1.3])
