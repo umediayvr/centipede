@@ -1,6 +1,6 @@
-from ..File import File
+from ..Ascii import Xml
 
-class Lut(File):
+class Lut(Xml):
     """
     Abstracted lut path crawler.
     """
