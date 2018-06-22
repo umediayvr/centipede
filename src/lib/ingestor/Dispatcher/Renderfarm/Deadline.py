@@ -16,9 +16,9 @@ class Deadline(Renderfarm):
     Optional options: pool, secondaryPool, group and jobFailRetryAttempts
     """
 
-    __defaultGroup = os.environ.get('DISPATCHER_RENDERFARM_GROUP', '')
-    __defaultPool = os.environ.get('DISPATCHER_RENDERFARM_POOL', '')
-    __defaultSecondaryPool = os.environ.get('DISPATCHER_RENDERFARM_SECONDARYPOOL', '')
+    __defaultGroup = os.environ.get('INGESTOR_DISPATCHER_RENDERFARM_GROUP', '')
+    __defaultPool = os.environ.get('INGESTOR_DISPATCHER_RENDERFARM_POOL', '')
+    __defaultSecondaryPool = os.environ.get('INGESTOR_DISPATCHER_RENDERFARM_SECONDARYPOOL', '')
     __defaultJobFailRetryAttempts = 1
 
     def __init__(self, *args, **kwargs):

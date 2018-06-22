@@ -36,7 +36,7 @@
         },
         "taskWrapper": "subprocess",
         "taskWrapperOptions": {
-        "user": "$VERSION_PUBLISHER_USER"
+        "user": "$INGESTOR_VERSION_PUBLISHER_USER"
         }
       },
       {

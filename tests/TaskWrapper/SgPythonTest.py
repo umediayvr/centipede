@@ -27,7 +27,7 @@ class SgPythonTest(BaseTestCase):
         result = wrapper.run(dummyTask)
         self.assertTrue(len(result), 1)
         self.assertIn("testVar", result[0].varNames())
-        self.assertEqual(result[0].var("testVar"), os.environ.get("SHOTGUN_URL"))
+        self.assertEqual(result[0].var("testVar"), os.environ.get("USHOTGUN_URL"))
 
 
 if __name__ == "__main__":

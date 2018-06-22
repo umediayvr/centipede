@@ -21,7 +21,7 @@
     ],
     "taskWrapper": "subprocess",
     "taskWrapperOptions": {
-      "user": "$VERSION_PUBLISHER_USER"
+      "user": "$INGESTOR_VERSION_PUBLISHER_USER"
     },
     "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{pass}/(newVersion <parentPath>)",
     "taskHolders":
@@ -51,14 +51,14 @@
         },
         "taskWrapper": "subprocess",
         "taskWrapperOptions": {
-          "user": "$VERSION_PUBLISHER_USER"
+          "user": "$INGESTOR_VERSION_PUBLISHER_USER"
         },
         "taskHolders": [
           {
             "task": "appendToVersion",
             "taskWrapper": "subprocess",
             "taskWrapperOptions": {
-              "user": "$VERSION_PUBLISHER_USER"
+              "user": "$INGESTOR_VERSION_PUBLISHER_USER"
             }
           }
         ]
