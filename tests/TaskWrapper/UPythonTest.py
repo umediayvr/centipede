@@ -23,7 +23,7 @@ class UPythonTest(BaseTestCase):
         dummyTask = Task.create('uPythonTestTask')
         dummyTask.add(pathCrawler)
         dummyTask.setOption("runUPython", True)
-        wrapper = TaskWrapper.create('sgPython')
+        wrapper = TaskWrapper.create('upython')
         result = wrapper.run(dummyTask)
         self.assertTrue(len(result), 1)
         self.assertIn("testUPython", result[0].varNames())

@@ -17,7 +17,6 @@ class UPythonTestTask(Task):
         else:
             import OpenImageIO
             sourceCrawler.setVar("testUPython", OpenImageIO.VERSION)
-            print("--> Subprocess printout")
             result = [sourceCrawler.clone()]
 
         return result
