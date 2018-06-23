@@ -51,8 +51,11 @@ class PathTest(BaseTestCase):
         """
         Test that the expression registration works properly.
         """
+        def myDummyExpression(a, b):
+            return '{}-{}'.format(a, b)
+
         self.assertRaises(ExpressionNotFoundError, ExpressionEvaluator.run, "dummy")
-        ExpressionEvaluator.register("dummy", print)
+        ExpressionEvaluator.register("dummy", myDummyExpression)
         self.assertIn("dummy", ExpressionEvaluator.registeredNames())
 
     def testParseRun(self):

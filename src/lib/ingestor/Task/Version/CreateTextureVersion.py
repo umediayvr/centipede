@@ -36,7 +36,7 @@ class CreateTextureVersion(CreateIncrementalVersion):
             # computing a mipmap version for the texture
             tempTxFilePath = tempfile.mktemp(suffix=".tx")
             subprocess.call(
-                '/data/studio/upipe/plugins/maya/2018/mtoa/2.0.2.3/bin/linux/bin/maketx {} -o "{}" "{}"'.format(
+                'maketx {} -o "{}" "{}"'.format(
                     self.option("maketxArgs"),
                     tempTxFilePath,
                     textureOriginalTargetLocation

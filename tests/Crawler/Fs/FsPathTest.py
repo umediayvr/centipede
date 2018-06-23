@@ -134,6 +134,5 @@ class FsPathTest(BaseTestCase):
         pathHolder = PathHolder("/")
         self.assertEqual(pathHolder.baseName(), os.sep)
 
-
 if __name__ == "__main__":
     unittest.main()
