@@ -1,9 +1,15 @@
 #!/bin/bash
 
-installationType="$1"
+# showing help
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  echo "$(basename "$0") [-h] -- Runs the installation:
+    -h/--help       show this help text
+    --production    installs as production release (under UPIPE_ROOT). Otherwise, if not supplied installs under UPIPE_DEV_ROOT (default)"
+  exit 0
+fi
 
 # production release
-if [[ "$installationType" == "production" ]]; then
+if [[ $* == *--production* ]]; then
   # removing any previous build folder
   if [ -d "build_release" ]; then
     rm -r "build_release"
@@ -23,14 +29,14 @@ if [[ "$installationType" == "production" ]]; then
   fi
 
 # development release
-elif [ -z "$installationType" ]; then
+else
 
   # making sure UPIPE_DEV_ROOT is defined
   if [ -z $UPIPE_DEV_ROOT ]; then
     echo "UPIPE_DEV_ROOT is not defined"
     exit 1
   fi
-  
+
   # TODO: workaround to avoid the installation not detecting
   # modifications in files and installing a wrong version from the cache
   # (rather than invalidating the cache).
@@ -48,8 +54,4 @@ elif [ -z "$installationType" ]; then
   # running installation
   qbs project.releaseType:dev project.pythonMajorVersion:$pythonMajorVersion qbs.installRoot:$UPIPE_DEV_ROOT
 
-# invalid installation type
-else
-  echo "Invalid installation type ($installationType). Available types: \"\" (empty) for development installation and \"production\" for production installation)"
-  exit 1
 fi
