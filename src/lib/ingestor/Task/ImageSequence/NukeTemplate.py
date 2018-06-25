@@ -2,7 +2,7 @@ import os
 import json
 import tempfile
 from ..Task import Task
-from ...Crawler import Crawler
+from ...Crawler.Fs.FsPath import FsPath
 from .NukeScript import NukeScript
 
 class NukeTemplate(NukeScript):
@@ -68,7 +68,7 @@ class NukeTemplate(NukeScript):
         # no longer need the render output data file
         os.remove(self.option('_renderOutputData'))
 
-        return list(map(Crawler.createFromPath, fileList))
+        return list(map(FsPath.createFromPath, fileList))
 
 
 # registering task

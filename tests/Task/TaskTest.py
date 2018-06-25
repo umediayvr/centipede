@@ -10,7 +10,7 @@ from ingestor.Task.Task import TaskInvalidOptionError
 from ingestor.Task.Task import TaskInvalidOptionValue
 from ingestor.Task.Task import TaskTypeNotFoundError
 from ingestor.TaskHolder import TaskHolderInvalidVarNameError
-from ingestor.Crawler.Fs.Image import Jpg
+from ingestor.Crawler.Fs.Image import Jpg, Exr
 from ingestor.Crawler import Crawler
 
 class TaskTest(BaseTestCase):
@@ -181,26 +181,31 @@ class TaskTest(BaseTestCase):
         taskHolderLoader = JsonLoader()
         taskHolderLoader.addFromJsonFile(self.__jsonConfig)
         crawlers = FsPath.createFromPath(BaseTestCase.dataDirectory()).glob()
+
+        createdCrawlers = []
         for taskHolder in taskHolderLoader.taskHolders():
             self.assertIn('testCustomVar', taskHolder.varNames())
             self.assertEqual(taskHolder.var('testCustomVar'), 'randomValue')
             self.assertRaises(TaskHolderInvalidVarNameError, taskHolder.var, 'badVar')
-            taskHolder.run(crawlers)
-        dummyFile = os.path.join(BaseTestCase.dataDirectory(), 'config', 'dummy.exr')
-        self.assertFalse(os.path.isfile(dummyFile))
-        jpgCrawlers = FsPath.createFromPath(self.__jsonConfig).globFromParent(['jpg'])
-        self.assertEqual(len(jpgCrawlers), 1)
-        self.assertIsInstance(jpgCrawlers[0], Jpg)
-        self.addCleanup(self.cleanup, jpgCrawlers[0])
+            createdCrawlers += taskHolder.run(crawlers)
 
-    def cleanup(self, crawler):
+        exrCrawlers = list(filter(lambda x: isinstance(x, Exr), createdCrawlers))
+        self.assertEqual(len(exrCrawlers), 16)
+
+        jpgCrawlers = list(filter(lambda x: isinstance(x, Jpg), createdCrawlers))
+        self.assertEqual(len(jpgCrawlers), 1)
+
+        self.cleanup(exrCrawlers + jpgCrawlers)
+
+    def cleanup(self, crawlers):
         """
         Remove the data that was copied.
         """
         removeTask = Task.create('remove')
-        removeTask.add(crawler, crawler.var("filePath"))
+        for crawler in crawlers:
+            removeTask.add(crawler, crawler.var("filePath"))
         wrapper = TaskWrapper.create('subprocess')
-        wrapper.setOption('user', '$INGESTOR_VERSION_PUBLISHER_USER')
+        wrapper.setOption('user', '')
         wrapper.run(removeTask)
 
 

@@ -5,7 +5,6 @@ from ..Task import Task
 
 class CopyTargetDirectoryError(Exception):
     """Copy Target Directory Error."""
-
     pass
 
 

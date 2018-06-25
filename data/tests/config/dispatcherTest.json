@@ -3,16 +3,16 @@
     "*/*.py"
   ],
   "vars": {
-    "testCustomVar": "randomValue"
+    "temporaryDir": ""
   },
   "taskHolders": [
     {
       "task": "copy",
       "taskOptions": {
-        "testOption": "{testCustomVar}",
+        "testOption": "{temporaryDir}",
         "testExpr": "(min 2 6)"
       },
-      "targetTemplate": "(tmpdir)/{baseName}",
+      "targetTemplate": "{temporaryDir}/{baseName}",
       "matchTypes": [
         "exr"
       ],
@@ -24,7 +24,7 @@
       "taskHolders": [
         {
           "task": "sequenceThumbnail",
-          "targetTemplate": "(tmpdir)/{name}.jpg",
+          "targetTemplate": "{temporaryDir}/{name}.jpg",
           "matchTypes": [
             "testCrawler"
           ],
@@ -33,10 +33,6 @@
               "sequence"
             ],
             "testVariable": true
-          },
-          "taskWrapper": "subprocess",
-          "taskWrapperOptions": {
-            "user": ""
           }
         }
       ]

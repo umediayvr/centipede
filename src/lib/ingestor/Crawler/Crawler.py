@@ -182,7 +182,7 @@ class Crawler(object):
         for filterType in filterTypes:
             subClasses = tuple(Crawler.registeredSubclasses(filterType))
             filteredCrawlers.update(
-                    filter(lambda x: isinstance(x, subClasses), self.__globCache)
+                filter(lambda x: isinstance(x, subClasses), self.__globCache)
             )
         return list(filteredCrawlers)
 

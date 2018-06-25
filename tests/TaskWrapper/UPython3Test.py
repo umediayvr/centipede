@@ -6,28 +6,26 @@ from ingestor.TaskWrapper import TaskWrapper
 from ingestor.Crawler.Fs import FsPath
 from ingestor.Resource import Resource
 
-class SgPythonTest(BaseTestCase):
-    """Test SgPython subprocess."""
+class UPython3Test(BaseTestCase):
+    """Test UPython3Test subprocess."""
 
     __sourcePath = os.path.join(BaseTestCase.dataDirectory(), "test.exr")
-    __taskPath = os.path.join(BaseTestCase.dataDirectory(), "tasks", "SgPythonTestTask.py")
+    __taskPath = os.path.join(BaseTestCase.dataDirectory(), "tasks", "UPythonMajorVerTestTask.py")
 
-    def testSgPython(self):
+    def testUpython3(self):
         """
-        Test that the SgPython subprocess works properly.
+        Test that the upython3 subprocess works properly.
         """
         resource = Resource.get()
         resource.load(self.__taskPath)
         pathCrawler = FsPath.createFromPath(self.__sourcePath)
-        dummyTask = Task.create('sgPythonTestTask')
+        dummyTask = Task.create('uPythonMajorVerTestTask')
         dummyTask.add(pathCrawler)
-        self.assertRaises(ModuleNotFoundError, dummyTask.output)
 
-        wrapper = TaskWrapper.create("sgPython")
+        wrapper = TaskWrapper.create("upython3")
         result = wrapper.run(dummyTask)
         self.assertTrue(len(result), 1)
-        self.assertIn("testVar", result[0].varNames())
-        self.assertEqual(result[0].var("testVar"), os.environ.get("USHOTGUN_URL"))
+        self.assertEqual(result[0].var("majorVer"), 3)
 
 
 if __name__ == "__main__":

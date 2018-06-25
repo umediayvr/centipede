@@ -65,7 +65,7 @@
       },
       {
         "task": "sgPublish",
-        "taskWrapper": "sgPython",
+        "taskWrapper": "upython2",
         "taskOptions": {
           "publishedFileType": "Rendered Image",
           "comment": "render publish",
