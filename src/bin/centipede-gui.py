@@ -1,10 +1,10 @@
 import sys
 import os
 import re
-import ingestor
+import centipede
 import datetime
-from ingestor.Dispatcher import Dispatcher
-from ingestor.Crawler import Crawler
+from centipede.Dispatcher import Dispatcher
+from centipede.Crawler import Crawler
 import subprocess
 import functools
 import json
@@ -26,17 +26,17 @@ class Application(QtWidgets.QApplication):
         self.__appplyStyleSheet()
         self.__uiHintSourceColumns = []
 
-        showUI = False if 'INGESTOR_NOGUI' in os.environ else True
+        showUI = False if 'CENTIPEDE_NOGUI' in os.environ else True
         self.__buildWidgets(showUI)
 
         # getting configuration directory from the args
         if len(argv) > 1:
             self.__configurationDirectory = argv[1]
-        elif 'INGESTOR_CONFIG_DIR' in os.environ:
-            self.__configurationDirectory = os.environ['INGESTOR_CONFIG_DIR']
+        elif 'CENTIPEDE_CONFIG_DIR' in os.environ:
+            self.__configurationDirectory = os.environ['CENTIPEDE_CONFIG_DIR']
 
         self.updateConfiguration()
-        self.__main.setWindowTitle('Ingestor ({0})'.format(self.__configurationDirectory))
+        self.__main.setWindowTitle('Centipede ({0})'.format(self.__configurationDirectory))
 
         # getting source files directory from the args
         if len(argv) > 2:
@@ -57,24 +57,24 @@ class Application(QtWidgets.QApplication):
             if self.__configurationDirectory == "":
                 self.__configurationDirectory = QtWidgets.QFileDialog.getExistingDirectory(
                     self.__main,
-                    "Select a directory with the configuration that should be used by the ingestor",
+                    "Select a directory with the configuration that should be used by the centipede",
                     self.__configurationDirectory,
                     QtWidgets.QFileDialog.ShowDirsOnly
                 )
 
                 # cancelled
                 if self.__configurationDirectory == "":
-                    raise Exception("Ingestor Cancelled")
+                    raise Exception("Centipede Cancelled")
                     break
 
             # collecting task holders from the directory
-            taskHolderLoader = ingestor.TaskHolderLoader.JsonLoader()
+            taskHolderLoader = centipede.TaskHolderLoader.JsonLoader()
             try:
                 taskHolderLoader.addFromJsonDirectory(self.__configurationDirectory)
             except Exception as err:
                 QtWidgets.QMessageBox.critical(
                    self.__main,
-                   "Ingestor",
+                   "Centipede",
                    "Failed to load the configuration ({0}):\n{1}".format(
                        self.__configurationDirectory,
                        str(err)
@@ -87,14 +87,14 @@ class Application(QtWidgets.QApplication):
             if not taskHolderLoader.taskHolders():
                 result = QtWidgets.QMessageBox.warning(
                     self.__main,
-                    "Ingestor",
-                    "Selected directory does not contain any configuration for the ingestor!",
+                    "Centipede",
+                    "Selected directory does not contain any configuration for the centipede!",
                     QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
                 )
 
                 # cancelled
                 if result != QtWidgets.QMessageBox.Ok:
-                    raise Exception("Ingestor Cancelled")
+                    raise Exception("Centipede Cancelled")
                     break
                 else:
                     self.__configurationDirectory = ""
@@ -152,10 +152,10 @@ class Application(QtWidgets.QApplication):
 
     def __buildWidgets(self, showUI=True):
         self.__main = QtWidgets.QMainWindow()
-        self.__main.setWindowTitle('Ingestor')
+        self.__main.setWindowTitle('Centipede')
         self.__main.resize(1080, 720)
         self.__main.setWindowIcon(
-            QtGui.QIcon("{0}/icons/ingestor.png".format(os.path.dirname(os.path.realpath(__file__))))
+            QtGui.QIcon("{0}/icons/centipede.png".format(os.path.dirname(os.path.realpath(__file__))))
         )
 
         centralWidget = QtWidgets.QWidget()
@@ -325,7 +325,7 @@ class Application(QtWidgets.QApplication):
         if not self.__targetTree.model().rowCount():
             QtWidgets.QMessageBox.information(
                 self.__main,
-                "Ingestor",
+                "Centipede",
                 "No targets available (refresh the targets)!",
                 QtWidgets.QMessageBox.Ok
             )
@@ -367,7 +367,7 @@ class Application(QtWidgets.QApplication):
         except Exception as err:
             QtWidgets.QMessageBox.critical(
                self.__main,
-               "Ingestor",
+               "Centipede",
                "Failed during the ingestion:\n{0}".format(
                     str(err)
                ),
@@ -384,7 +384,7 @@ class Application(QtWidgets.QApplication):
 
                 QtWidgets.QMessageBox.information(
                     self.__main,
-                    "Ingestor",
+                    "Centipede",
                     message,
                     QtWidgets.QMessageBox.Ok
                 )
@@ -767,12 +767,12 @@ class Application(QtWidgets.QApplication):
         # globbing crawlers
         crawlerList = []
         for pathItem in path.split(';'):
-            crawler = ingestor.Crawler.Fs.FsPath.createFromPath(pathItem)
+            crawler = centipede.Crawler.Fs.FsPath.createFromPath(pathItem)
             crawlerList += crawler.glob(filterTypes)
 
-        # in the ingestor interface we don't care about directory crawlers
+        # in the centipede interface we don't care about directory crawlers
         # TODO: we need to have a better way to get rid of directory crawlers
-        crawlerList = list(filter(lambda x: not isinstance(x, ingestor.Crawler.Fs.Directory), crawlerList))
+        crawlerList = list(filter(lambda x: not isinstance(x, centipede.Crawler.Fs.Directory), crawlerList))
 
         # sorting result by name
         crawlerList.sort(key=lambda x: x.var('name').lower())

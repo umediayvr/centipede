@@ -1,10 +1,10 @@
 import os
 import unittest
 from .BaseTestCase import BaseTestCase
-from ingestor.Template import Template
-from ingestor.Template import RequiredPathNotFoundError
-from ingestor.Template import VariableNotFoundError
-from ingestor.Crawler.Fs import FsPath
+from centipede.Template import Template
+from centipede.Template import RequiredPathNotFoundError
+from centipede.Template import VariableNotFoundError
+from centipede.Crawler.Fs import FsPath
 
 class TemplateTest(BaseTestCase):
     """Test Template crawler."""

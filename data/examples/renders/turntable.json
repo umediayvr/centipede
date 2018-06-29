@@ -21,7 +21,7 @@
       ],
       "taskWrapper": "subprocess",
       "taskWrapperOptions": {
-        "user": "$INGESTOR_VERSION_PUBLISHER_USER"
+        "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
       },
       "targetTemplate": "{prefix}/{job}/assets/{assetName}/publish/{step}/{variant}/(newVersion <parentPath>)",
       "taskHolders":
@@ -34,7 +34,7 @@
             "notes": "",
             "videocodec": "",
             "bottomLeft": "{pass}, {versionName}",
-            "template": "{prefix}/{job}/config/ingestor/mediaDelivery/templates/template.nk",
+            "template": "{prefix}/{job}/config/centipede/mediaDelivery/templates/template.nk",
             "enableSlate": 0,
             "enableColorSpace": 0,
             "enableReformat": 0,
@@ -51,14 +51,14 @@
           },
           "taskWrapper": "subprocess",
           "taskWrapperOptions": {
-            "user": "$INGESTOR_VERSION_PUBLISHER_USER"
+            "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
           },
           "taskHolders": [
             {
               "task": "appendToVersion",
               "taskWrapper": "subprocess",
               "taskWrapperOptions": {
-                "user": "$INGESTOR_VERSION_PUBLISHER_USER"
+                "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
               }
             }
           ]

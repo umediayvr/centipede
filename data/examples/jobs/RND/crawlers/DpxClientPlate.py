@@ -1,6 +1,6 @@
-import ingestor
+import centipede
 
-class DpxClientPlate(ingestor.Crawler.Fs.Image.Dpx):
+class DpxClientPlate(centipede.Crawler.Fs.Image.Dpx):
     """
     Custom crawler to detect dpx plates delivered by the client.
     """

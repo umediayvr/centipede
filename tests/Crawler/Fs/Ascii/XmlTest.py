@@ -1,8 +1,8 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from ingestor.Crawler.Fs import FsPath
-from ingestor.Crawler.Fs.Ascii import Xml
+from centipede.Crawler.Fs import FsPath
+from centipede.Crawler.Fs.Ascii import Xml
 
 class XmlTest(BaseTestCase):
     """Test Xml crawler."""

@@ -2,14 +2,14 @@ import os
 import unittest
 import tempfile
 from ...BaseTestCase import BaseTestCase
-from ingestor.Crawler.Fs import FsPath
-from ingestor.TaskHolderLoader import JsonLoader
-from ingestor.TaskWrapper import TaskWrapper
-from ingestor.Task import Task
-from ingestor.TaskHolder import TaskHolderInvalidVarNameError
-from ingestor.Crawler.Fs.Image import Jpg, Exr
-from ingestor.Crawler import Crawler
-from ingestor.Dispatcher import Dispatcher
+from centipede.Crawler.Fs import FsPath
+from centipede.TaskHolderLoader import JsonLoader
+from centipede.TaskWrapper import TaskWrapper
+from centipede.Task import Task
+from centipede.TaskHolder import TaskHolderInvalidVarNameError
+from centipede.Crawler.Fs.Image import Jpg, Exr
+from centipede.Crawler import Crawler
+from centipede.Dispatcher import Dispatcher
 
 class LocalTest(BaseTestCase):
     """Test for the local dispatcher."""

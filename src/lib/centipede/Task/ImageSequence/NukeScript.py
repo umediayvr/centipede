@@ -119,7 +119,7 @@ class NukeScript(Task):
                 del customEnv['OCIO']
 
             process = subprocess.Popen(
-                'nuke -x -t "{scriptLoader}" --ingestor-options "{optionsFile}" --log-level error'.format(
+                'nuke -x -t "{scriptLoader}" --centipede-options "{optionsFile}" --log-level error'.format(
                     scriptLoader=scriptLoaderPath,
                     optionsFile=tempJsonOptionsFile.name
                 ),
@@ -148,7 +148,7 @@ class NukeScript(Task):
         self.setMetadata(
             'dispatch.renderFarm.group',
             os.environ.get(
-                'INGESTOR_DISPATCHER_RENDERFARM_NUKE_GROUP',
+                'CENTIPEDE_DISPATCHER_RENDERFARM_NUKE_GROUP',
                 ''
             )
         )
@@ -157,7 +157,7 @@ class NukeScript(Task):
         self.setMetadata(
             'dispatch.renderFarm.pool',
             os.environ.get(
-                'INGESTOR_DISPATCHER_RENDERFARM_NUKE_POOL',
+                'CENTIPEDE_DISPATCHER_RENDERFARM_NUKE_POOL',
                 ''
             )
         )
