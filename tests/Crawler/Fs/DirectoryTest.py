@@ -1,9 +1,9 @@
 import os
 import unittest
 from ...BaseTestCase import BaseTestCase
-from ingestor.Crawler import Crawler
-from ingestor.PathHolder import PathHolder
-from ingestor.Crawler.Fs import Directory
+from centipede.Crawler import Crawler
+from centipede.PathHolder import PathHolder
+from centipede.Crawler.Fs import Directory
 
 class DirectoryTest(BaseTestCase):
     """Test Directory crawler."""

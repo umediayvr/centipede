@@ -3,7 +3,7 @@ import os
 
 # reading options from the task.
 # sequence, startFrame and endFrame are added automatically as options by
-# the ingestor, everthing else comes from the taskOptions
+# the centipede, everthing else comes from the taskOptions
 sequence = options['sequence']
 lut = options['lut']
 startFrame = options['startFrame']

@@ -1,5 +1,5 @@
 import sys
-from ingestor.Task import Task
+from centipede.Task import Task
 
 class UPythonMajorVerTestTask(Task):
     """

@@ -1,9 +1,9 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from ingestor.Crawler import Crawler
-from ingestor.PathHolder import PathHolder
-from ingestor.Crawler.Fs.Texture import Texture
+from centipede.Crawler import Crawler
+from centipede.PathHolder import PathHolder
+from centipede.Crawler.Fs.Texture import Texture
 
 class TextureTest(BaseTestCase):
     """Test Texture crawler."""

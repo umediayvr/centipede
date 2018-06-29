@@ -1,9 +1,9 @@
 import os
 import unittest
 from ....BaseTestCase import BaseTestCase
-from ingestor.Crawler import Crawler
-from ingestor.PathHolder import PathHolder
-from ingestor.Crawler.Fs.Ascii import Txt
+from centipede.Crawler import Crawler
+from centipede.PathHolder import PathHolder
+from centipede.Crawler.Fs.Ascii import Txt
 
 class TxtTest(BaseTestCase):
     """Test Txt crawler."""

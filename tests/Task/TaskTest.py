@@ -1,17 +1,17 @@
 import os
 import unittest
 from ..BaseTestCase import BaseTestCase
-from ingestor.Crawler.Fs import FsPath
-from ingestor.TaskHolderLoader import JsonLoader
-from ingestor.TaskWrapper import TaskWrapper
-from ingestor.Task import Task
-from ingestor.Task.Task import InvalidPathCrawlerError
-from ingestor.Task.Task import TaskInvalidOptionError
-from ingestor.Task.Task import TaskInvalidOptionValue
-from ingestor.Task.Task import TaskTypeNotFoundError
-from ingestor.TaskHolder import TaskHolderInvalidVarNameError
-from ingestor.Crawler.Fs.Image import Jpg, Exr
-from ingestor.Crawler import Crawler
+from centipede.Crawler.Fs import FsPath
+from centipede.TaskHolderLoader import JsonLoader
+from centipede.TaskWrapper import TaskWrapper
+from centipede.Task import Task
+from centipede.Task.Task import InvalidPathCrawlerError
+from centipede.Task.Task import TaskInvalidOptionError
+from centipede.Task.Task import TaskInvalidOptionValue
+from centipede.Task.Task import TaskTypeNotFoundError
+from centipede.TaskHolder import TaskHolderInvalidVarNameError
+from centipede.Crawler.Fs.Image import Jpg, Exr
+from centipede.Crawler import Crawler
 
 class TaskTest(BaseTestCase):
     """Test for tasks."""

@@ -13,12 +13,12 @@ class Renderfarm(Dispatcher):
     Optional options: label, jobTempDir, splitSize, priority, chunkifyOnTheFarm and expandOnTheFarm
     """
 
-    __defaultJobTempDir = os.environ.get('INGESTOR_TEMP_REMOTE_DIR', '')
-    __defaultLabel = "ingestor"
+    __defaultJobTempDir = os.environ.get('CENTIPEDE_TEMP_REMOTE_DIR', '')
+    __defaultLabel = "centipede"
     __defaultExpandOnTheFarm = False
     __defaultChunkifyOnTheFarm = False
-    __defaultPriority = int(os.environ.get('INGESTOR_DISPATCHER_RENDERFARM_PRIORITY', 50))
-    __defaultSplitSize = int(os.environ.get('INGESTOR_DISPATCHER_RENDERFARM_SPLITSIZE', 5))
+    __defaultPriority = int(os.environ.get('CENTIPEDE_DISPATCHER_RENDERFARM_PRIORITY', 50))
+    __defaultSplitSize = int(os.environ.get('CENTIPEDE_DISPATCHER_RENDERFARM_SPLITSIZE', 5))
 
     def __init__(self, *args, **kwargs):
         """
@@ -26,7 +26,7 @@ class Renderfarm(Dispatcher):
         """
         super(Renderfarm, self).__init__(*args, **kwargs)
 
-        assert len(self.__defaultJobTempDir), "INGESTOR_TEMP_REMOTE_DIR env is not defined!"
+        assert len(self.__defaultJobTempDir), "CENTIPEDE_TEMP_REMOTE_DIR env is not defined!"
 
         # setting default options
         self.setOption('label', self.__defaultLabel)
