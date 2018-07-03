@@ -11,7 +11,7 @@ class ResourceLoadError(Exception):
 
 class Resource(object):
     """
-    Class used to load custom resources to the centipede.
+    Class used to load custom resources to centipede.
 
     The resources can be custom crawlers, tasks, task wrappers (etc). By default
     any resource specified under the 'CENTIPEDE_RESOURCE_PATH' is
