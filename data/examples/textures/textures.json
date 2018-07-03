@@ -17,28 +17,14 @@
       "matchTypes": [
         "texture"
       ],
-      "matchVars": {
-      },
       "taskOptions": {
         "maketxArgs": "--oiio --colorconvert sRGB linear"
       },
       "taskWrapper": "subprocess",
       "taskWrapperOptions": {
-        "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+        "user": ""
       },
-      "targetTemplate": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newVersion <parentPath>)",
-      "taskHolders": [
-        {
-          "task": "sgTexturePublish",
-          "matchTypes": [
-            "json"
-          ],
-          "taskOptions": {
-            "comment": "texture publish"
-          },
-          "targetTemplate": "{filePath}"
-        }
-      ]
+      "targetTemplate": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newVersion <parentPath>)"
     }
   ]
 }
