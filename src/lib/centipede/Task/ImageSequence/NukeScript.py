@@ -23,6 +23,8 @@ class NukeScript(Task):
 
     Reading options inside of nuke, the options are available as a global "options":
     myOption = options['myOption']
+
+    TODO: this task needs to be ported to use nuke task wrapper.
     """
 
     def __init__(self, *args, **kwargs):

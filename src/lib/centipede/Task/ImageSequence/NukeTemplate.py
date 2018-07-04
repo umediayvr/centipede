@@ -12,6 +12,8 @@ class NukeTemplate(NukeScript):
     Required options: template (full path of the nuke scene)
 
     Please checkout the base class for further information about the options.
+
+    TODO: this task needs to be ported to use nuke task wrapper.
     """
 
     def __init__(self, *args, **kwargs):
