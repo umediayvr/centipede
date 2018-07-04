@@ -58,7 +58,10 @@
             "sequence"
           ]
         },
-        "taskWrapper": "subprocess"
+        "taskMetadata": {
+          "taskWrapper.name": "subprocess",
+          "taskWrapper.options": {}
+        },
       },
       {
         "task": "sgImageSeqPublish",

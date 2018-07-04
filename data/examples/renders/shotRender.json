@@ -19,9 +19,11 @@
     "matchTypes": [
       "shotRender"
     ],
-    "taskWrapper": "subprocess",
-    "taskWrapperOptions": {
-      "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+    "taskMetadata": {
+      "taskWrapper.name": "subprocess",
+      "taskWrapper.options": {
+        "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+      }
     },
     "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{pass}/(newVersion <parentPath>)",
     "taskHolders":
@@ -49,27 +51,33 @@
             "sequence"
           ]
         },
-        "taskWrapper": "subprocess",
-        "taskWrapperOptions": {
-          "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+        "taskMetadata": {
+          "taskWrapper.name": "subprocess",
+          "taskWrapper.options": {
+            "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+          }
         },
         "taskHolders": [
           {
             "task": "appendToVersion",
-            "taskWrapper": "subprocess",
-            "taskWrapperOptions": {
-              "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
-            }
+            "taskMetadata": {
+              "taskWrapper.name": "subprocess",
+              "taskWrapper.options": {
+                "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+              }
+            },
           }
         ]
       },
       {
         "task": "sgPublish",
-        "taskWrapper": "upython2",
-        "taskOptions": {
-          "publishedFileType": "Rendered Image",
-          "comment": "render publish",
-          "publishName": "{renderName}"
+        "taskMetadata": {
+          "taskWrapper.name": "upython2",
+          "taskWrapper.options": {
+            "publishedFileType": "Rendered Image",
+            "comment": "render publish",
+            "publishName": "{renderName}"
+          }
         },
         "matchTypes": [
           "json"

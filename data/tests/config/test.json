@@ -34,9 +34,11 @@
             ],
             "testVariable": true
           },
-          "taskWrapper": "subprocess",
-          "taskWrapperOptions": {
-            "user": ""
+          "taskMetadata": {
+            "taskWrapper.name": "subprocess",
+            "taskWrapper.options": {
+              "user": ""
+            }
           }
         }
       ]

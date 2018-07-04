@@ -5,7 +5,6 @@ from ..Task import Task
 from ..Template import Template
 from ..PathCrawlerMatcher import PathCrawlerMatcher
 from ..TaskHolder import TaskHolder
-from ..TaskWrapper import TaskWrapper
 from ..Resource import Resource
 from .TaskHolderLoader import TaskHolderLoader
 
@@ -177,8 +176,6 @@ class JsonLoader(TaskHolderLoader):
                 pathCrawlerMatcher
             )
 
-            self.__loadTaskWrapper(taskHolder, taskHolderInfo)
-
             # adding variables to the task holder
             for varName, varValue in list(vars.items()) + list(self.__parseVars(taskHolderInfo).items()):
                 taskHolder.addVar(
@@ -255,22 +252,3 @@ class JsonLoader(TaskHolderLoader):
             vars = dict(contents['vars'])
 
         return vars
-
-    @classmethod
-    def __loadTaskWrapper(cls, taskHolder, taskHolderInfo):
-        """
-        Load the task holder information.
-        """
-        # task wrapper
-        if 'taskWrapper' not in taskHolderInfo:
-            return
-
-        taskWrapper = TaskWrapper.create(taskHolderInfo['taskWrapper'])
-
-        # looking for task wrapper options
-        if 'taskWrapperOptions' in taskHolderInfo:
-            for optionName, optionValue in taskHolderInfo['taskWrapperOptions'].items():
-                taskWrapper.setOption(optionName, optionValue)
-
-        # setting task wrapper to the holder
-        taskHolder.setTaskWrapper(taskWrapper)

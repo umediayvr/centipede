@@ -20,9 +20,11 @@
       "taskOptions": {
         "maketxArgs": "--oiio --colorconvert sRGB linear"
       },
-      "taskWrapper": "subprocess",
-      "taskWrapperOptions": {
-        "user": ""
+      "taskMetadata": {
+        "taskWrapper.name": "subprocess",
+        "taskWrapper.options": {
+          "user": ""
+        }
       },
       "targetTemplate": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newVersion <parentPath>)"
     }
