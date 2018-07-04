@@ -61,6 +61,11 @@ class Task(object):
         self.setOption('filterTemplate', '')
         self.setOption('emptyFilterResult', 'empty')
 
+        # default metadata
+        # taskWrapper is used when executing tasks through a task holder
+        self.setMetadata('taskWrapper.name', 'default')
+        self.setMetadata('taskWrapper.options', {})
+
     def type(self):
         """
         Return the task type.

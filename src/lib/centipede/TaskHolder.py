@@ -29,7 +29,16 @@ class TaskHolder(object):
 
         self.__subTaskHolders = []
         self.__contextVarNames = set()
-        self.__taskWrapper = TaskWrapper.create('default')
+
+        # creating task wrapper
+        self.__taskWrapper = TaskWrapper.create(task.metadata('taskWrapper.name'))
+        taskWrapperOptions = task.metadata('taskWrapper.options')
+        for optionName, optionValue in taskWrapperOptions.items():
+            self.__taskWrapper.setOption(
+                optionName,
+                optionValue
+            )
+
         self.__vars = {}
         self.__query = PathCrawlerQuery(
             self.targetTemplate(),
