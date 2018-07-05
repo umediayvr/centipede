@@ -18,13 +18,15 @@
         "targetColorSpace": "linear"
       },
       "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {job} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {job} {seq} {shot} {plateName}).(pad {frame} 4).exr",
-      "matchTypes": [
-        "dpxClientPlate"
-      ],
-      "matchVars": {
-        "imageType": [
-          "sequence"
-        ]
+      "taskMetadata": {
+        "match.types": [
+          "dpxClientPlate"
+        ],
+        "match.vars": {
+          "imageType": [
+            "sequence"
+          ]
+        }
       },
       "taskHolders": [
         {
@@ -35,13 +37,15 @@
             "targetColorSpace": "AlexaV3LogC"
           },
           "targetTemplate": "(tmpdir)/{name}/{baseName}",
-          "matchTypes": [
-            "exrPlate"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
-            ]
+          "taskMetadata": {
+            "match.types": [
+              "exrPlate"
+            ],
+            "match.vars": {
+              "imageType": [
+                "sequence"
+              ]
+            }
           },
           "taskHolders": [
             {
@@ -52,25 +56,29 @@
                 "targetColorSpace": "smpte170m"
               },
               "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
-              "matchTypes": [
-                "exrPlate"
-              ],
-              "matchVars": {
-                "imageType": [
-                  "sequence"
-                ]
+              "taskMetadata": {
+                "match.types": [
+                  "exrPlate"
+                ],
+                "match.vars": {
+                  "imageType": [
+                    "sequence"
+                  ]
+                }
               }
             },
             {
               "task": "remove",
               "targetTemplate": "{filePath}",
-              "matchTypes": [
-                "exrPlate"
-              ],
-              "matchVars": {
-                "imageType": [
-                  "sequence"
-                ]
+              "taskMetadata": {
+                "match.types": [
+                  "exrPlate"
+                ],
+                "match.vars": {
+                  "imageType": [
+                    "sequence"
+                  ]
+                }
               }
             }
           ]
@@ -78,13 +86,15 @@
         {
           "task": "sequenceThumbnail",
           "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/.thumbnail/{name}.jpg",
-          "matchTypes": [
-            "exrPlate"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
-            ]
+          "taskMetadata": {
+            "match.types": [
+              "exrPlate"
+            ],
+            "match.vars": {
+              "imageType": [
+                "sequence"
+              ]
+            }
           }
         },
         {
@@ -96,13 +106,15 @@
             "thumbnailFile": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/.thumbnail/{name}.jpg"
           },
           "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.{ext}",
-          "matchTypes": [
-            "exrPlate"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
-            ]
+          "taskMetadata": {
+            "match.types": [
+              "exrPlate"
+            ],
+            "match.vars": {
+              "imageType": [
+                "sequence"
+              ]
+            }
           }
         }
       ]

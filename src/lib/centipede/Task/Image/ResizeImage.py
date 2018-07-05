@@ -30,22 +30,22 @@ class ResizeImage(Task):
         """
         import OpenImageIO as oiio
 
-        for pathCrawler in self.pathCrawlers():
+        for crawler in self.crawlers():
             width = self.option('width')
             height = self.option('height')
 
             # resolving template
             if isinstance(width, str):
                 width = int(Template(width).valueFromCrawler(
-                    pathCrawler
+                    crawler
                 ))
 
             if isinstance(height, str):
                 height = int(Template(height).valueFromCrawler(
-                    pathCrawler
+                    crawler
                 ))
 
-            targetFilePath = self.filePath(pathCrawler)
+            targetFilePath = self.target(crawler)
 
             # trying to create the directory automatically in case it does not exist
             try:
@@ -54,7 +54,7 @@ class ResizeImage(Task):
                 pass
 
             # opening the source image to generate a resized image
-            inputImageBuf = oiio.ImageBuf(pathCrawler.var('filePath'))
+            inputImageBuf = oiio.ImageBuf(crawler.var('filePath'))
             inputSpec = inputImageBuf.spec()
 
             # output spec

@@ -2,7 +2,7 @@ from .Oiio import Oiio
 
 class Jpg(Oiio):
     """
-    Jpg path crawler.
+    Jpg crawler.
     """
 
     @classmethod

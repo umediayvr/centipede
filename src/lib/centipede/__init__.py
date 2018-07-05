@@ -1,9 +1,9 @@
 from .PathHolder import PathHolder
 from . import Crawler
 from .Template import Template, RequiredPathNotFoundError, VariableNotFoundError
-from .PathCrawlerQuery import PathCrawlerQuery
+from .CrawlerQuery import CrawlerQuery
 from .ExpressionEvaluator import ExpressionEvaluator
-from .PathCrawlerMatcher import PathCrawlerMatcher
+from .CrawlerMatcher import CrawlerMatcher
 from . import ExpressionBundle
 from .Task import Task
 from . import TaskWrapper

@@ -27,13 +27,13 @@ class ChecksumTest(BaseTestCase):
         """
         Test that the checksum task works properly.
         """
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         checksumTask = Task.create('checksum')
-        checksumTask.add(pathCrawler, self.__targetPath)
+        checksumTask.add(crawler, self.__targetPath)
         result = checksumTask.output()
         self.assertEqual(len(result), 1)
         checksumTask = Task.create('checksum')
-        checksumTask.add(pathCrawler, self.__otherPath)
+        checksumTask.add(crawler, self.__otherPath)
         self.assertRaises(ChecksumMatchError, checksumTask.output)
 
     @classmethod

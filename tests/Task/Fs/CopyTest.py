@@ -15,17 +15,17 @@ class CopyTest(BaseTestCase):
         """
         Test that the copy task works properly.
         """
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         copyTask = Task.create('copy')
-        copyTask.add(pathCrawler, self.__targetPath)
+        copyTask.add(crawler, self.__targetPath)
         result = copyTask.output()
         self.assertEqual(len(result), 1)
         crawler = result[0]
         self.assertEqual(crawler.var("filePath"), self.__targetPath)
         self.assertTrue(os.path.isfile(crawler.var("filePath")))
         self.assertIsInstance(crawler, Exr)
-        self.assertEqual(pathCrawler.var("width"), crawler.var("width"))
-        self.assertEqual(pathCrawler.var("height"), crawler.var("height"))
+        self.assertEqual(crawler.var("width"), crawler.var("width"))
+        self.assertEqual(crawler.var("height"), crawler.var("height"))
 
     @classmethod
     def tearDownClass(cls):

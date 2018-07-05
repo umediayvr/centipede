@@ -2,7 +2,7 @@ from ..File import File
 
 class Image(File):
     """
-    Abstracted image path crawler.
+    Abstracted image crawler.
     """
 
     def __init__(self, *args, **kwargs):

@@ -42,14 +42,14 @@ class FsPath(Crawler):
         """
         return self.__pathHolder
 
-    def __setPathHolder(self, pathHolder):
+    def globFromParent(self, filterTypes=[], useCache=True):
         """
-        Set the path holder to the crawler.
-        """
-        assert isinstance(pathHolder, PathHolder), \
-            "Invalid PathHolder type"
+        Return a list of all crawlers found recursively under the parent directory of the given path.
 
-        self.__pathHolder = pathHolder
+        Filter result list by exact crawler type (str) or class type (includes derived classes).
+        """
+        parentPath = os.path.dirname(self.var("filePath"))
+        return FsPath.createFromPath(parentPath).glob(filterTypes, useCache)
 
     @classmethod
     def test(cls, data=None, parentCrawler=None):
@@ -74,11 +74,11 @@ class FsPath(Crawler):
         else:
             return FsPath.create(PathHolder(fullPath), parentCrawler)
 
-    def globFromParent(self, filterTypes=[], useCache=True):
+    def __setPathHolder(self, pathHolder):
         """
-        Return a list of all crawlers found recursively under the parent directory of the given path.
+        Set the path holder to the crawler.
+        """
+        assert isinstance(pathHolder, PathHolder), \
+            "Invalid PathHolder type"
 
-        Filter result list by exact crawler type (str) or class type (includes derived classes).
-        """
-        parentPath = os.path.dirname(self.var("filePath"))
-        return FsPath.createFromPath(parentPath).glob(filterTypes, useCache)
+        self.__pathHolder = pathHolder

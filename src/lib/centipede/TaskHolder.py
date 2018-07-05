@@ -2,18 +2,24 @@ import json
 from .Task import Task
 from .TaskWrapper import TaskWrapper
 from .Template import Template
-from .PathCrawlerMatcher import PathCrawlerMatcher
-from .PathCrawlerQuery import PathCrawlerQuery
+from .CrawlerMatcher import CrawlerMatcher
+from .CrawlerQuery import CrawlerQuery
 
 class TaskHolderInvalidVarNameError(Exception):
     """Task holder invalid var name error."""
 
 class TaskHolder(object):
     """
-    Holds task and sub task holders associated with a target template and path crawler matcher.
+    Holds task and sub task holders associated with a target template and crawler matcher.
+
+    Task Metadata:
+        - wrapper.name: string with the name of the task wrapper used to execute the task
+        - wrapper.options: dict containing the options passed to the task wrapper
+        - match.types: list containing the types used to match the crawlers
+        - match.vars: dict containing the key and value for the variables used to match the crawlers
     """
 
-    def __init__(self, task, targetTemplate=None, pathCrawlerMatcher=None):
+    def __init__(self, task, targetTemplate=None):
         """
         Create a task holder object.
         """
@@ -22,17 +28,31 @@ class TaskHolder(object):
         if targetTemplate is None:
             targetTemplate = Template()
         self.__setTargetTemplate(targetTemplate)
-
-        if pathCrawlerMatcher is None:
-            pathCrawlerMatcher = PathCrawlerMatcher()
-        self.__setPathCrawlerMatcher(pathCrawlerMatcher)
-
         self.__subTaskHolders = []
         self.__contextVarNames = set()
 
+        # creating crawler matcher
+        matchTypes = []
+        if task.hasMetadata('match.types'):
+            matchTypes = task.metadata('match.types')
+
+        matchVars = {}
+        if task.hasMetadata('match.vars'):
+            matchVars = task.metadata('match.vars')
+
+        crawlerMatcher = CrawlerMatcher(matchTypes, matchVars)
+        self.__setCrawlerMatcher(crawlerMatcher)
+
         # creating task wrapper
-        self.__taskWrapper = TaskWrapper.create(task.metadata('taskWrapper.name'))
-        taskWrapperOptions = task.metadata('taskWrapper.options')
+        taskWrapperName = "default"
+        taskWrapperOptions = {}
+        if task.hasMetadata('wrapper.name'):
+            taskWrapperName = task.metadata('wrapper.name')
+
+            if task.hasMetadata('wrapper.options'):
+                taskWrapperOptions = task.metadata('wrapper.options')
+
+        self.__taskWrapper = TaskWrapper.create(taskWrapperName)
         for optionName, optionValue in taskWrapperOptions.items():
             self.__taskWrapper.setOption(
                 optionName,
@@ -40,9 +60,9 @@ class TaskHolder(object):
             )
 
         self.__vars = {}
-        self.__query = PathCrawlerQuery(
+        self.__query = CrawlerQuery(
             self.targetTemplate(),
-            self.pathCrawlerMatcher()
+            self.crawlerMatcher()
         )
 
     def addVar(self, name, value, isContextVar=False):
@@ -116,7 +136,7 @@ class TaskHolder(object):
         """
         return self.__task
 
-    def addPathCrawlers(self, crawlers, addTaskHolderVars=True):
+    def addCrawlers(self, crawlers, addTaskHolderVars=True):
         """
         Add a list of crawlers to the task.
 
@@ -141,11 +161,11 @@ class TaskHolder(object):
                 filePath
             )
 
-    def pathCrawlerMatcher(self):
+    def crawlerMatcher(self):
         """
-        Return the path crawler matcher associated with the task holder.
+        Return the crawler matcher associated with the task holder.
         """
-        return self.__pathCrawlerMatcher
+        return self.__crawlerMatcher
 
     def addSubTaskHolder(self, taskHolder):
         """
@@ -168,12 +188,12 @@ class TaskHolder(object):
         """
         del self.__subTaskHolders[:]
 
-    def query(self, pathCrawlers):
+    def query(self, crawlers):
         """
-        Query path crawlers that meet the specification.
+        Query crawlers that meet the specification.
         """
         return self.__query.query(
-            pathCrawlers,
+            crawlers,
             self.__vars
         )
 
@@ -222,13 +242,13 @@ class TaskHolder(object):
 
         self.__targetTemplate = targetTemplate
 
-    def __setPathCrawlerMatcher(self, pathCrawlerMatcher):
+    def __setCrawlerMatcher(self, crawlerMatcher):
         """
-        Associate a path crawler matcher with the task holder.
+        Associate a crawler matcher with the task holder.
         """
-        assert isinstance(pathCrawlerMatcher, PathCrawlerMatcher), \
-            "Invalid PathCrawlerMatcher type"
-        self.__pathCrawlerMatcher = pathCrawlerMatcher
+        assert isinstance(crawlerMatcher, CrawlerMatcher), \
+            "Invalid CrawlerMatcher type"
+        self.__crawlerMatcher = crawlerMatcher
 
     @classmethod
     def __bakeTaskHolder(cls, taskHolder, includeSubTaskHolders=True):
@@ -241,33 +261,13 @@ class TaskHolder(object):
         for varName in taskHolder.varNames():
             vars[varName] = taskHolder.var(varName)
 
-        # path crawler matcher info
-        matchTypes = taskHolder.pathCrawlerMatcher().matchTypes()
-        matchVars = {}
-        for matchVarName in taskHolder.pathCrawlerMatcher().matchVarNames():
-            matchVars[matchVarName] = taskHolder.pathCrawlerMatcher().matchVar(matchVarName)
-
-        # task wrapper info
-        taskWrapperType = taskHolder.taskWrapper().type()
-        taskWrapperOptions = {}
-        for optionName in taskHolder.taskWrapper().optionNames():
-            taskWrapperOptions[optionName] = taskHolder.taskWrapper().option(optionName)
-
         output = {
             'template': {
                 'target': targetTemplate
             },
-            'patchCrawlerMatcher': {
-                'matchTypes': matchTypes,
-                'matchVars': matchVars
-            },
             'vars': vars,
             'contextVarNames': taskHolder.contextVarNames(),
             'task': taskHolder.task().toJson(),
-            'taskWrapper': {
-                'type': taskWrapperType,
-                'options': taskWrapperOptions
-            },
             'subTaskHolders': []
         }
 
@@ -283,10 +283,6 @@ class TaskHolder(object):
         """
         # creating task holder
         template = Template(taskHolderContents['template']['target'])
-        pathCrawlerMatcher = PathCrawlerMatcher(
-            taskHolderContents['patchCrawlerMatcher']['matchTypes'],
-            taskHolderContents['patchCrawlerMatcher']['matchVars']
-        )
 
         # creating task
         task = Task.createFromJson(taskHolderContents['task'])
@@ -294,15 +290,8 @@ class TaskHolder(object):
         # building the task holder instance
         taskHolder = TaskHolder(
             task,
-            template,
-            pathCrawlerMatcher
+            template
         )
-
-        # creating task wrapper
-        taskWrapper = TaskWrapper.create(taskHolderContents['taskWrapper']['type'])
-        for optionName, optionValue in taskHolderContents['taskWrapper']['options'].items():
-            taskWrapper.setOption(optionName, optionValue)
-        taskHolder.setTaskWrapper(taskWrapper)
 
         # adding vars
         contextVarNames = taskHolderContents['contextVarNames']
@@ -325,10 +314,10 @@ class TaskHolder(object):
         Perform the task runner recursively.
         """
         result = []
-        taskHolder.addPathCrawlers(crawlers)
+        taskHolder.addCrawlers(crawlers)
 
-        # in case the task does not have any path crawlers, there is nothing to do
-        if not taskHolder.task().pathCrawlers():
+        # in case the task does not have any crawlers, there is nothing to do
+        if not taskHolder.task().crawlers():
             return result
 
         # executing task through the wrapper

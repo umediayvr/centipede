@@ -3,7 +3,7 @@ import os
 import glob
 from ..Task import Task
 from ..Template import Template
-from ..PathCrawlerMatcher import PathCrawlerMatcher
+from ..CrawlerMatcher import CrawlerMatcher
 from ..TaskHolder import TaskHolder
 from ..Resource import Resource
 from .TaskHolderLoader import TaskHolderLoader
@@ -81,27 +81,29 @@ class JsonLoader(TaskHolderLoader):
               "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {seq} {shot} {plateName}).(pad {frame} 4).exr",
               "task": "convertImage",
               "taskMetadata": {
+                "match.types": [
+                    "dpxPlate"
+                ],
+                "match.vars": {
+                    "imageType": [
+                        "sequence"
+                    ]
+                },
                 "dispatch.await": True
-              },
-              "matchTypes": [
-                "dpxPlate"
-              ],
-              "matchVars": {
-                "imageType": [
-                  "sequence"
-                ]
               },
               "taskHolders": [
                 {
                   "task": "movGen",
                   "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/review/{name}.mov",
-                  "matchTypes": [
-                    "exrPlate"
-                  ],
-                  "matchVars": {
-                    "imageType": [
-                      "sequence"
-                    ]
+                  "taskMetadata": {
+                    "match.types": [
+                        "exrPlate"
+                    ],
+                    "match.vars": {
+                        "imageType": [
+                            "sequence"
+                        ]
+                    }
                   }
                 },
                 {
@@ -163,17 +165,10 @@ class JsonLoader(TaskHolderLoader):
             # getting the target template
             targetTemplate = Template(taskHolderInfo.get('targetTemplate', ''))
 
-            # getting path crawler matcher
-            pathCrawlerMatcher = PathCrawlerMatcher(
-                taskHolderInfo.get('matchTypes', []),
-                taskHolderInfo.get('matchVars', {})
-            )
-
             # creating a task holder
             taskHolder = TaskHolder(
                 task,
-                targetTemplate,
-                pathCrawlerMatcher
+                targetTemplate
             )
 
             # adding variables to the task holder

@@ -169,7 +169,7 @@ class Deadline(Renderfarm):
 
             taskLabel = "{} {}".format(
                 taskLabel,
-                task.pathCrawlers()[0].var('name')
+                task.crawlers()[0].var('name')
             )
 
             args += [
@@ -177,7 +177,7 @@ class Deadline(Renderfarm):
                 taskLabel
             ]
 
-            outputDirectories = list(set(map(lambda x: os.path.dirname(task.filePath(x)), task.pathCrawlers())))
+            outputDirectories = list(set(map(lambda x: os.path.dirname(task.target(x)), task.crawlers())))
             for index, outputDirectory in enumerate(outputDirectories):
                 args += [
                     "-prop",

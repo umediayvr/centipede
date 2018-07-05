@@ -27,9 +27,9 @@ class ColorTransformation(Ocio):
             'targetColorSpace': targetColorSpace
         }
 
-        for pathCrawler in self.pathCrawlers():
+        for crawler in self.crawlers():
             # source image
-            sourceImage = oiio.ImageInput.open(pathCrawler.var('filePath'))
+            sourceImage = oiio.ImageInput.open(crawler.var('filePath'))
             spec = sourceImage.spec()
             spec.set_format(oiio.FLOAT)
 
@@ -41,7 +41,7 @@ class ColorTransformation(Ocio):
                 targetColorSpace
             ).applyRGB(pixels)
 
-            targetFilePath = self.filePath(pathCrawler)
+            targetFilePath = self.target(crawler)
 
             # trying to create the directory automatically in case it does not exist
             try:
@@ -54,7 +54,7 @@ class ColorTransformation(Ocio):
             # umedia metadata information
             UpdateImageMetadata.updateUmediaMetadata(
                 spec,
-                pathCrawler,
+                crawler,
                 metadata
             )
 

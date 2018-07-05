@@ -13,26 +13,30 @@
         "testExpr": "(min 2 6)"
       },
       "targetTemplate": "{temporaryDir}/{baseName}",
-      "matchTypes": [
-        "exr"
-      ],
-      "matchVars": {
-        "imageType": [
-          "sequence"
-        ]
+      "taskMetadata": {
+        "match.types": [
+          "exr"
+        ],
+        "match.vars": {
+          "imageType": [
+            "sequence"
+          ]
+        }
       },
       "taskHolders": [
         {
           "task": "sequenceThumbnail",
           "targetTemplate": "{temporaryDir}/{name}.jpg",
-          "matchTypes": [
-            "testCrawler"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
+          "taskMetadata": {
+            "match.types": [
+              "testCrawler"
             ],
-            "testVariable": true
+            "match.vars": {
+              "imageType": [
+                "sequence"
+              ],
+              "testVariable": true
+            }
           }
         }
       ]

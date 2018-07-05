@@ -14,19 +14,19 @@
   "taskHolders": [
     {
       "task": "createTextureVersion",
-      "matchTypes": [
-        "texture"
-      ],
       "taskOptions": {
         "maketxArgs": "--oiio --colorconvert sRGB linear"
       },
       "taskMetadata": {
-        "taskWrapper.name": "subprocess",
-        "taskWrapper.options": {
+        "match.types": [
+          "texture"
+        ],
+        "wrapper.name": "subprocess",
+        "wrapper.options": {
           "user": ""
         }
       },
-      "targetTemplate": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newVersion <parentPath>)"
+      "targetTemplate": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newver <parentPath>)"
     }
   ]
 }

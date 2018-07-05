@@ -19,9 +19,9 @@ class UPythonTest(BaseTestCase):
         """
         resource = Resource.get()
         resource.load(self.__taskPath)
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         dummyTask = Task.create('uPythonTestTask')
-        dummyTask.add(pathCrawler)
+        dummyTask.add(crawler)
         dummyTask.setOption("runUPython", True)
         wrapper = TaskWrapper.create('upython')
         result = wrapper.run(dummyTask)
@@ -35,9 +35,9 @@ class UPythonTest(BaseTestCase):
         """
         resource = Resource.get()
         resource.load(self.__taskPath)
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         dummyTask = Task.create('uPythonTestTask')
-        dummyTask.add(pathCrawler)
+        dummyTask.add(crawler)
         dummyTask.setOption("runUPython", False)
         wrapper = TaskWrapper.create('upython')
         result = wrapper.run(dummyTask)

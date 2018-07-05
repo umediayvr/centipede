@@ -10,13 +10,15 @@
     {
       "task": "copy",
       "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/publish/elements/{renderName}/{output}/{versionName}/{width}x{height}/{baseName}",
-      "matchTypes": [
-        "nukeRender"
-      ],
-      "matchVars": {
-        "imageType": [
-          "sequence"
-        ]
+      "taskMetadata": {
+        "match.types": [
+          "nukeRender"
+        ],
+        "match.vars": {
+          "imageType": [
+            "sequence"
+          ]
+        }
       },
       "taskHolders": [
         {
@@ -36,13 +38,15 @@
             "enableReformat": 0
           },
           "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/{name}.mov",
-          "matchTypes": [
-            "tkNukeRender"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
-            ]
+          "taskMetadata": {
+            "match.types": [
+              "tkNukeRender"
+            ],
+            "match.vars": {
+              "imageType": [
+                "sequence"
+              ]
+            }
           }
         }
         ]
@@ -50,18 +54,18 @@
       {
         "task": "sequenceThumbnail",
         "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/.thumbnail/{name}.jpg",
-        "matchTypes": [
-          "tkNukeRender"
-        ],
-        "matchVars": {
-          "imageType": [
-            "sequence"
-          ]
-        },
         "taskMetadata": {
-          "taskWrapper.name": "subprocess",
-          "taskWrapper.options": {}
-        },
+          "match.types": [
+            "tkNukeRender"
+          ],
+          "match.vars": {
+            "imageType": [
+              "sequence"
+            ]
+          },
+          "wrapper.name": "subprocess",
+          "wrapper.options": {}
+        }
       },
       {
         "task": "sgImageSeqPublish",

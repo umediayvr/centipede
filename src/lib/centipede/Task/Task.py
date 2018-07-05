@@ -15,8 +15,8 @@ except NameError:
 class TaskTypeNotFoundError(Exception):
     """Task type not found error."""
 
-class InvalidPathCrawlerError(Exception):
-    """Invalid path crawler Error."""
+class InvalidCrawlerError(Exception):
+    """Invalid crawler Error."""
 
 class TaskInvalidOptionError(Exception):
     """Task invalid option error."""
@@ -34,16 +34,19 @@ class Task(object):
     A task is used to operate over file paths resolved by the template runner.
 
     Optional options:
-        - filterTemplate: This is used when querying the crawlers from the task (Task.pathCrawlers).
+        - filterTemplate: This is used when querying the crawlers from the task (Task.crawlers).
         It works by filtering out crawlers based on the template defined as value of the option.
         When the processed template results: "False", "false" or "0" then the crawler is filtered
-        out from the pathCrawlers result.
+        out from the crawlers result.
 
         - emptyFilterResult: This option should be used in combination with
         "filterTemplate" and only works when filterTemplate filters out all crawlers.
         By assigning "taskCrawlers" then the crawlers in the task are returned as result (Similar
         behaviour about what happens in nuke when a node is disabled). Otherwise, when assigned
         with "empty" the task results an empty list (default).
+
+    Task Metadata:
+        - output.verbose: boolean used to print out the output of the task (default False)
     """
 
     __registered = {}
@@ -52,7 +55,7 @@ class Task(object):
         """
         Create a task object.
         """
-        self.__pathCrawlers = OrderedDict()
+        self.__crawlers = OrderedDict()
         self.__metadata = {}
         self.__taskType = taskType
         self.__options = {}
@@ -60,11 +63,6 @@ class Task(object):
         # default options
         self.setOption('filterTemplate', '')
         self.setOption('emptyFilterResult', 'empty')
-
-        # default metadata
-        # taskWrapper is used when executing tasks through a task holder
-        self.setMetadata('taskWrapper.name', 'default')
-        self.setMetadata('taskWrapper.options', {})
 
     def type(self):
         """
@@ -186,24 +184,24 @@ class Task(object):
         """
         return list(self.__options.keys())
 
-    def filePath(self, pathCrawler):
+    def target(self, crawler):
         """
-        Return the file path for path crawler.
+        Return the target file path for crawler.
         """
-        if pathCrawler not in self.__pathCrawlers:
-            raise InvalidPathCrawlerError(
-                'Path crawler is not part of the task!'
+        if crawler not in self.__crawlers:
+            raise InvalidCrawlerError(
+                'Crawler is not part of the task!'
             )
 
-        return self.__pathCrawlers[pathCrawler]
+        return self.__crawlers[crawler]
 
-    def pathCrawlers(self, useFilterTemplateOption=True):
+    def crawlers(self, useFilterTemplateOption=True):
         """
-        Return a list of path crawlers associated with the task.
+        Return a list of crawlers associated with the task.
         """
-        result = list(self.__pathCrawlers.keys())
+        result = list(self.__crawlers.keys())
 
-        # filtering the pathCrawler result based on the "filterTemplate" option
+        # filtering the crawler result based on the "filterTemplate" option
         filterTemplate = str(self.option('filterTemplate'))
         if useFilterTemplateOption and filterTemplate:
             filteredResult = []
@@ -216,26 +214,29 @@ class Task(object):
 
         return result
 
-    def add(self, pathCrawler, filePath=''):
+    def add(self, crawler, targetFilePath=''):
         """
-        Add a path crawler to the task.
+        Add a crawler to the task.
 
-        A file path can be associated with the path crawler, this file path may be used
-        as target to the path crawler.
+        A target file path can be associated with the crawler. It should be
+        used by tasks that generate files. This information may be provided
+        by tasks executed through a task holder where the template in the
+        task holder is resolved and passed as target when adding
+        the crawler to the task.
         """
-        assert isinstance(pathCrawler, FsPath), \
-            "Invalid FsPath Crawler!"
+        assert isinstance(crawler, Crawler), \
+            "Invalid Crawler!"
 
-        assert isinstance(filePath, basestring), \
-            "FilePath needs to be defined as string"
+        assert isinstance(targetFilePath, basestring), \
+            "targetFilePath needs to be defined as string"
 
-        self.__pathCrawlers[pathCrawler] = filePath
+        self.__crawlers[crawler] = targetFilePath
 
     def clear(self):
         """
         Remove all crawlers associated with the task.
         """
-        self.__pathCrawlers.clear()
+        self.__crawlers.clear()
 
     def output(self):
         """
@@ -245,15 +246,15 @@ class Task(object):
         if verbose:
             sys.stdout.write('{0} output:\n'.format(self.type()))
 
-        # in case all path crawlers were filtered out, returning right away.
+        # in case all crawlers were filtered out, returning right away.
         # \TODO: we may want to have the behaviour of don't performing the task
-        # when the task does not have any path crawler. Right now, it's only applied
+        # when the task does not have any crawler. Right now, it's only applied
         # when all crawlers were filtered out by the filter template option.
-        if len(self.pathCrawlers(useFilterTemplateOption=False)) and len(self.pathCrawlers()) == 0:
+        if len(self.crawlers(useFilterTemplateOption=False)) and len(self.crawlers()) == 0:
             return self.__emptyFilterResult(verbose)
 
         contextVars = {}
-        for crawler in self.pathCrawlers():
+        for crawler in self.crawlers():
             for ctxVarName in crawler.contextVarNames():
                 if ctxVarName not in contextVars:
                     contextVars[ctxVarName] = crawler.var(ctxVarName)
@@ -292,9 +293,9 @@ class Task(object):
         for metadataName in self.metadataNames():
             clone.setMetadata(metadataName, self.metadata(metadataName))
 
-        # copying path crawlers
-        for pathCrawler in self.pathCrawlers():
-            clone.add(pathCrawler, self.filePath(pathCrawler))
+        # copying crawlers
+        for crawler in self.crawlers():
+            clone.add(crawler, self.target(crawler))
 
         return clone
 
@@ -316,10 +317,10 @@ class Task(object):
 
         # crawler data
         crawlerData = []
-        for pathCrawler in self.pathCrawlers():
+        for crawler in self.crawlers():
             crawlerData.append({
-                'filePath': self.filePath(pathCrawler),
-                'serializedCrawler': pathCrawler.toJson()
+                'filePath': self.target(crawler),
+                'serializedCrawler': crawler.toJson()
             })
 
         # custom resources
@@ -422,8 +423,8 @@ class Task(object):
         by the template). In case none file path has not been specified then returns an empty list of crawlers.
         """
         filePaths = []
-        for crawler in self.pathCrawlers():
-            filePath = self.filePath(crawler)
+        for crawler in self.crawlers():
+            filePath = self.target(crawler)
             if filePath not in filePaths:
                 filePaths.append(filePath)
 
@@ -437,7 +438,7 @@ class Task(object):
             if verbose:
                 sys.stdout.write('  - Empty filter resulting original task crawlers\n')
 
-            return self.pathCrawlers(useFilterTemplateOption=False)
+            return self.crawlers(useFilterTemplateOption=False)
 
         elif self.option('emptyFilterResult') == 'empty':
             if verbose:

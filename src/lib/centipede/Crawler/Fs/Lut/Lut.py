@@ -2,7 +2,7 @@ from ..Ascii import Xml
 
 class Lut(Xml):
     """
-    Abstracted lut path crawler.
+    Abstracted lut crawler.
     """
 
     def __init__(self, *args, **kwargs):

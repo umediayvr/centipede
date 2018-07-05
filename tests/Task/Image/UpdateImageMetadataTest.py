@@ -16,9 +16,9 @@ class UpdateImageMetadataTest(BaseTestCase):
         """
         Test that the UpdateImageMetadata task works properly.
         """
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         updateTask = Task.create('updateImageMetadata')
-        updateTask.add(pathCrawler, self.__targetPath)
+        updateTask.add(crawler, self.__targetPath)
         result = updateTask.output()
         self.assertEqual(len(result), 1)
         crawler = result[0]

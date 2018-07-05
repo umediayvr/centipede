@@ -20,16 +20,16 @@ class UpdateImageMetadata(Task):
         """
         import OpenImageIO as oiio
 
-        for pathCrawler in self.pathCrawlers():
-            targetFilePath = self.filePath(pathCrawler)
+        for crawler in self.crawlers():
+            targetFilePath = self.target(crawler)
 
             # converting image using open image io
-            inputImageFilePath = pathCrawler.var('filePath')
+            inputImageFilePath = crawler.var('filePath')
             imageInput = oiio.ImageInput.open(inputImageFilePath)
             inputSpec = imageInput.spec()
 
             # updating umedia metadata
-            self.updateUmediaMetadata(inputSpec, pathCrawler)
+            self.updateUmediaMetadata(inputSpec, crawler)
 
             # writing image with updated metadata
             outImage = oiio.ImageOutput.create(targetFilePath)

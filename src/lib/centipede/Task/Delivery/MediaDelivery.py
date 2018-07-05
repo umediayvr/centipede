@@ -15,10 +15,10 @@ class MediaDelivery(NukeTemplate):
         # calling the super class that knows how to produce a media
         super(MediaDelivery, self)._perform()
 
-        targetCrawler = self.pathCrawlers()[0]
+        targetCrawler = self.crawlers()[0]
         mediaInfoJson = self.templateOption('mediaInfo', crawler=targetCrawler)
         clientShot = self.templateOption('clientShot', crawler=targetCrawler)
-        targetFilePath = self.filePath(targetCrawler)
+        targetFilePath = self.target(targetCrawler)
 
         # updating any existing file
         mediaInfo = {}

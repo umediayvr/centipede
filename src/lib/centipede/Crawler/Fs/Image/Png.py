@@ -2,7 +2,7 @@ from .Oiio import Oiio
 
 class Png(Oiio):
     """
-    Png path crawler.
+    Png crawler.
     """
 
     @classmethod
