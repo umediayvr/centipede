@@ -7,11 +7,15 @@ from .NukeScript import NukeScript
 
 class NukeTemplate(NukeScript):
     """
+    Deprecated: use NukeScene instead.
+
     Executes a nuke scene by triggering the write nodes.
 
     Required options: template (full path of the nuke scene)
 
     Please checkout the base class for further information about the options.
+
+    TODO: this task needs to be ported to use nuke task wrapper.
     """
 
     def __init__(self, *args, **kwargs):
@@ -31,9 +35,9 @@ class NukeTemplate(NukeScript):
             )
         )
 
-    def add(self, pathCrawler, filePath=''):
+    def add(self, crawler, filePath=''):
         """
-        Add a path crawler to the task.
+        Add a crawler to the task.
         """
         # this task can be also used to generate a quicktime movie. Therefore,
         # we only split it when creating image sequences. For this reason we
@@ -42,7 +46,7 @@ class NukeTemplate(NukeScript):
         if not self.hasMetadata('dispatch.split') and "%0" in filePath:
             self.setMetadata('dispatch.split', True)
 
-        return super(NukeTemplate, self).add(pathCrawler, filePath)
+        return super(NukeTemplate, self).add(crawler, filePath)
 
     def _perform(self):
         """

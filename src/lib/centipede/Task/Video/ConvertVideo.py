@@ -29,8 +29,8 @@ class ConvertVideo(Task):
         audioArgs = self.option('audioArgs')
         bitRate = self.option('bitRate')
 
-        for pathCrawler in self.pathCrawlers():
-            targetFilePath = self.filePath(pathCrawler)
+        for crawler in self.crawlers():
+            targetFilePath = self.target(crawler)
 
             # creating any necessary directories
             parentDirectory = os.path.dirname(targetFilePath)
@@ -39,7 +39,7 @@ class ConvertVideo(Task):
 
             # ffmpeg command
             ffmpegCommand = 'ffmpeg -loglevel error {audioArgs} -i {input} -b {bitRate}M -minrate {bitRate}M -maxrate {bitRate}M {videoArgs} -y {output}'.format(
-                input=pathCrawler.var('filePath'),
+                input=crawler.var('filePath'),
                 output=targetFilePath,
                 videoArgs=videoArgs,
                 bitRate=bitRate,

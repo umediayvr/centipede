@@ -14,9 +14,9 @@ class ConvertVideoTest(BaseTestCase):
         """
         Test that the Convert Video task works properly.
         """
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         convertTask = Task.create('convertVideo')
-        convertTask.add(pathCrawler, self.__targetPath)
+        convertTask.add(crawler, self.__targetPath)
         result = convertTask.output()
         self.assertEqual(len(result), 1)
 

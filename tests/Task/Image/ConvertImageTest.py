@@ -20,12 +20,12 @@ class ConvertImageTest(BaseTestCase):
         """
         Test that the ConvertImage task works properly.
         """
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         convertTask = Task.create('convertImage')
-        convertTask.add(pathCrawler, self.__targetPath)
+        convertTask.add(crawler, self.__targetPath)
         result = convertTask.output()
         convertTask = Task.create('convertImage')
-        convertTask.add(pathCrawler, self.__testPath)
+        convertTask.add(crawler, self.__testPath)
         result = convertTask.output()
         self.assertEqual(len(result), 1)
         checkTask = Task.create('checksum')

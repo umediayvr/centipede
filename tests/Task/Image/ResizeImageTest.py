@@ -15,9 +15,9 @@ class ResizeImageTest(BaseTestCase):
         """
         Test that the ResizeImage task works properly.
         """
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         resizeTask = Task.create('resizeImage')
-        resizeTask.add(pathCrawler, self.__targetPath)
+        resizeTask.add(crawler, self.__targetPath)
         resizeTask.setOption("width", "480")
         resizeTask.setOption("height", "270")
         for convertToRGBA in [False, True]:

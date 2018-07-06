@@ -29,9 +29,9 @@ class FileColorTransformation(Ocio):
         # open color io configuration
         config = self.ocioConfig()
 
-        for pathCrawler in self.pathCrawlers():
+        for crawler in self.crawlers():
             # resolving the lut path
-            lut = self.templateOption('lut', crawler=pathCrawler)
+            lut = self.templateOption('lut', crawler=crawler)
 
             # adding color space transform
             groupTransform = ocio.GroupTransform()
@@ -51,7 +51,7 @@ class FileColorTransformation(Ocio):
             )
 
             # source image
-            sourceImage = oiio.ImageInput.open(pathCrawler.var('filePath'))
+            sourceImage = oiio.ImageInput.open(crawler.var('filePath'))
             spec = sourceImage.spec()
             spec.set_format(oiio.FLOAT)
 
@@ -64,7 +64,7 @@ class FileColorTransformation(Ocio):
                 groupTransform
             ).applyRGB(pixels)
 
-            targetFilePath = self.filePath(pathCrawler)
+            targetFilePath = self.target(crawler)
 
             # trying to create the directory automatically in case it does not exist
             try:
@@ -74,10 +74,10 @@ class FileColorTransformation(Ocio):
 
             targetImage = oiio.ImageOutput.create(targetFilePath)
 
-            # umedia metadata information
-            UpdateImageMetadata.updateUmediaMetadata(
+            # centipede metadata information
+            UpdateImageMetadata.updateDefaultMetadata(
                 spec,
-                pathCrawler,
+                crawler,
                 metadata
             )
 

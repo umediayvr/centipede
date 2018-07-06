@@ -100,11 +100,11 @@ class Dispatcher(object):
         # setting the verbose ouput to the tasks in place
         self.__setVerboseOutput(clonedTaskHolder)
 
-        clonedTaskHolder.addPathCrawlers(crawlers)
+        clonedTaskHolder.addCrawlers(crawlers)
 
-        # in case the task does not have any path crawlers means there is nothing
+        # in case the task does not have any crawlers means there is nothing
         # to be executed, returning right away.
-        if len(clonedTaskHolder.task().pathCrawlers()) == 0:
+        if len(clonedTaskHolder.task().crawlers()) == 0:
             return []
 
         return self._perform(clonedTaskHolder)

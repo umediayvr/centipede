@@ -2,7 +2,7 @@ from .Oiio import Oiio
 
 class Exr(Oiio):
     """
-    Exr path crawler.
+    Exr crawler.
     """
 
     @classmethod

@@ -16,7 +16,7 @@ class Nuke(DCC):
                 os.path.realpath(__file__)
             ),
             'aux',
-            'nukeScriptLoader.py'
+            'runSerializedTask.py'
         )
 
         return 'nuke -x -t "{}" --log-level error'.format(

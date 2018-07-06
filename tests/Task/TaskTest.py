@@ -5,7 +5,7 @@ from centipede.Crawler.Fs import FsPath
 from centipede.TaskHolderLoader import JsonLoader
 from centipede.TaskWrapper import TaskWrapper
 from centipede.Task import Task
-from centipede.Task.Task import InvalidPathCrawlerError
+from centipede.Task.Task import InvalidCrawlerError
 from centipede.Task.Task import TaskInvalidOptionError
 from centipede.Task.Task import TaskInvalidOptionValue
 from centipede.Task.Task import TaskTypeNotFoundError
@@ -28,27 +28,27 @@ class TaskTest(BaseTestCase):
         self.assertIn("dummy", Task.registeredNames())
         self.assertRaises(TaskTypeNotFoundError, Task.create, 'badTask')
 
-    def testTaskPathCrawlers(self):
+    def testTaskCrawlers(self):
         """
-        Test that path crawlers are correctly associated with tasks.
+        Test that crawlers are correctly associated with tasks.
         """
         dummyTask = Task.create('copy')
         crawlers = FsPath.createFromPath(BaseTestCase.dataDirectory()).glob(['mov'])
         for crawler in crawlers:
             target = '{}_target'.format(crawler.var('name'))
             dummyTask.add(crawler, target)
-        self.assertEqual(len(dummyTask.pathCrawlers()), len(crawlers))
+        self.assertEqual(len(dummyTask.crawlers()), len(crawlers))
         for filterOption in ['0', 'False', 'false']:
             with self.subTest(filterOption=filterOption):
                 dummyTask.setOption('filterTemplate', filterOption)
-                self.assertFalse(len(dummyTask.pathCrawlers()))
+                self.assertFalse(len(dummyTask.crawlers()))
         dummyTask.setOption('filterTemplate', 'randomStr')
-        self.assertEqual(len(dummyTask.pathCrawlers()), len(crawlers))
+        self.assertEqual(len(dummyTask.crawlers()), len(crawlers))
         for crawler in crawlers:
             target = '{}_target'.format(crawler.var('name'))
-            self.assertEqual(dummyTask.filePath(crawler), target)
+            self.assertEqual(dummyTask.target(crawler), target)
         badCrawler = FsPath.createFromPath(self.__jsonConfig)
-        self.assertRaises(InvalidPathCrawlerError, dummyTask.filePath, badCrawler)
+        self.assertRaises(InvalidCrawlerError, dummyTask.target, badCrawler)
 
     def testTaskClone(self):
         """
@@ -63,12 +63,12 @@ class TaskTest(BaseTestCase):
         self.assertCountEqual(dummyTask.optionNames(), clone.optionNames())
         self.assertCountEqual(dummyTask.metadataNames(), clone.metadataNames())
         self.assertCountEqual(
-            map(dummyTask.filePath, dummyTask.pathCrawlers()),
-            map(clone.filePath, clone.pathCrawlers())
+            map(dummyTask.target, dummyTask.crawlers()),
+            map(clone.target, clone.crawlers())
         )
         self.assertCountEqual(
-            map(lambda x: x.var('filePath'), dummyTask.pathCrawlers()),
-            map(lambda x: x.var('filePath'), clone.pathCrawlers())
+            map(lambda x: x.var('filePath'), dummyTask.crawlers()),
+            map(lambda x: x.var('filePath'), clone.crawlers())
         )
 
     def testTaskOptions(self):
@@ -166,12 +166,12 @@ class TaskTest(BaseTestCase):
         self.assertCountEqual(dummyTask.optionNames(), resultTask.optionNames())
         self.assertCountEqual(dummyTask.metadataNames(), resultTask.metadataNames())
         self.assertCountEqual(
-            map(lambda x: x.var('filePath'), dummyTask.pathCrawlers()),
-            map(lambda x: x.var('filePath'), resultTask.pathCrawlers())
+            map(lambda x: x.var('filePath'), dummyTask.crawlers()),
+            map(lambda x: x.var('filePath'), resultTask.crawlers())
         )
         self.assertCountEqual(
-            map(dummyTask.filePath, dummyTask.pathCrawlers()),
-            map(resultTask.filePath, resultTask.pathCrawlers())
+            map(dummyTask.target, dummyTask.crawlers()),
+            map(resultTask.target, resultTask.crawlers())
         )
 
     def testConfig(self):

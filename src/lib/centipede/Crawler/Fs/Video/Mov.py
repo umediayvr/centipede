@@ -5,7 +5,7 @@ import os
 
 class Mov(Video):
     """
-    Mov path crawler.
+    Mov crawler.
     """
 
     def __init__(self, *args, **kwargs):

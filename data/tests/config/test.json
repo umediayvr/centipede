@@ -13,30 +13,34 @@
         "testExpr": "(min 2 6)"
       },
       "targetTemplate": "(tmpdir)/{baseName}",
-      "matchTypes": [
-        "exr"
-      ],
-      "matchVars": {
-        "imageType": [
-          "sequence"
-        ]
+      "taskMetadata": {
+        "match.types": [
+          "exr"
+        ],
+        "match.vars": {
+          "imageType": [
+            "sequence"
+          ]
+        }
       },
       "taskHolders": [
         {
           "task": "sequenceThumbnail",
           "targetTemplate": "(tmpdir)/{name}.jpg",
-          "matchTypes": [
-            "testCrawler"
-          ],
-          "matchVars": {
-            "imageType": [
-              "sequence"
+          "taskMetadata": {
+            "match.types": [
+              "testCrawler"
             ],
-            "testVariable": true
-          },
-          "taskWrapper": "subprocess",
-          "taskWrapperOptions": {
-            "user": ""
+            "match.vars": {
+              "imageType": [
+                "sequence"
+              ],
+              "testVariable": true
+            },
+            "wrapper.name": "subprocess",
+            "wrapper.options": {
+              "user": ""
+            }
           }
         }
       ]

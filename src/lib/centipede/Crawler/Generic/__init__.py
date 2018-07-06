@@ -1,1 +1,1 @@
-from .HashMap import HashMap
+from .Hashmap import Hashmap

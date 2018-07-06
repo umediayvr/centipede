@@ -23,13 +23,13 @@ class SequenceThumbnail(Task):
         Perform the task.
         """
         targetThumbnails = OrderedDict()
-        for pathCrawler in self.pathCrawlers():
-            targetFilePath = self.filePath(pathCrawler)
+        for crawler in self.crawlers():
+            targetFilePath = self.target(crawler)
 
             if targetFilePath not in targetThumbnails:
                 targetThumbnails[targetFilePath] = []
 
-            targetThumbnails[targetFilePath].append(pathCrawler)
+            targetThumbnails[targetFilePath].append(crawler)
 
         result = []
         # generating a thumbnail for the sequence

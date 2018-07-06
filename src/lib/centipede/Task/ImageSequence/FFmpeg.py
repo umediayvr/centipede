@@ -34,18 +34,18 @@ class FFmpeg(Task):
         """
         # collecting all crawlers that have the same target file path
         movFiles = OrderedDict()
-        for pathCrawler in self.pathCrawlers():
-            targetFilePath = self.filePath(pathCrawler)
+        for crawler in self.crawlers():
+            targetFilePath = self.target(crawler)
 
             if targetFilePath not in movFiles:
                 movFiles[targetFilePath] = []
 
-            movFiles[targetFilePath].append(pathCrawler)
+            movFiles[targetFilePath].append(crawler)
 
         # calling ffmpeg
         for movFile in movFiles.keys():
             sequenceCrawlers = movFiles[movFile]
-            pathCrawler = sequenceCrawlers[0]
+            crawler = sequenceCrawlers[0]
 
             # executing ffmpeg
             self.__executeFFmpeg(

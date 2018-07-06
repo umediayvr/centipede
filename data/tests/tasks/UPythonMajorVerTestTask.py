@@ -7,7 +7,7 @@ class UPythonMajorVerTestTask(Task):
     """
 
     def _perform(self):
-        sourceCrawler = self.pathCrawlers()[0]
+        sourceCrawler = self.crawlers()[0]
         sourceCrawler.setVar("majorVer", sys.version_info[0])
         return [sourceCrawler.clone()]
 

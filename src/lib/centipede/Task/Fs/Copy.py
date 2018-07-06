@@ -25,8 +25,8 @@ class Copy(Task):
         """
         Perform the task.
         """
-        for pathCrawler in self.pathCrawlers():
-            filePath = self.filePath(pathCrawler)
+        for crawler in self.crawlers():
+            filePath = self.target(crawler)
 
             # trying to create the directory automatically in case it does not exist
             try:
@@ -35,7 +35,7 @@ class Copy(Task):
                 pass
 
             # copying the file to the new target
-            sourceFilePath = pathCrawler.var('filePath')
+            sourceFilePath = crawler.var('filePath')
             targetFilePath = filePath
 
             # Check if the target path already exists, if it is file remove it else raise an exception

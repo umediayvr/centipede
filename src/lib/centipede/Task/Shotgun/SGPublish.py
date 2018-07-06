@@ -28,8 +28,8 @@ class SGPublish(Task):
         sg = Session.get()
 
         # Source crawler is a json crawler that points to published data
-        sourceCrawler = self.pathCrawlers()[0]
-        filePath = self.filePath(sourceCrawler) if self.filePath(sourceCrawler) else sourceCrawler.var('filePath')
+        sourceCrawler = self.crawlers()[0]
+        filePath = self.target(sourceCrawler) if self.target(sourceCrawler) else sourceCrawler.var('filePath')
 
         self.__publishData["path"] = {"local_path": filePath}
         self.__publishData["description"] = self.templateOption('comment', crawler=sourceCrawler)
@@ -57,7 +57,7 @@ class SGPublish(Task):
         """
         Find the data that needs to be linked to the publish in Shotgun.
         """
-        sourceCrawler = self.pathCrawlers()[0]
+        sourceCrawler = self.crawlers()[0]
 
         project = sg.find_one('Project', [['name', 'is', sourceCrawler.var('job')]])
         self.__publishData['project'] = project
@@ -107,7 +107,7 @@ class SGPublish(Task):
         Create a temporary thumbnail using images found in data to load as publish thumbnail in shotgun.
         """
         createThumbnail = False
-        sourceCrawler = self.pathCrawlers()[0]
+        sourceCrawler = self.crawlers()[0]
         if "thumbnailFile" in self.optionNames():
             thumbnailFilePath = self.templateOption('thumbnailFile', crawler=sourceCrawler)
         else:
@@ -148,7 +148,7 @@ class SGPublish(Task):
         """
         Create a version in Shotgun for this path and linked to this publish.
         """
-        sourceCrawler = self.pathCrawlers()[0]
+        sourceCrawler = self.crawlers()[0]
         if 'movieFile' not in self.optionNames():
             # No movie provided, glob for a mov
             movCrawlers = sourceCrawler.globFromParent(filterTypes=["mov"])

@@ -7,7 +7,7 @@ from ..Crawler import Crawler
 
 class Directory(FsPath):
     """
-    Directory path crawler.
+    Directory crawler.
     """
 
     # checking for digits as prefix separated by x or X and finishing with digits as suffix

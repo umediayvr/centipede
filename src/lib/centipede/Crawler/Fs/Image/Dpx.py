@@ -2,7 +2,7 @@ from .Oiio import Oiio
 
 class Dpx(Oiio):
     """
-    Dpx path crawler.
+    Dpx crawler.
     """
 
     @classmethod

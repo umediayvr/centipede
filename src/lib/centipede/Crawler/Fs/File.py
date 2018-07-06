@@ -3,7 +3,7 @@ from ..Crawler import Crawler
 
 class File(FsPath):
     """
-    File path crawler.
+    File crawler.
     """
 
     @classmethod

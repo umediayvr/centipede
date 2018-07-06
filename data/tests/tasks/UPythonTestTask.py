@@ -7,7 +7,7 @@ class UPythonTestTask(Task):
     """
 
     def _perform(self):
-        sourceCrawler = self.pathCrawlers()[0]
+        sourceCrawler = self.crawlers()[0]
         if self.option('runUPython'):
             dummyTask = Task.create('uPythonTestTask')
             dummyTask.setOption("runUPython", False)

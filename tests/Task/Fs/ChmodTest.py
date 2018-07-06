@@ -14,9 +14,9 @@ class ChmodTest(BaseTestCase):
         """
         Test that the chmod task works properly on a file.
         """
-        pathCrawler = FsPath.createFromPath(self.__path)
+        crawler = FsPath.createFromPath(self.__path)
         chmodTask = Task.create('chmod')
-        chmodTask.add(pathCrawler, self.__path)
+        chmodTask.add(crawler, self.__path)
         for permission in ["644", "444", "744", "664"]:
             with self.subTest(permission=permission):
                 chmodTask.setOption('directoryMode', permission)
@@ -30,11 +30,11 @@ class ChmodTest(BaseTestCase):
         """
         Test that the chmod task works properly on a directory.
         """
-        pathCrawler = FsPath.createFromPath(self.__dir)
-        filePathCrawler = FsPath.createFromPath(self.__path)
+        crawler = FsPath.createFromPath(self.__dir)
+        fileCrawler = FsPath.createFromPath(self.__path)
         chmodTask = Task.create('chmod')
-        chmodTask.add(pathCrawler, self.__dir)
-        chmodTask.add(filePathCrawler, self.__dir)
+        chmodTask.add(crawler, self.__dir)
+        chmodTask.add(fileCrawler, self.__dir)
         dirPerm = "775"
         filePerm = "664"
         chmodTask.setOption('directoryMode', dirPerm)
@@ -52,9 +52,9 @@ class ChmodTest(BaseTestCase):
         os.symlink(self.__path, link)
         self.assertEqual(self.__getPermission(link), '664')
         self.assertTrue(os.path.islink(link))
-        pathCrawler = FsPath.createFromPath(link)
+        crawler = FsPath.createFromPath(link)
         chmodTask = Task.create('chmod')
-        chmodTask.add(pathCrawler, link)
+        chmodTask.add(crawler, link)
         chmodTask.setOption('directoryMode', '775')
         chmodTask.setOption('fileMode', '775')
         chmodTask.output()

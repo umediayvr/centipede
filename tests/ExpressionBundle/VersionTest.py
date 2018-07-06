@@ -10,16 +10,16 @@ class VersionTest(BaseTestCase):
         """
         Test that the new expression works properly.
         """
-        result = ExpressionEvaluator.run("newVersion", BaseTestCase.dataDirectory())
+        result = ExpressionEvaluator.run("newver", BaseTestCase.dataDirectory())
         self.assertEqual(result, "v003")
 
     def testLatestVersion(self):
         """
         Test that the latest version is found properly.
         """
-        result = ExpressionEvaluator.run("latestVersion", BaseTestCase.dataDirectory())
+        result = ExpressionEvaluator.run("latestver", BaseTestCase.dataDirectory())
         self.assertEqual(result, "v002")
-        result = ExpressionEvaluator.run("latestVersion", os.path.join(BaseTestCase.dataDirectory(), "glob"))
+        result = ExpressionEvaluator.run("latestver", os.path.join(BaseTestCase.dataDirectory(), "glob"))
         self.assertEqual(result, "v000")
 
 
