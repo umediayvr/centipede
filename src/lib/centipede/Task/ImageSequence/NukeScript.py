@@ -14,6 +14,8 @@ except NameError:
 
 class NukeScript(Task):
     """
+    Deprecated: use NukeScene instead.
+
     Abstracted nuke python script task.
 
     The options defined in the task are resolved (in case the value contains a template)
@@ -23,8 +25,6 @@ class NukeScript(Task):
 
     Reading options inside of nuke, the options are available as a global "options":
     myOption = options['myOption']
-
-    TODO: this task needs to be ported to use nuke task wrapper.
     """
 
     def __init__(self, *args, **kwargs):

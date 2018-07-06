@@ -7,6 +7,8 @@ from .NukeScript import NukeScript
 
 class NukeTemplate(NukeScript):
     """
+    Deprecated: use NukeScene instead.
+
     Executes a nuke scene by triggering the write nodes.
 
     Required options: template (full path of the nuke scene)
