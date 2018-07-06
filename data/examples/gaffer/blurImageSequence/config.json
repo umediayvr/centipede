@@ -1,0 +1,38 @@
+{
+  "scripts": [
+    "*/*.py"
+  ],
+  "vars": {
+    "__uiHintSourceColumns": []
+  },
+  "taskHolders": [
+    {
+      "task": "gafferScene",
+      "taskMetadata": {
+        "match.types": [
+          "exr"
+        ],
+        "match.vars": {
+          "imageType": [
+            "sequence"
+          ]
+        }
+      },
+      "taskOptions": {
+        "scene": "{configPath}/scene.gfr"
+      },
+      "targetTemplate": "/tmp/gafferTest/(newver <parentPath>)/{name}.(pad {frame} 4).exr",
+      "taskHolders": [
+        {
+          "task": "ffmpeg",
+          "taskOptions":{
+            "frameRate": 23.976,
+            "sourceColorSpace": "bt709",
+            "targetColorSpace": "smpte170m"
+          },
+          "targetTemplate": "(dirname {filePath})/{name}.mov"
+        }
+      ]
+    }
+  ]
+}
