@@ -16,7 +16,7 @@ class TemplateTest(BaseTestCase):
         Test that the Template works properly.
         """
         crawler = FsPath.createFromPath(self.__file)
-        value = '(dirname {filePath})/(newVersion <parentPath>)/{name}.(pad {frame} 6).{ext}'
+        value = '(dirname {filePath})/(newver <parentPath>)/{name}.(pad {frame} 6).{ext}'
         result = Template(value).valueFromCrawler(crawler)
         self.assertEqual(result, os.path.join(
                 BaseTestCase.dataDirectory(),

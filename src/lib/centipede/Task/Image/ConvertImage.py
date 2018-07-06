@@ -20,9 +20,9 @@ class ConvertImage(Task):
         """
         import OpenImageIO as oiio
 
-        for pathCrawler in self.pathCrawlers():
+        for crawler in self.crawlers():
 
-            targetFilePath = self.filePath(pathCrawler)
+            targetFilePath = self.target(crawler)
 
             # trying to create the directory automatically in case it does not exist
             try:
@@ -31,12 +31,12 @@ class ConvertImage(Task):
                 pass
 
             # converting image using open image io
-            inputImageFilePath = pathCrawler.var('filePath')
+            inputImageFilePath = crawler.var('filePath')
             imageInput = oiio.ImageInput.open(inputImageFilePath)
             inputSpec = imageInput.spec()
 
-            # updating umedia metadata
-            UpdateImageMetadata.updateUmediaMetadata(inputSpec, pathCrawler)
+            # updating centipede metadata
+            UpdateImageMetadata.updateDefaultMetadata(inputSpec, crawler)
 
             outImage = oiio.ImageOutput.create(targetFilePath)
             outImage.open(

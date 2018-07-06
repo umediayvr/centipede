@@ -91,8 +91,8 @@ class CreateVersion(CreateData):
         super(CreateVersion, self)._perform()
 
         # Find all the crawlers for data that was created for this version
-        pathCrawler = FsPath.createFromPath(self.dataPath())
-        dataCrawlers = pathCrawler.glob()
+        crawler = FsPath.createFromPath(self.dataPath())
+        dataCrawlers = crawler.glob()
 
         # Add json files
         for jsonFile in ["info.json", "data.json", "env.json"]:
@@ -123,19 +123,19 @@ class CreateVersion(CreateData):
         """
         Load the static information about the publish.
         """
-        if self.__loadedStaticData or not self.pathCrawlers():
+        if self.__loadedStaticData or not self.crawlers():
             return
 
         self.__loadedStaticData = True
 
         # all crawlers must contain the same information about assetName,
         # variant and version. For this reason looking only in the first one
-        pathCrawler = self.pathCrawlers()[0]
+        crawler = self.crawlers()[0]
 
         # Add generic info that is expected to be on the crawler
         for info in self.__genericCrawlerInfo:
-            if info in pathCrawler.varNames():
-                self.addInfo(info, pathCrawler.var(info))
+            if info in crawler.varNames():
+                self.addInfo(info, crawler.var(info))
 
         # looking for the version based on the version folder name
         # that follows the convention "v001"

@@ -18,9 +18,9 @@ class FsPathTest(BaseTestCase):
     __turntableFile = os.path.join(__dir, "images", "RND_ass_lookdev_default_beauty_tt.1001.exr")
     __shotRenderFile = os.path.join(__dir, "images", "RND-TST-SHT_lighting_beauty_sr.1001.exr")
 
-    def testFsPathCrawler(self):
+    def testFsCrawler(self):
         """
-        Test that the Path crawler test works.
+        Test that the fs crawler test works.
         """
         pathHolder = PathHolder(self.__dir)
         self.assertTrue(FsPath.test(pathHolder, None))
@@ -63,7 +63,7 @@ class FsPathTest(BaseTestCase):
 
     def testPathVariables(self):
         """
-        Test that the Path Crawler variables are set properly.
+        Test that the crawler variables are set properly.
         """
         crawler = Crawler.create(PathHolder(self.__turntableFile))
         name, ext = os.path.splitext(self.__turntableFile)
@@ -83,7 +83,7 @@ class FsPathTest(BaseTestCase):
 
     def testCrawlerRegistration(self):
         """
-        Test that you can register a new Path crawler.
+        Test that you can register a new crawler.
         """
         class DummyCrawler(File):
             @classmethod
@@ -107,7 +107,7 @@ class FsPathTest(BaseTestCase):
 
     def testCrawlerJson(self):
         """
-        Test that you can convert a Path crawler to json and back.
+        Test that you can convert a crawler to json and back.
         """
         crawler = Crawler.create(PathHolder(self.__turntableFile))
         jsonResult = crawler.toJson()

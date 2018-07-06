@@ -1,10 +1,9 @@
 from fnmatch import fnmatch
-from .Crawler.Fs.FsPath import FsPath
 from .Crawler import Crawler
 
-class PathCrawlerMatcher(object):
+class CrawlerMatcher(object):
     """
-    Matches if a path crawler meets the specification defined at construction time.
+    Used to check if a crawler meets the specification of the matcher.
     """
 
     def __init__(self, matchTypes=[], matchVars={}):
@@ -40,8 +39,8 @@ class PathCrawlerMatcher(object):
         test and another one that actually throwns an exception telling
         why it does not match.
         """
-        assert isinstance(crawler, FsPath), \
-            "Invalid Path crawler type!"
+        assert isinstance(crawler, Crawler), \
+            "Invalid crawler type!"
 
         crawlerType = crawler.var('type')
         foundType = not self.matchTypes()

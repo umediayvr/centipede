@@ -193,14 +193,14 @@ class Renderfarm(Dispatcher):
 
         # querying all crawlers from the current task so we can re-assign them
         # back to the task in chunks (when split size is greater than 0)
-        pathCrawlers = OrderedDict()
-        for crawler in task.pathCrawlers():
-            pathCrawlers[crawler] = task.filePath(crawler)
+        crawlers = OrderedDict()
+        for crawler in task.crawlers():
+            crawlers[crawler] = task.target(crawler)
 
         # we can delegate the chunkfication to the render farm dispatcher
         # when chunkifyOnTheFarm is enabled. Otherwise, we chunkify
         # by splitting in sub jobs
-        crawlers = list(pathCrawlers.keys())
+        crawlers = list(crawlers.keys())
         if self.option('chunkifyOnTheFarm') or splitSize == 0:
             chunkfiedCrawlers = [crawlers]
         else:
@@ -224,7 +224,7 @@ class Renderfarm(Dispatcher):
             # previously it's safe for us to change it)
             task.clear()
             for chunkedCrawler in chunkedCrawlers:
-                targetFilePath = pathCrawlers[chunkedCrawler]
+                targetFilePath = crawlers[chunkedCrawler]
                 task.add(chunkedCrawler, targetFilePath)
 
             jobDataFilePath = self.__generateJobData(

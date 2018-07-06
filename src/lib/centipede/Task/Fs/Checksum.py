@@ -22,11 +22,11 @@ class Checksum(Task):
         """
         Perform the task.
         """
-        for pathCrawler in self.pathCrawlers():
+        for crawler in self.crawlers():
 
             # copying the file to the new target
-            sourceFilePath = pathCrawler.var('filePath')
-            targetFilePath = self.filePath(pathCrawler)
+            sourceFilePath = crawler.var('filePath')
+            targetFilePath = self.target(crawler)
 
             # TODO: change md5 for xxHash
             with open(sourceFilePath, 'rb') as sourceFile:

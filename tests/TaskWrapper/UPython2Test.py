@@ -18,9 +18,9 @@ class UPython2Test(BaseTestCase):
         """
         resource = Resource.get()
         resource.load(self.__taskPath)
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         dummyTask = Task.create('uPythonMajorVerTestTask')
-        dummyTask.add(pathCrawler)
+        dummyTask.add(crawler)
 
         wrapper = TaskWrapper.create("upython2")
         result = wrapper.run(dummyTask)

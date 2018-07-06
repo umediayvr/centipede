@@ -46,14 +46,14 @@ class _Version(object):
         return version
 
 
-# newVersion expression
+# new version expression
 ExpressionEvaluator.register(
-    'newVersion',
+    'newver',
     _Version.new
 )
 
-# latestVersion expression
+# latest version expression
 ExpressionEvaluator.register(
-    'latestVersion',
+    'latestver',
     _Version.latest
 )

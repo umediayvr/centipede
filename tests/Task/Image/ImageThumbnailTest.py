@@ -15,9 +15,9 @@ class ImageThumbnailTest(BaseTestCase):
         """
         Test that the ImageThumbnail task works properly.
         """
-        pathCrawler = FsPath.createFromPath(self.__sourcePath)
+        crawler = FsPath.createFromPath(self.__sourcePath)
         thumbnailTask = Task.create('imageThumbnail')
-        thumbnailTask.add(pathCrawler, self.__targetPath)
+        thumbnailTask.add(crawler, self.__targetPath)
         result = thumbnailTask.output()
         self.assertEqual(len(result), 1)
         crawler = result[0]

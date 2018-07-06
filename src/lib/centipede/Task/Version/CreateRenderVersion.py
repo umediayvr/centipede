@@ -22,16 +22,16 @@ class CreateRenderVersion(CreateIncrementalVersion):
         """
         sourceScenes = set()
 
-        for pathCrawler in self.pathCrawlers():
+        for crawler in self.crawlers():
 
-            targetFile = self._computeRenderTargetLocation(pathCrawler)
+            targetFile = self._computeRenderTargetLocation(crawler)
             # copying the render file
-            self.copyFile(pathCrawler.var('filePath'), targetFile)
+            self.copyFile(crawler.var('filePath'), targetFile)
             self.addFile(targetFile)
 
             # Crawl from source directory for scenes to save along with data
-            pathCrawler = FsPath.createFromPath(pathCrawler.var('sourceDirectory'))
-            sceneCrawlers = pathCrawler.glob([Scene])
+            crawler = FsPath.createFromPath(crawler.var('sourceDirectory'))
+            sceneCrawlers = crawler.glob([Scene])
             for sceneCrawler in sceneCrawlers:
                 sourceScenes.add(sceneCrawler.var('filePath'))
 

@@ -14,6 +14,8 @@ except NameError:
 
 class NukeScript(Task):
     """
+    Deprecated: use NukeScene instead.
+
     Abstracted nuke python script task.
 
     The options defined in the task are resolved (in case the value contains a template)
@@ -39,20 +41,20 @@ class NukeScript(Task):
         """
         # collecting all crawlers that have the same target file path
         sequenceFiles = OrderedDict()
-        for pathCrawler in self.pathCrawlers():
-            targetFilePath = self.filePath(pathCrawler)
+        for crawler in self.crawlers():
+            targetFilePath = self.target(crawler)
 
             if targetFilePath not in sequenceFiles:
                 sequenceFiles[targetFilePath] = []
 
-            sequenceFiles[targetFilePath].append(pathCrawler)
+            sequenceFiles[targetFilePath].append(crawler)
 
         # calling nuke script
         for targetSequenceFilePath, sequenceCrawlers in sequenceFiles.items():
-            pathCrawler = sequenceCrawlers[0]
+            crawler = sequenceCrawlers[0]
             startFrame = sequenceCrawlers[0].var('frame')
             endFrame = sequenceCrawlers[-1].var('frame')
-            targetSequenceFilePath = self.filePath(pathCrawler)
+            targetSequenceFilePath = self.target(crawler)
 
             # nuke does not create folders at render time, creating them
             # beforehand
@@ -64,7 +66,7 @@ class NukeScript(Task):
                     pass
 
             # converting the active frame to the frame padding notation
-            sourceSequenceFilePath = pathCrawler.var('filePath').split(".")
+            sourceSequenceFilePath = crawler.var('filePath').split(".")
             sourceSequenceFilePath = '{0}.{1}.{2}'.format(
                 '.'.join(sourceSequenceFilePath[:-2]),
                 ("#" * len(sourceSequenceFilePath[-2])),
@@ -93,7 +95,7 @@ class NukeScript(Task):
                 # resolving template if necessary...
                 if isinstance(optionValue, basestring):
                     options[optionName] = Template(optionValue).valueFromCrawler(
-                        pathCrawler
+                        crawler
                     )
                 else:
                     options[optionName] = optionValue

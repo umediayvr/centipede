@@ -2,7 +2,7 @@ from .Lut import Lut
 
 class Cube(Lut):
     """
-    Cube path crawler.
+    Cube crawler.
 
     TODO: this crawler is no longer necessary, it is going to be deprecated in
     future releases.

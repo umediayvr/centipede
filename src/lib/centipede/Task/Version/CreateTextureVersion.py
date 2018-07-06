@@ -20,16 +20,16 @@ class CreateTextureVersion(CreateIncrementalVersion):
         """
         Perform the task.
         """
-        for pathCrawler in self.pathCrawlers():
+        for crawler in self.crawlers():
 
             textureOriginalTargetLocation = self.__computeTextureTargetLocation(
-                pathCrawler,
-                pathCrawler.var('ext')
+                crawler,
+                crawler.var('ext')
             )
 
             # copying the texture file
             self.copyFile(
-                pathCrawler.var('filePath'),
+                crawler.var('filePath'),
                 textureOriginalTargetLocation
             )
 
@@ -45,7 +45,7 @@ class CreateTextureVersion(CreateIncrementalVersion):
             )
 
             # copying the texture file
-            textureTxTargetLocation = self.__computeTextureTargetLocation(pathCrawler, "tx")
+            textureTxTargetLocation = self.__computeTextureTargetLocation(crawler, "tx")
 
             # copying tx to the target location
             self.copyFile(

@@ -5,7 +5,7 @@ from ..File import File
 
 class Video(File):
     """
-    Abstracted video path crawler.
+    Abstracted video crawler.
     """
 
     def __init__(self, *args, **kwargs):

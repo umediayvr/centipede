@@ -11,14 +11,14 @@ class AppendToVersion(CreateData):
         """
         Return the root path where the data directory and json files should exist.
         """
-        assert self.pathCrawlers(), "Need input crawlers to figure out root path."
-        return self.pathCrawlers()[0].var("versionPath")
+        assert self.crawlers(), "Need input crawlers to figure out root path."
+        return self.crawlers()[0].var("versionPath")
 
     def _perform(self):
         """
         Perform the task.
         """
-        for crawler in self.pathCrawlers():
+        for crawler in self.crawlers():
             if isinstance(crawler, File):
                 self.addFile(crawler.var("filePath"))
 

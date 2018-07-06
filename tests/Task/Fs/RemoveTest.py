@@ -20,9 +20,9 @@ class RemoveTest(BaseTestCase):
         """
         Test that the remove task works properly.
         """
-        pathCrawler = FsPath.createFromPath(self.__path)
+        crawler = FsPath.createFromPath(self.__path)
         removeTask = Task.create('remove')
-        removeTask.add(pathCrawler, self.__path)
+        removeTask.add(crawler, self.__path)
         result = removeTask.output()
         self.assertEqual(len(result), 1)
         crawler = result[0]

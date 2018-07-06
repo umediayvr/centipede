@@ -16,14 +16,16 @@
   [
   {
     "task": "createRenderVersion",
-    "matchTypes": [
-      "shotRender"
-    ],
-    "taskWrapper": "subprocess",
-    "taskWrapperOptions": {
-      "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+    "taskMetadata": {
+      "match.types": [
+        "shotRender"
+      ],
+      "wrapper.name": "subprocess",
+      "wrapper.options": {
+        "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+      }
     },
-    "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{pass}/(newVersion <parentPath>)",
+    "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{pass}/(newver <parentPath>)",
     "taskHolders":
     [
       {
@@ -41,39 +43,45 @@
           "enableTimecode": 1
         },
         "targetTemplate": "{dataPath}/{name}.mov",
-        "matchTypes": [
-          "exr"
-        ],
-        "matchVars": {
-          "imageType": [
-            "sequence"
-          ]
-        },
-        "taskWrapper": "subprocess",
-        "taskWrapperOptions": {
-          "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+        "taskMetadata": {
+          "match.types": [
+            "exr"
+          ],
+          "match.vars": {
+            "imageType": [
+              "sequence"
+            ]
+          },
+          "wrapper.name": "subprocess",
+          "wrapper.options": {
+            "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+          }
         },
         "taskHolders": [
           {
             "task": "appendToVersion",
-            "taskWrapper": "subprocess",
-            "taskWrapperOptions": {
-              "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
-            }
+            "taskMetadata": {
+              "wrapper.name": "subprocess",
+              "wrapper.options": {
+                "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
+              }
+            },
           }
         ]
       },
       {
         "task": "sgPublish",
-        "taskWrapper": "upython2",
-        "taskOptions": {
-          "publishedFileType": "Rendered Image",
-          "comment": "render publish",
-          "publishName": "{renderName}"
-        },
-        "matchTypes": [
-          "json"
-        ]
+        "taskMetadata": {
+          "match.types": [
+            "json"
+          ],
+          "wrapper.name": "upython2",
+          "wrapper.options": {
+            "publishedFileType": "Rendered Image",
+            "comment": "render publish",
+            "publishName": "{renderName}"
+          }
+        }
       }
     ]
   }

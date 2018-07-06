@@ -186,20 +186,6 @@ class Crawler(object):
             )
         return list(filteredCrawlers)
 
-    @staticmethod
-    def __collectCrawlers(crawler):
-        """
-        Resursively collect crawlers.
-        """
-        result = []
-        result.append(crawler)
-
-        if not crawler.isLeaf():
-            for childCrawler in crawler.children():
-                result += Crawler.__collectCrawlers(childCrawler)
-
-        return result
-
     @classmethod
     def test(cls, data, parentCrawler=None):
         """
@@ -248,7 +234,9 @@ class Crawler(object):
                     result.setVar('type', registeredName)
                 break
 
-        assert result, "Don't know how to create a crawler for \"{0}\"".format(data)
+        assert isinstance(result, Crawler),\
+            "Don't know how to create a crawler for \"{0}\"".format(data)
+
         return result
 
     @staticmethod
@@ -304,19 +292,6 @@ class Crawler(object):
             if issubclass(registeredType, baseClass):
                 result.add(name)
         return list(result)
-
-    @staticmethod
-    def __baseClass(baseClassOrTypeName):
-        """
-        Return a valid base class for the given class or class type name.
-        """
-        if isinstance(baseClassOrTypeName, basestring):
-            assert baseClassOrTypeName in Crawler.__registeredTypes
-            baseClass = Crawler.__registeredTypes[baseClassOrTypeName]
-        else:
-            assert issubclass(baseClassOrTypeName, Crawler)
-            baseClass = baseClassOrTypeName
-        return baseClass
 
     @staticmethod
     def createFromJson(jsonContents):
@@ -379,3 +354,30 @@ class Crawler(object):
         for group in crawlers:
             result.append(list(sorted(group, key=key, reverse=reverse)))
         return result
+
+    @staticmethod
+    def __collectCrawlers(crawler):
+        """
+        Resursively collect crawlers.
+        """
+        result = []
+        result.append(crawler)
+
+        if not crawler.isLeaf():
+            for childCrawler in crawler.children():
+                result += Crawler.__collectCrawlers(childCrawler)
+
+        return result
+
+    @staticmethod
+    def __baseClass(baseClassOrTypeName):
+        """
+        Return a valid base class for the given class or class type name.
+        """
+        if isinstance(baseClassOrTypeName, basestring):
+            assert baseClassOrTypeName in Crawler.__registeredTypes
+            baseClass = Crawler.__registeredTypes[baseClassOrTypeName]
+        else:
+            assert issubclass(baseClassOrTypeName, Crawler)
+            baseClass = baseClassOrTypeName
+        return baseClass

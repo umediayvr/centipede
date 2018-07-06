@@ -35,7 +35,7 @@ write['metadata'].setValue(4)
 
 # adding the lut information to the header
 metadata = nuke.createNode("ModifyMetaData", "metadata {{set {key} {value}}}".format(
-    key="umedia:lut",
+    key="centipede:lut",
     value=lut
 ))
 

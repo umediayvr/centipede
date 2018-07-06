@@ -2,7 +2,7 @@ from ..File import File
 
 class Scene(File):
     """
-    Abstracted scene path crawler.
+    Abstracted scene crawler.
     """
 
     def __init__(self, *args, **kwargs):

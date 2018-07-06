@@ -113,14 +113,14 @@ def __runExpanded(data, taskHolder, rangeStart, rangeEnd):
         # collecting all crawlers so we can re-assign only the ones that belong
         # to the range
         task = taskHolder.task()
-        pathCrawlers = OrderedDict()
-        for crawler in task.pathCrawlers():
-            pathCrawlers[crawler] = task.filePath(crawler)
+        crawlers = OrderedDict()
+        for crawler in task.crawlers():
+            crawlers[crawler] = task.target(crawler)
 
         # including only the crawlers from the specific range
         task.clear()
-        for crawler in list(pathCrawlers.keys())[rangeStart: rangeEnd + 1]:
-            filePath = pathCrawlers[crawler]
+        for crawler in list(crawlers.keys())[rangeStart: rangeEnd + 1]:
+            filePath = crawlers[crawler]
             task.add(
                 crawler,
                 filePath

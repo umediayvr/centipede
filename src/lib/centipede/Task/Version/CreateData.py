@@ -236,11 +236,11 @@ class CreateData(Task):
         """
         Load static information.
         """
-        if self.__loadedStaticData or not self.pathCrawlers():
+        if self.__loadedStaticData or not self.crawlers():
             return
 
         self.__loadedStaticData = True
 
-        pathCrawler = self.pathCrawlers()[0]
-        self.__rootPath = self.filePath(pathCrawler)
-        self.__configPath = pathCrawler.var('configPath')
+        crawler = self.crawlers()[0]
+        self.__rootPath = self.target(crawler)
+        self.__configPath = crawler.var('configPath')
