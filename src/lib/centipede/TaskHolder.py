@@ -52,12 +52,13 @@ class TaskHolder(object):
             if task.hasMetadata('wrapper.options'):
                 taskWrapperOptions = task.metadata('wrapper.options')
 
-        self.__taskWrapper = TaskWrapper.create(taskWrapperName)
+        taskWrapper = TaskWrapper.create(taskWrapperName)
         for optionName, optionValue in taskWrapperOptions.items():
-            self.__taskWrapper.setOption(
+            taskWrapper.setOption(
                 optionName,
                 optionValue
             )
+        self.__setTaskWrapper(taskWrapper)
 
         self.__vars = {}
         self.__query = CrawlerQuery(
@@ -100,14 +101,6 @@ class TaskHolder(object):
         Return a list of variable names defined as context variables.
         """
         return list(self.__contextVarNames)
-
-    def setTaskWrapper(self, taskWrapper):
-        """
-        Override the default task wrapper.
-        """
-        assert isinstance(taskWrapper, TaskWrapper), "Invalid taskWrapper type!"
-
-        self.__taskWrapper = taskWrapper
 
     def taskWrapper(self):
         """
@@ -249,6 +242,14 @@ class TaskHolder(object):
         assert isinstance(crawlerMatcher, CrawlerMatcher), \
             "Invalid CrawlerMatcher type"
         self.__crawlerMatcher = crawlerMatcher
+
+    def __setTaskWrapper(self, taskWrapper):
+        """
+        Override the default task wrapper.
+        """
+        assert isinstance(taskWrapper, TaskWrapper), "Invalid taskWrapper type!"
+
+        self.__taskWrapper = taskWrapper
 
     @classmethod
     def __bakeTaskHolder(cls, taskHolder, includeSubTaskHolders=True):
