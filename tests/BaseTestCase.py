@@ -20,7 +20,7 @@ class BaseTestCase(unittest.TestCase):
     @classmethod
     def rootPath(cls):
         """
-        Return the centipede code root path.
+        Return centipede code root path.
         """
         return cls.__rootPath
 

@@ -393,7 +393,6 @@ class CentipedeApp(QtWidgets.QApplication):
                             child.setData(0, QtCore.Qt.EditRole, matchedCrawlers[childCrawler])
                         break
 
-
         self.__targetTree.resizeColumnToContents(0)
 
     def __buildWidgets(self):

@@ -69,7 +69,7 @@ class CreateData(Task):
 
     def configPath(self):
         """
-        Return the path about the location for the configuration used by the centipede.
+        Return the path about the location for the configuration used by centipede.
         """
         return self.__configPath
 
@@ -222,7 +222,7 @@ class CreateData(Task):
 
     def __copyCentipedeConfig(self):
         """
-        Copy the configuration used by the centipede to the current version.
+        Copy the configuration used by centipede to the current version.
         """
         configPath = os.path.join(self.rootPath(), "centipedeConfig")
         if os.path.exists(configPath):
