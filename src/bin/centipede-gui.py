@@ -173,7 +173,7 @@ class CentipedeApp(QtWidgets.QApplication):
         # we want to list in the interface only the crawler types used by the main tasks
         filterTypes = []
         for taskHolder in self.__taskHolders:
-            matchTypes = taskHolder.pathCrawlerMatcher().matchTypes()
+            matchTypes = taskHolder.crawlerMatcher().matchTypes()
 
             # if there is a task holder that does not have any type specified to it, then we display all crawlers by
             # passing an empty list to the filter
@@ -181,7 +181,7 @@ class CentipedeApp(QtWidgets.QApplication):
                 filterTypes = []
                 break
 
-            filterTypes += taskHolder.pathCrawlerMatcher().matchTypes()
+            filterTypes += taskHolder.crawlerMatcher().matchTypes()
 
         # globbing crawlers
         crawlerList = []
