@@ -35,8 +35,8 @@ class ConvertImage(Task):
             imageInput = oiio.ImageInput.open(inputImageFilePath)
             inputSpec = imageInput.spec()
 
-            # updating umedia metadata
-            UpdateImageMetadata.updateUmediaMetadata(inputSpec, crawler)
+            # updating centipede metadata
+            UpdateImageMetadata.updateDefaultMetadata(inputSpec, crawler)
 
             outImage = oiio.ImageOutput.create(targetFilePath)
             outImage.open(

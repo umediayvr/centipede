@@ -51,8 +51,8 @@ class ColorTransformation(Ocio):
 
             targetImage = oiio.ImageOutput.create(targetFilePath)
 
-            # umedia metadata information
-            UpdateImageMetadata.updateUmediaMetadata(
+            # centipede metadata information
+            UpdateImageMetadata.updateDefaultMetadata(
                 spec,
                 crawler,
                 metadata

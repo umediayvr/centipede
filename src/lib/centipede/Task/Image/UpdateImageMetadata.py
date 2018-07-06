@@ -28,8 +28,8 @@ class UpdateImageMetadata(Task):
             imageInput = oiio.ImageInput.open(inputImageFilePath)
             inputSpec = imageInput.spec()
 
-            # updating umedia metadata
-            self.updateUmediaMetadata(inputSpec, crawler)
+            # updating centipede metadata
+            self.updateDefaultMetadata(inputSpec, crawler)
 
             # writing image with updated metadata
             outImage = oiio.ImageOutput.create(targetFilePath)
@@ -46,29 +46,28 @@ class UpdateImageMetadata(Task):
         return super(UpdateImageMetadata, self)._perform()
 
     @classmethod
-    def updateUmediaMetadata(cls, spec, crawler, customMetadata={}):
+    def updateDefaultMetadata(cls, spec, crawler, customMetadata={}):
         """
         Update the spec with the image metadata information.
         """
         defaultMetadata = {
             'sourceFile': crawler.var('filePath'),
             'fileUpdatedTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'uverVersion': os.environ.get('UVER_VERSION', ''),
-            'centipedeUser': os.environ['USERNAME'],
-            'centipedeVersion': os.environ.get('UVER_CENTIPEDE_VERSION', ''),
+            'centipedeUser': os.environ.get('USERNAME', ''),
+            'centipedeVersion': os.environ.get('UVER_CENTIPEDE_VERSION', '')
         }
 
         # default metadata
         for name, value in defaultMetadata.items():
             spec.attribute(
-                'umedia:{0}'.format(name),
+                'centipede:{0}'.format(name),
                 value
             )
 
         # custom metadata
         for name, value in customMetadata.items():
             spec.attribute(
-                'umedia:{0}'.format(name),
+                'centipede:{0}'.format(name),
                 value
             )
 

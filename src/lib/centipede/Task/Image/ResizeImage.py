@@ -11,7 +11,7 @@ class ResizeImage(Task):
         - Optional: "convertToRGBA"
         - Required: "width" and "height" (both support expressions)
 
-    TODO: missing to umedia metadata/source image attributes.
+    TODO: missing to centipede metadata/source image attributes.
     """
     __defaultConvertToRGBA = False
 
