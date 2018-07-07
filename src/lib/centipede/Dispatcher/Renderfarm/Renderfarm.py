@@ -157,7 +157,7 @@ class Renderfarm(Dispatcher):
         jobDataFilePath = os.path.join(
             renderfarmJob.jobDirectory(),
             "jobData_{}.json".format(
-                str(uuid.uuid1())
+                str(uuid.uuid4())
             )
         )
 
@@ -352,7 +352,7 @@ class Renderfarm(Dispatcher):
             currentDate.strftime("%Y%m%d"),
             currentDate.strftime("%H"),
             os.environ['USERNAME'],
-            str(uuid.uuid1())
+            str(uuid.uuid4())
         )
         os.makedirs(baseRemoteTemporaryPath)
 

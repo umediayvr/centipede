@@ -35,7 +35,7 @@ class Template(object):
         '{prefix}/testing/(computeVersion <parent>)/{name}.(pad {frame} 10).{ext}'
     """
 
-    __safeTokenId = uuid.uuid1()
+    __safeTokenId = uuid.uuid4()
 
     def __init__(self, inputString=""):
         """
