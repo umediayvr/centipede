@@ -56,9 +56,9 @@ class TaskTest(BaseTestCase):
                 result = taskHolder.run(crawlers)
                 self.assertEqual(len(result), len(crawlers))
 
-    def testRunStatus(self):
+    def testExecuteStatus(self):
         """
-        Test run status in the task holder.
+        Test execute status in the task holder.
         """
         dummyTask = Task.create('checksum')
         crawlers = [FsPath.createFromPath(self.__jsonConfig)]
@@ -66,7 +66,7 @@ class TaskTest(BaseTestCase):
         taskHolder = TaskHolder(dummyTask, Template("{filePath}"))
         dummyTask2 = Task.create('checksum')
         taskHolder2 = TaskHolder(dummyTask2, Template("{filePath}"))
-        taskHolder2.setStatus("run")
+        taskHolder2.setStatus("execute")
         taskHolder.addSubTaskHolder(taskHolder2)
         self.assertEqual(len(taskHolder.run(crawlers)), len(crawlers) * 2)
 
@@ -98,11 +98,11 @@ class TaskTest(BaseTestCase):
 
         dummyTask2 = Task.create('checksum')
         taskHolder2 = TaskHolder(dummyTask2, Template("{filePath}"))
-        taskHolder2.setStatus("run")
+        taskHolder2.setStatus("execute")
         taskHolder.addSubTaskHolder(taskHolder2)
         self.assertEqual(len(taskHolder.run(crawlers)), 0)
 
-        taskHolder.setStatus("run")
+        taskHolder.setStatus("execute")
         taskHolder2.setStatus("ignore")
         self.assertEqual(len(taskHolder.run(crawlers)), len(crawlers))
 

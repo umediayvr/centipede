@@ -12,11 +12,11 @@
       "type"
     ]
   },
-  "taskHolders":
+  "tasks":
   [
   {
-    "task": "createRenderVersion",
-    "taskMetadata": {
+    "run": "createRenderVersion",
+    "metadata": {
       "match.types": [
         "shotRender"
       ],
@@ -25,12 +25,12 @@
         "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
       }
     },
-    "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{pass}/(newver <parentPath>)",
-    "taskHolders":
+    "target": "{prefix}/{job}/sequences/{seq}/{shot}/publish/{step}/{pass}/(newver <parentPath>)",
+    "tasks":
     [
       {
-        "task": "nukeTemplate",
-        "taskOptions": {
+        "run": "nukeTemplate",
+        "options": {
           "topLeft": "{shot}",
           "topRight": "(yyyy)(mm)(dd)",
           "notes": "",
@@ -42,8 +42,8 @@
           "enableReformat": 0,
           "enableTimecode": 1
         },
-        "targetTemplate": "{dataPath}/{name}.mov",
-        "taskMetadata": {
+        "target": "{dataPath}/{name}.mov",
+        "metadata": {
           "match.types": [
             "exr"
           ],
@@ -57,10 +57,10 @@
             "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
           }
         },
-        "taskHolders": [
+        "tasks": [
           {
-            "task": "appendToVersion",
-            "taskMetadata": {
+            "run": "appendToVersion",
+            "metadata": {
               "wrapper.name": "subprocess",
               "wrapper.options": {
                 "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
@@ -70,8 +70,8 @@
         ]
       },
       {
-        "task": "sgPublish",
-        "taskMetadata": {
+        "run": "sgPublish",
+        "metadata": {
           "match.types": [
             "json"
           ],

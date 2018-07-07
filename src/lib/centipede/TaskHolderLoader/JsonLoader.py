@@ -76,12 +76,13 @@ class JsonLoader(TaskHolderLoader):
                 "type"
             ]
           },
-          "taskHolders": [
+          "tasks": [
             {
-              "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {seq} {shot} {plateName}).(pad {frame} 4).exr",
-              "task": "convertImage",
-              "status": "run",
-              "taskMetadata": {
+              "run": "convertImage",
+              "target": "{prefix}/foo/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(newver <parentPath>).(pad {frame} 4).exr",
+              "filter": "",
+              "status": "execute",
+              "metadata": {
                 "match.types": [
                     "dpxPlate"
                 ],
@@ -92,11 +93,11 @@ class JsonLoader(TaskHolderLoader):
                 },
                 "dispatch.await": True
               },
-              "taskHolders": [
+              "tasks": [
                 {
-                  "task": "movGen",
-                  "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/review/{name}.mov",
-                  "taskMetadata": {
+                  "run": "movGen",
+                  "target": "{prefix}/foo/sequences/{seq}/{shot}/online/review/{name}.mov",
+                  "metadata": {
                     "match.types": [
                         "exrPlate"
                     ],
@@ -108,7 +109,7 @@ class JsonLoader(TaskHolderLoader):
                   }
                 },
                 {
-                    "includeTaskHolder": "../../myTaskHolderInfo.json"
+                    "include": "../../myTaskHolderInfo.json"
                 }
               ]
             }
@@ -146,14 +147,14 @@ class JsonLoader(TaskHolderLoader):
         Load a task holder contents.
         """
         # loading task holders
-        if 'taskHolders' not in contents:
+        if 'tasks' not in contents:
             return
 
         # task holders checking
-        if not isinstance(contents['taskHolders'], list):
+        if not isinstance(contents['tasks'], list):
             raise UnexpectedContentError('Expecting a list of task holders!')
 
-        for taskHolderInfo in contents['taskHolders']:
+        for taskHolderInfo in contents['tasks']:
 
             # task holder info checking
             if not isinstance(taskHolderInfo, dict):
@@ -164,10 +165,10 @@ class JsonLoader(TaskHolderLoader):
             task = self.__parseTask(taskHolderInfo)
 
             # getting the target template
-            targetTemplate = Template(taskHolderInfo.get('targetTemplate', ''))
+            targetTemplate = Template(taskHolderInfo.get('target', ''))
 
             # getting the filter template
-            filterTemplate = Template(taskHolderInfo.get('filterTemplate', ''))
+            filterTemplate = Template(taskHolderInfo.get('filter', ''))
 
             # creating a task holder
             taskHolder = TaskHolder(
@@ -196,7 +197,7 @@ class JsonLoader(TaskHolderLoader):
                 self.addTaskHolder(taskHolder)
 
             # loading sub task holders recursevely
-            if 'taskHolders' in contents:
+            if 'tasks' in contents:
                 self.__loadTaskHolder(taskHolderInfo, {}, configPath, taskHolder)
 
     @classmethod
@@ -206,14 +207,14 @@ class JsonLoader(TaskHolderLoader):
         """
         # special case where configurations can be defined externally, when that
         # is the case loading that instead
-        if 'includeTaskHolder' in taskHolderInfo:
+        if 'include' in taskHolderInfo:
 
             # detecting if the path is absolute or needs to be resolved
-            if os.path.isabs(taskHolderInfo['includeTaskHolder']):
-                absolutePath = taskHolderInfo['includeTaskHolder']
+            if os.path.isabs(taskHolderInfo['include']):
+                absolutePath = taskHolderInfo['include']
             else:
                 absolutePath = os.path.normpath(
-                    os.path.join(configPath, taskHolderInfo['includeTaskHolder'])
+                    os.path.join(configPath, taskHolderInfo['include'])
                 )
 
             # replacing the current taskHolderInfo for the one defined externally
@@ -229,16 +230,16 @@ class JsonLoader(TaskHolderLoader):
         """
         Return a task object parsed under the taskHolderInfo.
         """
-        task = Task.create(taskHolderInfo['task'])
+        task = Task.create(taskHolderInfo['run'])
 
         # setting task options
-        if 'taskOptions' in taskHolderInfo:
-            for taskOptionName, taskOptionValue in taskHolderInfo['taskOptions'].items():
+        if 'options' in taskHolderInfo:
+            for taskOptionName, taskOptionValue in taskHolderInfo['options'].items():
                 task.setOption(taskOptionName, taskOptionValue)
 
         # setting task metadata
-        if 'taskMetadata' in taskHolderInfo:
-            for taskMetadataName, taskMetadataValue in taskHolderInfo['taskMetadata'].items():
+        if 'metadata' in taskHolderInfo:
+            for taskMetadataName, taskMetadataValue in taskHolderInfo['metadata'].items():
                 task.setMetadata(taskMetadataName, taskMetadataValue)
 
         return task

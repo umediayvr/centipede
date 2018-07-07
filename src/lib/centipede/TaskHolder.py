@@ -20,7 +20,7 @@ class TaskHolder(object):
     """
 
     statusTypes = (
-        'run',
+        'execute',
         'bypass',
         'ignore'
     )
@@ -86,7 +86,7 @@ class TaskHolder(object):
         Set a status for the task holder used when running the task.
 
         Status:
-            - run: execute the task normally (default)
+            - execute: perform the task normally (default)
             - bypass: bypass the execution of the task and passes the source
             crawlers as result for subtasks
             - ignore: ignore the execution of the task and subtasks

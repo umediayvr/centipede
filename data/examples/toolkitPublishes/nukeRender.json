@@ -6,11 +6,11 @@
     "prefix": "/data/job",
     "job": "RND"
   },
-  "taskHolders": [
+  "tasks": [
     {
-      "task": "copy",
-      "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/publish/elements/{renderName}/{output}/{versionName}/{width}x{height}/{baseName}",
-      "taskMetadata": {
+      "run": "copy",
+      "target": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/publish/elements/{renderName}/{output}/{versionName}/{width}x{height}/{baseName}",
+      "metadata": {
         "match.types": [
           "nukeRender"
         ],
@@ -20,10 +20,10 @@
           ]
         }
       },
-      "taskHolders": [
+      "tasks": [
         {
-          "task": "nukeTemplate",
-          "taskOptions": {
+          "run": "nukeTemplate",
+          "options": {
             "job": "",
             "vendor": "",
             "clientShot": "{shot}",
@@ -37,8 +37,8 @@
             "enableColorSpace": 0,
             "enableReformat": 0
           },
-          "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/{name}.mov",
-          "taskMetadata": {
+          "target": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/{name}.mov",
+          "metadata": {
             "match.types": [
               "tkNukeRender"
             ],
@@ -52,9 +52,9 @@
         ]
       },
       {
-        "task": "sequenceThumbnail",
-        "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/.thumbnail/{name}.jpg",
-        "taskMetadata": {
+        "run": "sequenceThumbnail",
+        "target": "{prefix}/{job}/sequences/{seq}/!{shot}/comp/review/.thumbnail/{name}.jpg",
+        "metadata": {
           "match.types": [
             "tkNukeRender"
           ],
@@ -68,8 +68,8 @@
         }
       },
       {
-        "task": "sgImageSeqPublish",
-        "taskOptions": {
+        "run": "sgImageSeqPublish",
+        "options": {
           "publishedFileType": "Rendered Image",
           "movieFile": "{prefix}/{job}/sequences/{seq}/{shot}/comp/review/{name}.mov",
           "thumbnailFile": "{prefix}/{job}/sequences/{seq}/{shot}/comp/review/.thumbnail/{name}.jpg"

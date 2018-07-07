@@ -8,15 +8,15 @@
     "__uiHintSourceColumns": [
     ]
   },
-  "taskHolders": [
+  "tasks": [
     {
-      "task": "submissionSheet",
-      "taskMetadata": {
+      "run": "submissionSheet",
+      "metadata": {
         "match.types": [
           "json"
         ]
       },
-      "taskOptions": {
+      "options": {
         "_columns": [
           ["Date","date"],
           ["VFX Name", "clientShot"],
