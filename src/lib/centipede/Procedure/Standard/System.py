@@ -1,4 +1,5 @@
 import tempfile
+import uuid
 import os
 from ..Procedure import Procedure
 
@@ -12,9 +13,11 @@ class _System(object):
         """
         Return a temporary directory path (under the OS temp location).
         """
-        path = tempfile.mkdtemp()
-        # delete the path so it gets recreated later with the correct user
-        os.rmdir(path)
+        path = os.path.join(
+            tempfile.gettempdir(),
+            str(uuid.uuid4())
+        )
+
         return path
 
     @staticmethod
