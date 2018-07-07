@@ -79,7 +79,7 @@ class JsonLoader(TaskHolderLoader):
           "tasks": [
             {
               "run": "convertImage",
-              "target": "{prefix}/foo/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(newver <parentPath>).(pad {frame} 4).exr",
+              "target": "{prefix}/foo/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(newver <parent>).(pad {frame} 4).exr",
               "filter": "",
               "status": "execute",
               "metadata": {

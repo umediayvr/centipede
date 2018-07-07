@@ -6,7 +6,7 @@ class _Version(object):
     """
     Basic version procedures.
 
-    The versionsPath is usually specified using <parentPath> token.
+    The versionsPath is usually specified using <parent> token.
     """
 
     @staticmethod

@@ -30,9 +30,9 @@ class Template(object):
     /! - Means the directory must exist for instance:
         '{prefix}/!shouldExist/{width}X{height}/{name}.(pad {frame} 10).{ext}'
 
-    <parentPath> - Passes the computed parent path to a procedure. Keep in mind this
+    <parent> - Passes the computed parent path to a procedure. Keep in mind this
     is only supported by procedures.
-        '{prefix}/testing/(computeVersion <parentPath>)/{name}.(pad {frame} 10).{ext}'
+        '{prefix}/testing/(computeVersion <parent>)/{name}.(pad {frame} 10).{ext}'
     """
 
     __safeTokenId = uuid.uuid1()
@@ -112,7 +112,7 @@ class Template(object):
                 # this is a special token that allows to pass the parent path
                 # to a procedure, replacing it with the parent path at this point.
                 rawProcedure = rawProcedure.replace(
-                    "<parentPath>",
+                    "<parent>",
                     self.__escapeTemplateTokens(finalResolvedTemplate.replace("/!", "/"), 0)
                 )
 
@@ -199,7 +199,7 @@ class Template(object):
             ).replace(
                 "/!", safeLevelExist
             ).replace(
-                "<parentPath>", safeParentPath
+                "<parent>", safeParentPath
             )
 
         return str(value).replace(
@@ -209,5 +209,5 @@ class Template(object):
         ).replace(
             safeLevelExist, "/!"
         ).replace(
-            safeParentPath, "<parentPath>"
+            safeParentPath, "<parent>"
         )

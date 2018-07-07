@@ -21,7 +21,7 @@
       "options": {
         "scene": "{configPath}/scene.gfr"
       },
-      "target": "/tmp/gafferTest/(newver <parentPath>)/{name}.(pad {frame} 4).exr",
+      "target": "/tmp/gafferTest/(newver <parent>)/{name}.(pad {frame} 4).exr",
       "tasks": [
         {
           "run": "ffmpeg",
