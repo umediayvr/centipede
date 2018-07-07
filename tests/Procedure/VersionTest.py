@@ -1,25 +1,25 @@
 import unittest
 import os
 from ..BaseTestCase import BaseTestCase
-from centipede.ExpressionEvaluator import ExpressionEvaluator
+from centipede.Procedure import Procedure
 
 class VersionTest(BaseTestCase):
-    """Test Version expressions."""
+    """Test Version procedures."""
 
     def testNewVersion(self):
         """
-        Test that the new expression works properly.
+        Test that the new procedure works properly.
         """
-        result = ExpressionEvaluator.run("newver", BaseTestCase.dataDirectory())
+        result = Procedure.run("newver", BaseTestCase.dataDirectory())
         self.assertEqual(result, "v003")
 
     def testLatestVersion(self):
         """
         Test that the latest version is found properly.
         """
-        result = ExpressionEvaluator.run("latestver", BaseTestCase.dataDirectory())
+        result = Procedure.run("latestver", BaseTestCase.dataDirectory())
         self.assertEqual(result, "v002")
-        result = ExpressionEvaluator.run("latestver", os.path.join(BaseTestCase.dataDirectory(), "glob"))
+        result = Procedure.run("latestver", os.path.join(BaseTestCase.dataDirectory(), "glob"))
         self.assertEqual(result, "v000")
 
 

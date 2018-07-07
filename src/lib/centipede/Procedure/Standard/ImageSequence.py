@@ -1,4 +1,4 @@
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..Procedure import Procedure
 
 class _ImageSequence(object):
     """
@@ -21,13 +21,13 @@ class _ImageSequence(object):
 
 
 # frame padding
-ExpressionEvaluator.register(
+Procedure.register(
     'pad',
     _ImageSequence.padding
 )
 
 # retime frame padding
-ExpressionEvaluator.register(
+Procedure.register(
     'retimepad',
     _ImageSequence.retimePadding
 )

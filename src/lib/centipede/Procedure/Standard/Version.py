@@ -1,10 +1,10 @@
 import os
 import re
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..Procedure import Procedure
 
 class _Version(object):
     """
-    Basic version expressions.
+    Basic version procedures.
 
     The versionsPath is usually specified using <parentPath> token.
     """
@@ -46,14 +46,14 @@ class _Version(object):
         return version
 
 
-# new version expression
-ExpressionEvaluator.register(
+# new version procedure
+Procedure.register(
     'newver',
     _Version.new
 )
 
-# latest version expression
-ExpressionEvaluator.register(
+# latest version procedure
+Procedure.register(
     'latestver',
     _Version.latest
 )

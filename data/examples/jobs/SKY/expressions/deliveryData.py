@@ -1,7 +1,7 @@
-import centipede
 import os
+from centipede.Procedure import Procedure
 
-def clientStatusExpression(sg_status_list):
+def clientStatusProcedure(sg_status_list):
     """
     Return a nice name for our internal shotgun status.
     """
@@ -14,7 +14,7 @@ def clientStatusExpression(sg_status_list):
     else:
         return "Work in Progress"
 
-def fileTypeExpression(filePath):
+def fileTypeProcedure(filePath):
     """
     Return a nice name for the file type.
     """
@@ -32,13 +32,13 @@ def fileTypeExpression(filePath):
         return ext.upper().strip(".")
 
 
-# registering expressions
-centipede.ExpressionEvaluator.register(
+# registering procedures
+Procedure.register(
     'clientStatus',
-    clientStatusExpression
+    clientStatusProcedure
 )
 
-centipede.ExpressionEvaluator.register(
+Procedure.register(
     'clientFileType',
-    fileTypeExpression
+    fileTypeProcedure
 )

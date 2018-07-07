@@ -1,23 +1,23 @@
 import unittest
 import os
 from ..BaseTestCase import BaseTestCase
-from centipede.ExpressionEvaluator import ExpressionEvaluator
+from centipede.Procedure import Procedure
 
 class SystemTest(BaseTestCase):
-    """Test System expressions."""
+    """Test System procedures."""
 
     def testTmpdir(self):
         """
-        Test that the tmpdir expression works properly.
+        Test that the tmpdir procedure works properly.
         """
-        result = ExpressionEvaluator.run("tmpdir")
+        result = Procedure.run("tmpdir")
         self.assertFalse(os.path.exists(result))
 
     def testEnv(self):
         """
-        Test that the env expression works properly.
+        Test that the env procedure works properly.
         """
-        result = ExpressionEvaluator.run("env", "USERNAME")
+        result = Procedure.run("env", "USERNAME")
         self.assertEqual(result, os.environ.get("USERNAME"))
 
 

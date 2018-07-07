@@ -1,5 +1,5 @@
 import datetime
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..Procedure import Procedure
 
 class _Datetime(object):
     """
@@ -56,38 +56,38 @@ class _Datetime(object):
         return datetime.datetime.now().strftime("%S")
 
 
-# registering expressions
-ExpressionEvaluator.register(
+# registering procedures
+Procedure.register(
     'yyyy',
     _Datetime.yyyy
 )
 
-ExpressionEvaluator.register(
+Procedure.register(
     'yy',
     _Datetime.yy
 )
 
-ExpressionEvaluator.register(
+Procedure.register(
     'mm',
     _Datetime.mm
 )
 
-ExpressionEvaluator.register(
+Procedure.register(
     'dd',
     _Datetime.dd
 )
 
-ExpressionEvaluator.register(
+Procedure.register(
     'hour',
     _Datetime.hour
 )
 
-ExpressionEvaluator.register(
+Procedure.register(
     'minute',
     _Datetime.minute
 )
 
-ExpressionEvaluator.register(
+Procedure.register(
     'second',
     _Datetime.second
 )

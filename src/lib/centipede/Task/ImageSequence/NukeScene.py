@@ -13,7 +13,7 @@ class NukeScene(Task):
     provide custom data to nuke.
 
     Since the options are available inside nuke, it can be easily used in
-    expressions, for instance the file path knob:
+    procedures, for instance the file path knob:
     /a/$myOptionName/c
 
     Also, startFrame, endFrame, sourceFile and targetFile are automatically

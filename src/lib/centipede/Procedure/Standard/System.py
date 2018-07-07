@@ -1,6 +1,6 @@
 import tempfile
 import os
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..Procedure import Procedure
 
 class _System(object):
     """
@@ -25,13 +25,13 @@ class _System(object):
         return os.environ.get(name, defaultValue)
 
 
-# registering expressions
-ExpressionEvaluator.register(
+# registering procedures
+Procedure.register(
     'tmpdir',
     _System.tmpdir
 )
 
-ExpressionEvaluator.register(
+Procedure.register(
     'env',
     _System.env
 )

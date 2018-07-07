@@ -1,6 +1,6 @@
 import os
 import uuid
-from .ExpressionEvaluator import ExpressionEvaluator
+from .Procedure import Procedure
 
 # compatibility with python 2/3
 try:
@@ -18,16 +18,20 @@ class Template(object):
     """
     Creates a template object based on a string defined using template syntax.
 
-    A template string is a compound of variables that were collected by the
-    crawler and passed for the running:
-        '{prefix}/testing/{width}X{height}/{name}.(pad {frame} 10).{ext}'
+    A template string can contain variables using the syntax {crawlerVariable},
+    procedures using the syntax (myprocedure). Procedures can receive
+    arguments for instance (myprocedure {crawlerVariable}) where the arguments must
+    be separated by space like in bash.
+        '/tmp/{myVariable}/(myprocedure {myVariable})'
 
-    The template string can contain the prefix "!" which is used to tell
-    that the level must exist, for instance:
+    Also, template engine provides special tokens designed to help with
+    path manipulation:
+
+    /! - Means the directory must exist for instance:
         '{prefix}/!shouldExist/{width}X{height}/{name}.(pad {frame} 10).{ext}'
 
-    Also, you can use the token "<parentPath>" to pass the computed parent path
-    to an expression. Keep in mind this is only supported by expressions.
+    <parentPath> - Passes the computed parent path to a procedure. Keep in mind this
+    is only supported by procedures.
         '{prefix}/testing/(computeVersion <parentPath>)/{name}.(pad {frame} 10).{ext}'
     """
 
@@ -39,7 +43,7 @@ class Template(object):
         """
         self.setInputString(inputString)
         self.__setVarNames()
-        self.__expressionValueCache = {}
+        self.__procedureValueCache = {}
 
     def inputString(self):
         """
@@ -96,32 +100,32 @@ class Template(object):
             endIndex = templatePart.find(')')
             if endIndex != -1:
 
-                # processing the expression only when it has not been
+                # processing the procedure only when it has not been
                 # evaluated yet, otherwise return it from the cache.
-                # Potentially we could add support for "<expression>" rather
-                # than "(expression)" to tell to avoid this cache. However, the
+                # Potentially we could add support for "((procedure))" rather
+                # than "(procedure)" to tell to avoid this cache. However, the
                 # default behaviour should be to always cache it (never change it)
-                # otherwise it could side effect in expressions that create
+                # otherwise it could side effect in procedures that create
                 # new versions...
-                rawExpression = templatePart[:endIndex]
+                rawProcedure = templatePart[:endIndex]
 
                 # this is a special token that allows to pass the parent path
-                # to an expression, replacing it with the parent path at this point.
-                rawExpression = rawExpression.replace(
+                # to a procedure, replacing it with the parent path at this point.
+                rawProcedure = rawProcedure.replace(
                     "<parentPath>",
                     self.__escapeTemplateTokens(finalResolvedTemplate.replace("/!", "/"), 0)
                 )
 
-                if rawExpression not in self.__expressionValueCache:
-                    # replacing any reserved token from the result of the expression
-                    self.__expressionValueCache[rawExpression] = self.__escapeTemplateTokens(
-                        ExpressionEvaluator.parseRun(
-                            rawExpression
+                if rawProcedure not in self.__procedureValueCache:
+                    # replacing any reserved token from the result of the procedure
+                    self.__procedureValueCache[rawProcedure] = self.__escapeTemplateTokens(
+                        Procedure.parseRun(
+                            rawProcedure
                         )
                     )
 
-                expressionValue = self.__expressionValueCache[rawExpression]
-                finalResolvedTemplate += expressionValue + templatePart[endIndex + 1:]
+                procedureValue = self.__procedureValueCache[rawProcedure]
+                finalResolvedTemplate += procedureValue + templatePart[endIndex + 1:]
             else:
                 finalResolvedTemplate += templatePart
 
