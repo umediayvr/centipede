@@ -5,7 +5,7 @@ from .CrawlerQuery import CrawlerQuery
 from .ExpressionEvaluator import ExpressionEvaluator
 from .CrawlerMatcher import CrawlerMatcher
 from . import ExpressionBundle
-from .Task import Task
+from . import Task
 from . import TaskWrapper
 from .TaskHolder import TaskHolder, TaskHolderInvalidVarNameError
 from . import TaskHolderLoader
