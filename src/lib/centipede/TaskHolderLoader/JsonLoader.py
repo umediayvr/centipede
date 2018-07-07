@@ -80,6 +80,7 @@ class JsonLoader(TaskHolderLoader):
             {
               "targetTemplate": "{prefix}/060_Heaven/sequences/{seq}/{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {seq} {shot} {plateName}).(pad {frame} 4).exr",
               "task": "convertImage",
+              "status": "run",
               "taskMetadata": {
                 "match.types": [
                     "dpxPlate"
@@ -165,11 +166,19 @@ class JsonLoader(TaskHolderLoader):
             # getting the target template
             targetTemplate = Template(taskHolderInfo.get('targetTemplate', ''))
 
+            # getting the filter template
+            filterTemplate = Template(taskHolderInfo.get('filterTemplate', ''))
+
             # creating a task holder
             taskHolder = TaskHolder(
                 task,
-                targetTemplate
+                targetTemplate,
+                filterTemplate
             )
+
+            # setting status of the task holder
+            if 'status' in taskHolderInfo:
+                taskHolder.setStatus(taskHolderInfo['status'])
 
             # adding variables to the task holder
             for varName, varValue in list(vars.items()) + list(self.__parseVars(taskHolderInfo).items()):

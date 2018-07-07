@@ -19,17 +19,31 @@ class TaskHolder(object):
         - match.vars: dict containing the key and value for the variables used to match the crawlers
     """
 
-    def __init__(self, task, targetTemplate=None):
+    statusTypes = (
+        'run',
+        'bypass',
+        'ignore'
+    )
+
+    def __init__(self, task, targetTemplate=None, filterTemplate=None):
         """
         Create a task holder object.
         """
         self.setTask(task)
 
+        self.__subTaskHolders = []
+        self.__contextVarNames = set()
+        self.setStatus(self.statusTypes[0])
+
+        # setting target template
         if targetTemplate is None:
             targetTemplate = Template()
         self.__setTargetTemplate(targetTemplate)
-        self.__subTaskHolders = []
-        self.__contextVarNames = set()
+
+        # setting filter template
+        if filterTemplate is None:
+            filterTemplate = Template()
+        self.__setFilterTemplate(filterTemplate)
 
         # creating crawler matcher
         matchTypes = []
@@ -62,9 +76,31 @@ class TaskHolder(object):
 
         self.__vars = {}
         self.__query = CrawlerQuery(
+            self.crawlerMatcher(),
             self.targetTemplate(),
-            self.crawlerMatcher()
+            self.filterTemplate()
         )
+
+    def setStatus(self, status):
+        """
+        Set a status for the task holder used when running the task.
+
+        Status:
+            - run: execute the task normally (default)
+            - bypass: bypass the execution of the task and passes the source
+            crawlers as result for subtasks
+            - ignore: ignore the execution of the task and subtasks
+        """
+        assert status in self.statusTypes, \
+            "Invalid status {}!".format(status)
+
+        self.__status = status
+
+    def status(self):
+        """
+        Return the status for the task holder.
+        """
+        return self.__status
 
     def addVar(self, name, value, isContextVar=False):
         """
@@ -110,9 +146,15 @@ class TaskHolder(object):
 
     def targetTemplate(self):
         """
-        Return the targetTemplate associated with the task holder.
+        Return the target template associated with the task holder.
         """
         return self.__targetTemplate
+
+    def filterTemplate(self):
+        """
+        Return the filter Template associated with the task holder.
+        """
+        return self.__filterTemplate
 
     def setTask(self, task):
         """
@@ -226,6 +268,14 @@ class TaskHolder(object):
 
         return cls.__loadTaskHolder(contents)
 
+    def __setCrawlerMatcher(self, crawlerMatcher):
+        """
+        Associate a crawler matcher with the task holder.
+        """
+        assert isinstance(crawlerMatcher, CrawlerMatcher), \
+            "Invalid CrawlerMatcher type"
+        self.__crawlerMatcher = crawlerMatcher
+
     def __setTargetTemplate(self, targetTemplate):
         """
         Associate a target template with the task holder.
@@ -235,13 +285,17 @@ class TaskHolder(object):
 
         self.__targetTemplate = targetTemplate
 
-    def __setCrawlerMatcher(self, crawlerMatcher):
+    def __setFilterTemplate(self, filterTemplate):
         """
-        Associate a crawler matcher with the task holder.
+        Associate a filter template with the task holder.
+
+        A filter template can be used to filter out crawlers based on
+        returning 0 or false as result of the filter.
         """
-        assert isinstance(crawlerMatcher, CrawlerMatcher), \
-            "Invalid CrawlerMatcher type"
-        self.__crawlerMatcher = crawlerMatcher
+        assert isinstance(filterTemplate, Template), \
+            "Invalid template type"
+
+        self.__filterTemplate = filterTemplate
 
     def __setTaskWrapper(self, taskWrapper):
         """
@@ -258,15 +312,19 @@ class TaskHolder(object):
         """
         # template info
         targetTemplate = taskHolder.targetTemplate().inputString()
+        filterTemplate = taskHolder.filterTemplate().inputString()
+
         vars = {}
         for varName in taskHolder.varNames():
             vars[varName] = taskHolder.var(varName)
 
         output = {
             'template': {
-                'target': targetTemplate
+                'target': targetTemplate,
+                'filter': filterTemplate
             },
             'vars': vars,
+            'status': taskHolder.status(),
             'contextVarNames': taskHolder.contextVarNames(),
             'task': taskHolder.task().toJson(),
             'subTaskHolders': []
@@ -283,7 +341,8 @@ class TaskHolder(object):
         Auxiliary method used to load the contents of the task holder recursively.
         """
         # creating task holder
-        template = Template(taskHolderContents['template']['target'])
+        targetTemplate = Template(taskHolderContents['template']['target'])
+        filterTemplate = Template(taskHolderContents['template']['filter'])
 
         # creating task
         task = Task.createFromJson(taskHolderContents['task'])
@@ -291,8 +350,12 @@ class TaskHolder(object):
         # building the task holder instance
         taskHolder = TaskHolder(
             task,
-            template
+            targetTemplate,
+            filterTemplate
         )
+
+        # setting status
+        taskHolder.setStatus(taskHolderContents['status'])
 
         # adding vars
         contextVarNames = taskHolderContents['contextVarNames']
@@ -314,16 +377,21 @@ class TaskHolder(object):
         """
         Perform the task runner recursively.
         """
-        result = []
         taskHolder.addCrawlers(crawlers)
 
-        # in case the task does not have any crawlers, there is nothing to do
-        if not taskHolder.task().crawlers():
-            return result
+        # ignoring the execution of the task
+        if taskHolder.status() == 'ignore' or not taskHolder.task().crawlers():
+            return []
 
-        # executing task through the wrapper
-        taskCrawlers = taskHolder.taskWrapper().run(taskHolder.task())
-        result += taskCrawlers
+        # bypassing task execution
+        result = []
+        if taskHolder.status() == 'bypass':
+            taskCrawlers = taskHolder.task().crawlers()
+
+        # running task through the wrapper
+        else:
+            taskCrawlers = taskHolder.taskWrapper().run(taskHolder.task())
+            result += taskCrawlers
 
         # calling subtask holders
         for subTaskHolder in taskHolder.subTaskHolders():

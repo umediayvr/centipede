@@ -33,18 +33,6 @@ class Task(object):
 
     A task is used to operate over file paths resolved by the template runner.
 
-    Optional options:
-        - filterTemplate: This is used when querying the crawlers from the task (Task.crawlers).
-        It works by filtering out crawlers based on the template defined as value of the option.
-        When the processed template results: "False", "false" or "0" then the crawler is filtered
-        out from the crawlers result.
-
-        - emptyFilterResult: This option should be used in combination with
-        "filterTemplate" and only works when filterTemplate filters out all crawlers.
-        By assigning "taskCrawlers" then the crawlers in the task are returned as result (Similar
-        behaviour about what happens in nuke when a node is disabled). Otherwise, when assigned
-        with "empty" the task results an empty list (default).
-
     Task Metadata:
         - output.verbose: boolean used to print out the output of the task (default False)
     """
@@ -59,10 +47,6 @@ class Task(object):
         self.__metadata = {}
         self.__taskType = taskType
         self.__options = {}
-
-        # default options
-        self.setOption('filterTemplate', '')
-        self.setOption('emptyFilterResult', 'empty')
 
     def type(self):
         """
@@ -195,24 +179,11 @@ class Task(object):
 
         return self.__crawlers[crawler]
 
-    def crawlers(self, useFilterTemplateOption=True):
+    def crawlers(self):
         """
         Return a list of crawlers associated with the task.
         """
-        result = list(self.__crawlers.keys())
-
-        # filtering the crawler result based on the "filterTemplate" option
-        filterTemplate = str(self.option('filterTemplate'))
-        if useFilterTemplateOption and filterTemplate:
-            filteredResult = []
-            for crawler in result:
-                templateResult = Template(filterTemplate).valueFromCrawler(crawler)
-                if str(templateResult).lower() not in ['false', '0']:
-                    filteredResult.append(crawler)
-
-            result = filteredResult
-
-        return result
+        return list(self.__crawlers.keys())
 
     def add(self, crawler, targetFilePath=''):
         """
@@ -245,13 +216,6 @@ class Task(object):
         verbose = self.hasMetadata('output.verbose') and self.metadata('output.verbose')
         if verbose:
             sys.stdout.write('{0} output:\n'.format(self.type()))
-
-        # in case all crawlers were filtered out, returning right away.
-        # \TODO: we may want to have the behaviour of don't performing the task
-        # when the task does not have any crawler. Right now, it's only applied
-        # when all crawlers were filtered out by the filter template option.
-        if len(self.crawlers(useFilterTemplateOption=False)) and len(self.crawlers()) == 0:
-            return self.__emptyFilterResult(verbose)
 
         contextVars = {}
         for crawler in self.crawlers():
@@ -429,25 +393,3 @@ class Task(object):
                 filePaths.append(filePath)
 
         return list(map(FsPath.createFromPath, filePaths))
-
-    def __emptyFilterResult(self, verbose):
-        """
-        Auxiliary method to compute an empty filter result.
-        """
-        if self.option('emptyFilterResult') == 'taskCrawlers':
-            if verbose:
-                sys.stdout.write('  - Empty filter resulting original task crawlers\n')
-
-            return self.crawlers(useFilterTemplateOption=False)
-
-        elif self.option('emptyFilterResult') == 'empty':
-            if verbose:
-                sys.stdout.write('  - Empty filter resulting no crawlers\n')
-
-            return []
-        else:
-            raise TaskInvalidOptionValue(
-                'Invalid option value "{}" for "emptyFilterResult"'.format(
-                    self.option('emptyFilterResult')
-                )
-            )
