@@ -2,7 +2,7 @@ from .PathHolder import PathHolder
 from . import Crawler
 from .Template import Template, RequiredPathNotFoundError, VariableNotFoundError
 from .CrawlerQuery import CrawlerQuery
-from . import Procedure
+from . import TemplateProcedure
 from .CrawlerMatcher import CrawlerMatcher
 from . import Task
 from . import TaskWrapper

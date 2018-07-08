@@ -1,6 +1,6 @@
 import os
 import uuid
-from .Procedure import Procedure
+from .TemplateProcedure import TemplateProcedure
 
 # compatibility with python 2/3
 try:
@@ -19,7 +19,7 @@ class Template(object):
     Creates a template object based on a string defined using template syntax.
 
     A template string can contain variables using the syntax {crawlerVariable},
-    procedures using the syntax (myprocedure). Procedures can receive
+    procedures using the syntax (myprocedure). Procedures in templates can receive
     arguments for instance (myprocedure {crawlerVariable}) where the arguments must
     be separated by space like in bash.
         '/tmp/{myVariable}/(myprocedure {myVariable})'
@@ -31,7 +31,7 @@ class Template(object):
         '{prefix}/!shouldExist/{width}X{height}/{name}.(pad {frame} 10).{ext}'
 
     <parent> - Passes the computed parent path to a procedure. Keep in mind this
-    is only supported by procedures.
+    is only supported by template procedures.
         '{prefix}/testing/(computeVersion <parent>)/{name}.(pad {frame} 10).{ext}'
     """
 
@@ -105,26 +105,26 @@ class Template(object):
                 # Potentially we could add support for "((procedure))" rather
                 # than "(procedure)" to tell to avoid this cache. However, the
                 # default behaviour should be to always cache it (never change it)
-                # otherwise it could side effect in procedures that create
+                # otherwise it could side effect in template procedures that create
                 # new versions...
-                rawProcedure = templatePart[:endIndex]
+                rawTemplateProcedure = templatePart[:endIndex]
 
                 # this is a special token that allows to pass the parent path
                 # to a procedure, replacing it with the parent path at this point.
-                rawProcedure = rawProcedure.replace(
+                rawTemplateProcedure = rawTemplateProcedure.replace(
                     "<parent>",
                     self.__escapeTemplateTokens(finalResolvedTemplate.replace("/!", "/"), 0)
                 )
 
-                if rawProcedure not in self.__procedureValueCache:
+                if rawTemplateProcedure not in self.__procedureValueCache:
                     # replacing any reserved token from the result of the procedure
-                    self.__procedureValueCache[rawProcedure] = self.__escapeTemplateTokens(
-                        Procedure.parseRun(
-                            rawProcedure
+                    self.__procedureValueCache[rawTemplateProcedure] = self.__escapeTemplateTokens(
+                        TemplateProcedure.parseRun(
+                            rawTemplateProcedure
                         )
                     )
 
-                procedureValue = self.__procedureValueCache[rawProcedure]
+                procedureValue = self.__procedureValueCache[rawTemplateProcedure]
                 finalResolvedTemplate += procedureValue + templatePart[endIndex + 1:]
             else:
                 finalResolvedTemplate += templatePart

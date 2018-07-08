@@ -1,24 +1,24 @@
 import unittest
 from ..BaseTestCase import BaseTestCase
-from centipede.Procedure import Procedure
+from centipede.TemplateProcedure import TemplateProcedure
 
 class DatetimeTest(BaseTestCase):
-    """Test Datetime procedures."""
+    """Test Datetime template procedures."""
 
     def testYear(self):
         """
-        Test that the year procedures work properly.
+        Test that the year template procedures work properly.
         """
-        yyyy = Procedure.run("yyyy")
+        yyyy = TemplateProcedure.run("yyyy")
         self.assertGreaterEqual(int(yyyy), 2018)
-        yy = Procedure.run("yy")
+        yy = TemplateProcedure.run("yy")
         self.assertEqual(yyyy[-2:], yy)
 
     def testMonth(self):
         """
         Test that the month procedure works properly.
         """
-        mm = Procedure.run("mm")
+        mm = TemplateProcedure.run("mm")
         self.assertGreaterEqual(int(mm), 1)
         self.assertLessEqual(int(mm), 12)
 
@@ -26,7 +26,7 @@ class DatetimeTest(BaseTestCase):
         """
         Test that the day procedure works properly.
         """
-        dd = Procedure.run("dd")
+        dd = TemplateProcedure.run("dd")
         self.assertGreaterEqual(int(dd), 1)
         self.assertLessEqual(int(dd), 31)
 
@@ -34,7 +34,7 @@ class DatetimeTest(BaseTestCase):
         """
         Test that the hour procedure works properly.
         """
-        hour = Procedure.run("hour")
+        hour = TemplateProcedure.run("hour")
         self.assertGreaterEqual(int(hour), 0)
         self.assertLessEqual(int(hour), 23)
 
@@ -42,7 +42,7 @@ class DatetimeTest(BaseTestCase):
         """
         Test that the minute procedure works properly.
         """
-        minute = Procedure.run("minute")
+        minute = TemplateProcedure.run("minute")
         self.assertGreaterEqual(int(minute), 0)
         self.assertLessEqual(int(minute), 59)
 
@@ -50,7 +50,7 @@ class DatetimeTest(BaseTestCase):
         """
         Test that the second procedure works properly.
         """
-        second = Procedure.run("second")
+        second = TemplateProcedure.run("second")
         self.assertGreaterEqual(int(second), 0)
         self.assertLessEqual(int(second), 59)
 

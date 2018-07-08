@@ -1,5 +1,5 @@
 import datetime
-from ..Procedure import Procedure
+from ..TemplateProcedure import TemplateProcedure
 
 class _Datetime(object):
     """
@@ -56,38 +56,38 @@ class _Datetime(object):
         return datetime.datetime.now().strftime("%S")
 
 
-# registering procedures
-Procedure.register(
+# registering template procedures
+TemplateProcedure.register(
     'yyyy',
     _Datetime.yyyy
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'yy',
     _Datetime.yy
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'mm',
     _Datetime.mm
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'dd',
     _Datetime.dd
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'hour',
     _Datetime.hour
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'minute',
     _Datetime.minute
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'second',
     _Datetime.second
 )

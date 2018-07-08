@@ -1,7 +1,7 @@
 import tempfile
 import uuid
 import os
-from ..Procedure import Procedure
+from ..TemplateProcedure import TemplateProcedure
 
 class _System(object):
     """
@@ -28,13 +28,13 @@ class _System(object):
         return os.environ.get(name, defaultValue)
 
 
-# registering procedures
-Procedure.register(
+# registering template procedures
+TemplateProcedure.register(
     'tmpdir',
     _System.tmpdir
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'env',
     _System.env
 )

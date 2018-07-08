@@ -1,5 +1,5 @@
 import os
-from ..Procedure import Procedure
+from ..TemplateProcedure import TemplateProcedure
 
 class _Path(object):
     """
@@ -85,28 +85,28 @@ class _Path(object):
         return result
 
 
-# registering procedures
-Procedure.register(
+# registering template procedures
+TemplateProcedure.register(
     'dirname',
     _Path.dirname
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'parentdirname',
     _Path.parentdirname
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'basename',
     _Path.basename
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'rfindpath',
     _Path.rfindpath
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'findpath',
     _Path.findpath
 )

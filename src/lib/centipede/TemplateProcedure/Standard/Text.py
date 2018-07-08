@@ -1,4 +1,4 @@
-from ..Procedure import Procedure
+from ..TemplateProcedure import TemplateProcedure
 
 class _Text(object):
     """
@@ -35,25 +35,25 @@ class _Text(object):
 
 
 # upper case
-Procedure.register(
+TemplateProcedure.register(
     'upper',
     _Text.upper
 )
 
 # lower case
-Procedure.register(
+TemplateProcedure.register(
     'lower',
     _Text.lower
 )
 
 # replace
-Procedure.register(
+TemplateProcedure.register(
     'replace',
     _Text.replace
 )
 
 # remove
-Procedure.register(
+TemplateProcedure.register(
     'remove',
     _Text.remove
 )

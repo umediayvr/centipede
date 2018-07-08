@@ -1,8 +1,8 @@
 import os
 import re
-from centipede.Procedure import Procedure
+from centipede.TemplateProcedure import TemplateProcedure
 
-def plateNewVersionProcedure(prefix, job, seq, shot, plateName):
+def plateNewVersionTemplateProcedure(prefix, job, seq, shot, plateName):
     """
     Returns a new version for the plate.
     """
@@ -27,7 +27,7 @@ def plateNewVersionProcedure(prefix, job, seq, shot, plateName):
 
 
 # registering procedure
-Procedure.register(
+TemplateProcedure.register(
     'plateNewVersion',
-    plateNewVersionProcedure
+    plateNewVersionTemplateProcedure
 )

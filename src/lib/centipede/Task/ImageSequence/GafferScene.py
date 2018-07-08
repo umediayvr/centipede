@@ -11,8 +11,8 @@ class GafferScene(Task):
     then assigned to gaffer's context. Therefore, you can use it to
     provide custom data to gaffer.
 
-    Since the options are available inside of the context, it can be easily used in
-    procedures, for instance the file path plug:
+    Since the task options are available inside of the context, it can be easily used in
+    expressions, for instance the file path plug:
     /a/${myOptionName}/c
 
     Also, startFrame, endFrame, sourceFile and targetFile are automatically

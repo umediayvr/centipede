@@ -1,5 +1,5 @@
 import operator
-from ..Procedure import Procedure
+from ..TemplateProcedure import TemplateProcedure
 
 class _Math(object):
     """
@@ -81,37 +81,37 @@ class _Math(object):
 
 
 # sum
-Procedure.register(
+TemplateProcedure.register(
     'sum',
     _Math.sumInt
 )
 
 # subtraction
-Procedure.register(
+TemplateProcedure.register(
     'sub',
     _Math.subtractInt
 )
 
 # multiply
-Procedure.register(
+TemplateProcedure.register(
     'mult',
     _Math.multiplyInt
 )
 
 # divide
-Procedure.register(
+TemplateProcedure.register(
     'div',
     _Math.divideInt
 )
 
 # minimum
-Procedure.register(
+TemplateProcedure.register(
     'min',
     _Math.minimumInt
 )
 
 # maximum
-Procedure.register(
+TemplateProcedure.register(
     'max',
     _Math.maximumInt
 )

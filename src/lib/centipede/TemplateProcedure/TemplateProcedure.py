@@ -4,12 +4,12 @@ try:
 except NameError:
     basestring = str
 
-class ProcedureNotFoundError(Exception):
-    """Procedure not found error."""
+class TemplateProcedureNotFoundError(Exception):
+    """Template procedure not found error."""
 
-class Procedure(object):
+class TemplateProcedure(object):
     """
-    Procedures are used to provide functions to the template engine.
+    Template procedures are used to provide functions to the template engine.
     """
 
     __registered = {}
@@ -22,29 +22,29 @@ class Procedure(object):
         assert hasattr(procedureCallable, '__call__'), \
             "Invalid callable!"
 
-        Procedure.__registered[name] = procedureCallable
+        TemplateProcedure.__registered[name] = procedureCallable
 
     @staticmethod
     def registeredNames():
         """
-        Return a list of registered procedures.
+        Return a list of registered template procedures.
         """
-        return Procedure.__registered.keys()
+        return TemplateProcedure.__registered.keys()
 
     @staticmethod
     def run(procedureName, *args):
         """
         Run the procedure and return a value base on the args.
         """
-        if procedureName not in Procedure.__registered:
-            raise ProcedureNotFoundError(
+        if procedureName not in TemplateProcedure.__registered:
+            raise TemplateProcedureNotFoundError(
                 'Could not find procedure name: "{0}"'.format(
                     procedureName
                 )
             )
 
         # executing procedure
-        return str(Procedure.__registered[procedureName](*args))
+        return str(TemplateProcedure.__registered[procedureName](*args))
 
     @staticmethod
     def parseRun(procedure):
@@ -63,11 +63,11 @@ class Procedure(object):
         assert isinstance(procedure, basestring), \
             "Invalid procedure type!"
 
-        cleanedProcedure = list(filter(
+        cleanedTemplateProcedure = list(filter(
             lambda x: x != '', procedure.strip(" ").split(" ")
         ))
 
-        procedureName = cleanedProcedure[0]
-        procedureArgs = cleanedProcedure[1:]
+        procedureName = cleanedTemplateProcedure[0]
+        procedureArgs = cleanedTemplateProcedure[1:]
 
-        return Procedure.run(procedureName, *procedureArgs)
+        return TemplateProcedure.run(procedureName, *procedureArgs)

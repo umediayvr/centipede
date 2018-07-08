@@ -1,10 +1,10 @@
 import os
 import re
-from ..Procedure import Procedure
+from ..TemplateProcedure import TemplateProcedure
 
 class _Version(object):
     """
-    Basic version procedures.
+    Basic version template procedures.
 
     The versionsPath is usually specified using <parent> token.
     """
@@ -47,13 +47,13 @@ class _Version(object):
 
 
 # new version procedure
-Procedure.register(
+TemplateProcedure.register(
     'newver',
     _Version.new
 )
 
 # latest version procedure
-Procedure.register(
+TemplateProcedure.register(
     'latestver',
     _Version.latest
 )

@@ -39,7 +39,7 @@ class Resource(object):
         """
         Load a python resource file to the runtime.
 
-        Used to load custom crawlers, procedures, task wrappers...
+        Used to load custom crawlers, template procedures, task wrappers...
         """
         if not os.path.exists(filePath):
             raise InvalidResourceError(

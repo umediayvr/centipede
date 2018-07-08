@@ -1,7 +1,7 @@
 import os
-from centipede.Procedure import Procedure
+from centipede.TemplateProcedure import TemplateProcedure
 
-def clientStatusProcedure(sg_status_list):
+def clientStatusTemplateProcedure(sg_status_list):
     """
     Return a nice name for our internal shotgun status.
     """
@@ -14,7 +14,7 @@ def clientStatusProcedure(sg_status_list):
     else:
         return "Work in Progress"
 
-def fileTypeProcedure(filePath):
+def fileTypeTemplateProcedure(filePath):
     """
     Return a nice name for the file type.
     """
@@ -32,13 +32,13 @@ def fileTypeProcedure(filePath):
         return ext.upper().strip(".")
 
 
-# registering procedures
-Procedure.register(
+# registering template procedures
+TemplateProcedure.register(
     'clientStatus',
-    clientStatusProcedure
+    clientStatusTemplateProcedure
 )
 
-Procedure.register(
+TemplateProcedure.register(
     'clientFileType',
-    fileTypeProcedure
+    fileTypeTemplateProcedure
 )
