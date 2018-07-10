@@ -1,8 +1,8 @@
 import os
 import re
-import centipede
+from centipede.TemplateProcedure import TemplateProcedure
 
-def plateNewVersionExpression(prefix, job, seq, shot, plateName):
+def plateNewVersionTemplateProcedure(prefix, job, seq, shot, plateName):
     """
     Returns a new version for the plate.
     """
@@ -26,8 +26,8 @@ def plateNewVersionExpression(prefix, job, seq, shot, plateName):
     return 'v' + str(version + 1).zfill(3)
 
 
-# registering expression
-centipede.ExpressionEvaluator.register(
+# registering procedure
+TemplateProcedure.register(
     'plateNewVersion',
-    plateNewVersionExpression
+    plateNewVersionTemplateProcedure
 )

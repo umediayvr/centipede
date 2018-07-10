@@ -1,6 +1,7 @@
 import tempfile
+import uuid
 import os
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..TemplateProcedure import TemplateProcedure
 
 class _System(object):
     """
@@ -12,9 +13,11 @@ class _System(object):
         """
         Return a temporary directory path (under the OS temp location).
         """
-        path = tempfile.mkdtemp()
-        # delete the path so it gets recreated later with the correct user
-        os.rmdir(path)
+        path = os.path.join(
+            tempfile.gettempdir(),
+            str(uuid.uuid4())
+        )
+
         return path
 
     @staticmethod
@@ -25,13 +28,13 @@ class _System(object):
         return os.environ.get(name, defaultValue)
 
 
-# registering expressions
-ExpressionEvaluator.register(
+# registering template procedures
+TemplateProcedure.register(
     'tmpdir',
     _System.tmpdir
 )
 
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'env',
     _System.env
 )

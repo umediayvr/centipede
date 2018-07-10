@@ -5,15 +5,15 @@
   "vars": {
     "temporaryDir": ""
   },
-  "taskHolders": [
+  "tasks": [
     {
-      "task": "copy",
-      "taskOptions": {
+      "run": "copy",
+      "options": {
         "testOption": "{temporaryDir}",
         "testExpr": "(min 2 6)"
       },
-      "targetTemplate": "{temporaryDir}/{baseName}",
-      "taskMetadata": {
+      "target": "{temporaryDir}/{baseName}",
+      "metadata": {
         "match.types": [
           "exr"
         ],
@@ -23,11 +23,11 @@
           ]
         }
       },
-      "taskHolders": [
+      "tasks": [
         {
-          "task": "sequenceThumbnail",
-          "targetTemplate": "{temporaryDir}/{name}.jpg",
-          "taskMetadata": {
+          "run": "sequenceThumbnail",
+          "target": "{temporaryDir}/{name}.jpg",
+          "metadata": {
             "match.types": [
               "testCrawler"
             ],

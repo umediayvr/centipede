@@ -1,5 +1,5 @@
 import os
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..TemplateProcedure import TemplateProcedure
 
 class _Path(object):
     """
@@ -85,28 +85,28 @@ class _Path(object):
         return result
 
 
-# registering expressions
-ExpressionEvaluator.register(
+# registering template procedures
+TemplateProcedure.register(
     'dirname',
     _Path.dirname
 )
 
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'parentdirname',
     _Path.parentdirname
 )
 
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'basename',
     _Path.basename
 )
 
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'rfindpath',
     _Path.rfindpath
 )
 
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'findpath',
     _Path.findpath
 )

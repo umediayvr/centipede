@@ -4,12 +4,13 @@ from ..BaseTestCase import BaseTestCase
 from centipede.Crawler.Fs import FsPath
 from centipede.TaskHolderLoader import JsonLoader
 from centipede.TaskWrapper import TaskWrapper
+from centipede.Template import Template
 from centipede.Task import Task
 from centipede.Task.Task import InvalidCrawlerError
 from centipede.Task.Task import TaskInvalidOptionError
 from centipede.Task.Task import TaskInvalidOptionValue
 from centipede.Task.Task import TaskTypeNotFoundError
-from centipede.TaskHolder import TaskHolderInvalidVarNameError
+from centipede.TaskHolder import TaskHolder, TaskHolderInvalidVarNameError
 from centipede.Crawler.Fs.Image import Jpg, Exr
 from centipede.Crawler import Crawler
 
@@ -28,27 +29,82 @@ class TaskTest(BaseTestCase):
         self.assertIn("dummy", Task.registeredNames())
         self.assertRaises(TaskTypeNotFoundError, Task.create, 'badTask')
 
-    def testTaskCrawlers(self):
+    def testFilterTemplateCrawlers(self):
         """
-        Test that crawlers are correctly associated with tasks.
+        Test that filter template in task holder.
         """
-        dummyTask = Task.create('copy')
-        crawlers = FsPath.createFromPath(BaseTestCase.dataDirectory()).glob(['mov'])
-        for crawler in crawlers:
-            target = '{}_target'.format(crawler.var('name'))
-            dummyTask.add(crawler, target)
-        self.assertEqual(len(dummyTask.crawlers()), len(crawlers))
-        for filterOption in ['0', 'False', 'false']:
+        crawlers = [FsPath.createFromPath(self.__jsonConfig)]
+
+        for filterOption in ['0', 'false', 'False']:
             with self.subTest(filterOption=filterOption):
-                dummyTask.setOption('filterTemplate', filterOption)
-                self.assertFalse(len(dummyTask.crawlers()))
-        dummyTask.setOption('filterTemplate', 'randomStr')
-        self.assertEqual(len(dummyTask.crawlers()), len(crawlers))
-        for crawler in crawlers:
-            target = '{}_target'.format(crawler.var('name'))
-            self.assertEqual(dummyTask.target(crawler), target)
-        badCrawler = FsPath.createFromPath(self.__jsonConfig)
-        self.assertRaises(InvalidCrawlerError, dummyTask.target, badCrawler)
+                dummyTask = Task.create('checksum')
+                taskHolder = TaskHolder(dummyTask, Template(), Template(filterOption))
+                result = taskHolder.run(crawlers)
+                self.assertEqual(len(result), 0)
+
+    def testFilterTemplateNotApplied(self):
+        """
+        Test that filter template should not be applied.
+        """
+        crawlers = [FsPath.createFromPath(self.__jsonConfig)]
+
+        for filterOption in ['randomStr', '']:
+            dummyTask = Task.create('checksum')
+
+            with self.subTest(filterOption=filterOption):
+                taskHolder = TaskHolder(dummyTask, Template("{filePath}"), Template('randomStr'))
+                result = taskHolder.run(crawlers)
+                self.assertEqual(len(result), len(crawlers))
+
+    def testExecuteStatus(self):
+        """
+        Test execute status in the task holder.
+        """
+        dummyTask = Task.create('checksum')
+        crawlers = [FsPath.createFromPath(self.__jsonConfig)]
+
+        taskHolder = TaskHolder(dummyTask, Template("{filePath}"))
+        dummyTask2 = Task.create('checksum')
+        taskHolder2 = TaskHolder(dummyTask2, Template("{filePath}"))
+        taskHolder2.setStatus("execute")
+        taskHolder.addSubTaskHolder(taskHolder2)
+        self.assertEqual(len(taskHolder.run(crawlers)), len(crawlers) * 2)
+
+    def testBypassStatus(self):
+        """
+        Test bypass status in the task holder.
+        """
+        dummyTask = Task.create('checksum')
+        crawlers = [FsPath.createFromPath(self.__jsonConfig)]
+
+        taskHolder = TaskHolder(dummyTask, Template("{filePath}"))
+        dummyTask2 = Task.create('checksum')
+        taskHolder2 = TaskHolder(dummyTask2, Template("{filePath}"))
+        taskHolder.addSubTaskHolder(taskHolder2)
+        self.assertEqual(len(taskHolder.run(crawlers)), len(crawlers) * 2)
+
+        taskHolder.setStatus("bypass")
+        self.assertEqual(len(taskHolder.run(crawlers)), len(crawlers))
+
+    def testIgnoreStatus(self):
+        """
+        Test ignore status in the task holder.
+        """
+        dummyTask = Task.create('checksum')
+        crawlers = [FsPath.createFromPath(self.__jsonConfig)]
+
+        taskHolder = TaskHolder(dummyTask, Template("{filePath}"))
+        taskHolder.setStatus("ignore")
+
+        dummyTask2 = Task.create('checksum')
+        taskHolder2 = TaskHolder(dummyTask2, Template("{filePath}"))
+        taskHolder2.setStatus("execute")
+        taskHolder.addSubTaskHolder(taskHolder2)
+        self.assertEqual(len(taskHolder.run(crawlers)), 0)
+
+        taskHolder.setStatus("execute")
+        taskHolder2.setStatus("ignore")
+        self.assertEqual(len(taskHolder.run(crawlers)), len(crawlers))
 
     def testTaskClone(self):
         """
@@ -132,18 +188,6 @@ class TaskTest(BaseTestCase):
         )
         for crawler in result:
             self.assertIn('contextVarTest', crawler.contextVarNames())
-        dummyTask.setOption('filterTemplate', 'false')
-        dummyTask.setOption('emptyFilterResult', 'empty')
-        result = dummyTask.output()
-        self.assertEqual(len(result), 0)
-        dummyTask.setOption('emptyFilterResult', 'taskCrawlers')
-        result = dummyTask.output()
-        self.assertCountEqual(
-            map(lambda x: x.var('filePath'), result),
-            map(lambda x: x.var('filePath'), crawlers)
-        )
-        dummyTask.setOption('emptyFilterResult', 'badOption')
-        self.assertRaises(TaskInvalidOptionValue, dummyTask.output)
 
     def testTaskJson(self):
         """

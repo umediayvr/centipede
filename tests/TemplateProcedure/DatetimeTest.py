@@ -1,56 +1,56 @@
 import unittest
 from ..BaseTestCase import BaseTestCase
-from centipede.ExpressionEvaluator import ExpressionEvaluator
+from centipede.TemplateProcedure import TemplateProcedure
 
 class DatetimeTest(BaseTestCase):
-    """Test Datetime expressions."""
+    """Test Datetime template procedures."""
 
     def testYear(self):
         """
-        Test that the year expressions work properly.
+        Test that the year template procedures work properly.
         """
-        yyyy = ExpressionEvaluator.run("yyyy")
+        yyyy = TemplateProcedure.run("yyyy")
         self.assertGreaterEqual(int(yyyy), 2018)
-        yy = ExpressionEvaluator.run("yy")
+        yy = TemplateProcedure.run("yy")
         self.assertEqual(yyyy[-2:], yy)
 
     def testMonth(self):
         """
-        Test that the month expression works properly.
+        Test that the month procedure works properly.
         """
-        mm = ExpressionEvaluator.run("mm")
+        mm = TemplateProcedure.run("mm")
         self.assertGreaterEqual(int(mm), 1)
         self.assertLessEqual(int(mm), 12)
 
     def testDay(self):
         """
-        Test that the day expression works properly.
+        Test that the day procedure works properly.
         """
-        dd = ExpressionEvaluator.run("dd")
+        dd = TemplateProcedure.run("dd")
         self.assertGreaterEqual(int(dd), 1)
         self.assertLessEqual(int(dd), 31)
 
     def testHour(self):
         """
-        Test that the hour expression works properly.
+        Test that the hour procedure works properly.
         """
-        hour = ExpressionEvaluator.run("hour")
+        hour = TemplateProcedure.run("hour")
         self.assertGreaterEqual(int(hour), 0)
         self.assertLessEqual(int(hour), 23)
 
     def testMinute(self):
         """
-        Test that the minute expression works properly.
+        Test that the minute procedure works properly.
         """
-        minute = ExpressionEvaluator.run("minute")
+        minute = TemplateProcedure.run("minute")
         self.assertGreaterEqual(int(minute), 0)
         self.assertLessEqual(int(minute), 59)
 
     def testSecond(self):
         """
-        Test that the second expression works properly.
+        Test that the second procedure works properly.
         """
-        second = ExpressionEvaluator.run("second")
+        second = TemplateProcedure.run("second")
         self.assertGreaterEqual(int(second), 0)
         self.assertLessEqual(int(second), 59)
 

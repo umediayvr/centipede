@@ -12,7 +12,7 @@ class NukeScene(Task):
     then assigned as global tcl variables in nuke. Therefore, you can use it to
     provide custom data to nuke.
 
-    Since the options are available inside nuke, it can be easily used in
+    Since the task options are available inside nuke, it can be easily used in
     expressions, for instance the file path knob:
     /a/$myOptionName/c
 

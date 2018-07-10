@@ -11,13 +11,13 @@
       "variant"
     ]
   },
-  "taskHolders": [
+  "tasks": [
     {
-      "task": "createTextureVersion",
-      "taskOptions": {
+      "run": "createTextureVersion",
+      "options": {
         "maketxArgs": "--oiio --colorconvert sRGB linear"
       },
-      "taskMetadata": {
+      "metadata": {
         "match.types": [
           "texture"
         ],
@@ -26,7 +26,7 @@
           "user": ""
         }
       },
-      "targetTemplate": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newver <parentPath>)"
+      "target": "{prefix}/{job}/assets/!{assetName}/publish/texture/{variant}/(newver <parent>)"
     }
   ]
 }

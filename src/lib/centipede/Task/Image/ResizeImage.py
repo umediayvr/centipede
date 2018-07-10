@@ -9,7 +9,7 @@ class ResizeImage(Task):
 
     Options:
         - Optional: "convertToRGBA"
-        - Required: "width" and "height" (both support expressions)
+        - Required: "width" and "height" (both support templates)
 
     TODO: missing to centipede metadata/source image attributes.
     """

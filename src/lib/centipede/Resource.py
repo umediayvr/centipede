@@ -1,13 +1,11 @@
 import os
 import sys
+import traceback
 from glob import glob
 from collections import OrderedDict
 
 class InvalidResourceError(Exception):
     """Invalid Dependency Error."""
-
-class ResourceLoadError(Exception):
-    """Resource Load Error."""
 
 class Resource(object):
     """
@@ -26,6 +24,7 @@ class Resource(object):
 
     __singleton = None
     __resourceEnvName = "CENTIPEDE_RESOURCE_PATH"
+    __resourceRaiseOnFailEnvName = "CENTIPEDE_RESOURCE_RAISE_ON_FAIL"
 
     def __init__(self):
         """
@@ -40,7 +39,7 @@ class Resource(object):
         """
         Load a python resource file to the runtime.
 
-        It can used to load custom crawlers, expressions, task wrappers...
+        Used to load custom crawlers, template procedures, task wrappers...
         """
         if not os.path.exists(filePath):
             raise InvalidResourceError(
@@ -78,12 +77,13 @@ class Resource(object):
             with open(filePath) as f:
                 exec(f.read(), globals())
         except Exception as err:
-            raise ResourceLoadError(
-                'Error on loading resource: {}\n{}\n'.format(
-                    filePath,
-                    str(err)
+            sys.stderr.write(
+                'Centipede error on loading resource: {}\n'.format(
+                    filePath
                 )
             )
+            raise err
+
         else:
             # removing any previous occurrence of the same file
             # we don't want to show duplicated resources
@@ -99,17 +99,18 @@ class Resource(object):
         resourcePaths = os.environ.get(self.__resourceEnvName, '').split(":")[::-1]
 
         # loading any python file under the resources path
+        raiseOnResourceFail = os.environ.get(self.__resourceRaiseOnFailEnvName, '').lower() in ['1', 'true']
         for resourcePath in filter(os.path.exists, resourcePaths):
             for pythonFile in glob(os.path.join(resourcePath, '*.py')):
                 try:
                     self.__loadToRuntime(pythonFile, 'environment')
-                except ResourceLoadError as err:
+                except Exception as err:
 
-                    # we don't want to compromise the whole run-time because of
-                    # resource script that is under the dependency path. Instead, we want
-                    # to show an error message.
-                    sys.stderr.write(str(err))
-                    sys.stderr.flush()
+                    if raiseOnResourceFail:
+                        raise err
+
+                    # printing the stacktrace
+                    traceback.print_exc()
 
 
 # loading resources by triggering the singleton

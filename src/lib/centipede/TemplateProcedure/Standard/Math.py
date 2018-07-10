@@ -1,5 +1,5 @@
 import operator
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..TemplateProcedure import TemplateProcedure
 
 class _Math(object):
     """
@@ -81,37 +81,37 @@ class _Math(object):
 
 
 # sum
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'sum',
     _Math.sumInt
 )
 
 # subtraction
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'sub',
     _Math.subtractInt
 )
 
 # multiply
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'mult',
     _Math.multiplyInt
 )
 
 # divide
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'div',
     _Math.divideInt
 )
 
 # minimum
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'min',
     _Math.minimumInt
 )
 
 # maximum
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'max',
     _Math.maximumInt
 )

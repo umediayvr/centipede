@@ -5,10 +5,10 @@
   "vars": {
     "__uiHintSourceColumns": []
   },
-  "taskHolders": [
+  "tasks": [
     {
-      "task": "gafferScene",
-      "taskMetadata": {
+      "run": "gafferScene",
+      "metadata": {
         "match.types": [
           "exr"
         ],
@@ -18,19 +18,19 @@
           ]
         }
       },
-      "taskOptions": {
+      "options": {
         "scene": "{configPath}/scene.gfr"
       },
-      "targetTemplate": "/tmp/gafferTest/(newver <parentPath>)/{name}.(pad {frame} 4).exr",
-      "taskHolders": [
+      "target": "/tmp/gafferTest/(newver <parent>)/{name}.(pad {frame} 4).exr",
+      "tasks": [
         {
-          "task": "ffmpeg",
-          "taskOptions":{
+          "run": "ffmpeg",
+          "options":{
             "frameRate": 23.976,
             "sourceColorSpace": "bt709",
             "targetColorSpace": "smpte170m"
           },
-          "targetTemplate": "(dirname {filePath})/{name}.mov"
+          "target": "(dirname {filePath})/{name}.mov"
         }
       ]
     }

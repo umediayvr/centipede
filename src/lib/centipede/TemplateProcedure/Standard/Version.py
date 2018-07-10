@@ -1,12 +1,12 @@
 import os
 import re
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..TemplateProcedure import TemplateProcedure
 
 class _Version(object):
     """
-    Basic version expressions.
+    Basic version template procedures.
 
-    The versionsPath is usually specified using <parentPath> token.
+    The versionsPath is usually specified using <parent> token.
     """
 
     @staticmethod
@@ -46,14 +46,14 @@ class _Version(object):
         return version
 
 
-# new version expression
-ExpressionEvaluator.register(
+# new version procedure
+TemplateProcedure.register(
     'newver',
     _Version.new
 )
 
-# latest version expression
-ExpressionEvaluator.register(
+# latest version procedure
+TemplateProcedure.register(
     'latestver',
     _Version.latest
 )

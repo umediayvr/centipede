@@ -31,7 +31,7 @@ class ExpandedJob(RenderfarmJob):
             self.__taskResultFilePath = os.path.join(
                 self.jobDirectory(),
                 "result_{}.json".format(
-                    str(uuid.uuid1())
+                    str(uuid.uuid4())
                 )
             )
 

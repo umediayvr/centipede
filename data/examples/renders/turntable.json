@@ -12,11 +12,11 @@
       "pass"
     ]
   },
-  "taskHolders":
+  "tasks":
   [
     {
-      "task": "createTurntableVersion",
-      "taskMetadata": {
+      "run": "createTurntableVersion",
+      "metadata": {
         "match.types": [
           "turntable"
         ],
@@ -25,12 +25,12 @@
           "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
         }
       },
-      "targetTemplate": "{prefix}/{job}/assets/{assetName}/publish/{step}/{variant}/(newver <parentPath>)",
-      "taskHolders":
+      "target": "{prefix}/{job}/assets/{assetName}/publish/{step}/{variant}/(newver <parent>)",
+      "tasks":
       [
         {
-          "task": "nukeTemplate",
-          "taskOptions": {
+          "run": "nukeTemplate",
+          "options": {
             "topLeft": "{assetName}-{variant}",
             "topRight": "(yyyy)(mm)(dd)",
             "notes": "",
@@ -42,8 +42,8 @@
             "enableReformat": 0,
             "enableTimecode": 1
           },
-          "targetTemplate": "{dataPath}/{name}.mov",
-          "taskMetadata": {
+          "target": "{dataPath}/{name}.mov",
+          "metadata": {
             "match.types": [
               "exr"
             ],
@@ -57,10 +57,10 @@
               "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
             }
           },
-          "taskHolders": [
+          "tasks": [
             {
-              "task": "appendToVersion",
-              "taskMetadata": {
+              "run": "appendToVersion",
+              "metadata": {
                 "wrapper.name": "subprocess",
                 "wrapper.options": {
                   "user": "$CENTIPEDE_VERSION_PUBLISHER_USER"
@@ -70,8 +70,8 @@
           ]
         },
         {
-          "task": "sgPublish",
-          "taskMetadata": {
+          "run": "sgPublish",
+          "metadata": {
             "match.types": [
               "json"
             ],

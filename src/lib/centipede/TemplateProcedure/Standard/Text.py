@@ -1,4 +1,4 @@
-from ..ExpressionEvaluator import ExpressionEvaluator
+from ..TemplateProcedure import TemplateProcedure
 
 class _Text(object):
     """
@@ -35,25 +35,25 @@ class _Text(object):
 
 
 # upper case
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'upper',
     _Text.upper
 )
 
 # lower case
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'lower',
     _Text.lower
 )
 
 # replace
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'replace',
     _Text.replace
 )
 
 # remove
-ExpressionEvaluator.register(
+TemplateProcedure.register(
     'remove',
     _Text.remove
 )

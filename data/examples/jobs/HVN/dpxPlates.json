@@ -10,15 +10,15 @@
       "plateName"
     ]
   },
-  "taskHolders": [
+  "tasks": [
     {
-      "task": "colorTransformation",
-      "taskOptions": {
+      "run": "colorTransformation",
+      "options": {
         "sourceColorSpace": "AlexaV3LogC",
         "targetColorSpace": "linear"
       },
-      "targetTemplate": "{prefix}/{job}/sequences/{seq}/!{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {job} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {job} {seq} {shot} {plateName}).(pad {frame} 4).exr",
-      "taskMetadata": {
+      "target": "{prefix}/{job}/sequences/{seq}/!{shot}/online/publish/elements/{plateName}/(plateNewVersion {prefix} {job} {seq} {shot} {plateName})/{width}x{height}/{shot}_{plateName}_(plateNewVersion {prefix} {job} {seq} {shot} {plateName}).(pad {frame} 4).exr",
+      "metadata": {
         "match.types": [
           "dpxClientPlate"
         ],
@@ -28,16 +28,16 @@
           ]
         }
       },
-      "taskHolders": [
+      "tasks": [
         {
-          "task": "fileColorTransformation",
-          "taskOptions": {
+          "run": "fileColorTransformation",
+          "options": {
             "lut": "{prefix}/{job}/config/LUTs/Amira_Log2Video.cube",
             "sourceColorSpace": "linear",
             "targetColorSpace": "AlexaV3LogC"
           },
-          "targetTemplate": "(tmpdir)/{name}/{baseName}",
-          "taskMetadata": {
+          "target": "(tmpdir)/{name}/{baseName}",
+          "metadata": {
             "match.types": [
               "exrPlate"
             ],
@@ -47,16 +47,16 @@
               ]
             }
           },
-          "taskHolders": [
+          "tasks": [
             {
-              "task": "ffmpeg",
-              "taskOptions": {
+              "run": "ffmpeg",
+              "options": {
                 "frameRate": 23.976,
                 "sourceColorSpace": "bt709",
                 "targetColorSpace": "smpte170m"
               },
-              "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
-              "taskMetadata": {
+              "target": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
+              "metadata": {
                 "match.types": [
                   "exrPlate"
                 ],
@@ -68,9 +68,9 @@
               }
             },
             {
-              "task": "remove",
-              "targetTemplate": "{filePath}",
-              "taskMetadata": {
+              "run": "remove",
+              "target": "{filePath}",
+              "metadata": {
                 "match.types": [
                   "exrPlate"
                 ],
@@ -84,9 +84,9 @@
           ]
         },
         {
-          "task": "sequenceThumbnail",
-          "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/.thumbnail/{name}.jpg",
-          "taskMetadata": {
+          "run": "sequenceThumbnail",
+          "target": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/.thumbnail/{name}.jpg",
+          "metadata": {
             "match.types": [
               "exrPlate"
             ],
@@ -98,15 +98,15 @@
           }
         },
         {
-          "task": "platePublish",
-          "taskOptions": {
+          "run": "platePublish",
+          "options": {
             "publishedFileType": "Scan",
             "comment": "plate publish",
             "movieFile": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.mov",
             "thumbnailFile": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/.thumbnail/{name}.jpg"
           },
-          "targetTemplate": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.{ext}",
-          "taskMetadata": {
+          "target": "{prefix}/{job}/sequences/{seq}/{shot}/online/review/{name}.{ext}",
+          "metadata": {
             "match.types": [
               "exrPlate"
             ],
